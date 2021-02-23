@@ -227,6 +227,6 @@ axz.annotate("(a)", xy=(0.71, 19), xycoords="data")
 ax0.annotate("(b)", xy=(256, 53), xycoords="data")
 ax1.annotate("(c)", xy=(256, 122), xycoords="data")
 
-plt.savefig("../plots/fig04_%s_model_biases.png"%REGION,dpi=150,bbox_inches="tight")
-print("... saved to ../plots/fig04_%s_model_biases.png"%REGION)
+plt.savefig("../plots/fig05_%s_model_biases.png"%REGION,dpi=150,bbox_inches="tight")
+print("... saved to ../plots/fig05_%s_model_biases.png"%REGION)
 plt.close()

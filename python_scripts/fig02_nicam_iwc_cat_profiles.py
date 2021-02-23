@@ -15,26 +15,26 @@ MODEL = "NICAM"
 iwp = load.get_iwp(MODEL, REGION).values[11::12]
 # load one at a time to get category mean
 print("... categorize ice ...")
-iwc = xr.open_dataarray(ap.NICAM+"NICAM_iwc_TWP.nc")
+iwc = xr.open_dataarray(ap.NICAM+"NICAM_iwc_TWP.nc")[16:]
 print(iwp.shape, iwc.shape)
 iwc1 = iwc.where(iwp>=1).mean(axis=(0,2,3))
 iwc2 = iwc.where((iwp<1)&(iwp>=1e-2)).mean(axis=(0,2,3))
 iwc3 = iwc.where((iwp<1e-2)&(iwp>=1e-4)).mean(axis=(0,2,3))
 del iwc
 print("... categorize snow ...")
-swc = xr.open_dataarray(ap.NICAM+"NICAM_swc_TWP.nc") 
+swc = xr.open_dataarray(ap.NICAM+"NICAM_swc_TWP.nc")[16:]
 swc1 = swc.where(iwp>=1).mean(axis=(0,2,3))
 swc2 = swc.where((iwp<1)&(iwp>=1e-2)).mean(axis=(0,2,3))
 swc3 = swc.where((iwp<1e-2)&(iwp>=1e-4)).mean(axis=(0,2,3))
 del swc
 print("... categorize graupel ...")
-gwc = xr.open_dataarray(ap.NICAM+"NICAM_gwc_TWP.nc") 
+gwc = xr.open_dataarray(ap.NICAM+"NICAM_gwc_TWP.nc")[16:]
 gwc1 = gwc.where(iwp>=1).mean(axis=(0,2,3))
 gwc2 = gwc.where((iwp<1)&(iwp>=1e-2)).mean(axis=(0,2,3))
 gwc3 = gwc.where((iwp<1e-2)&(iwp>=1e-4)).mean(axis=(0,2,3))
 del gwc
 print("... categorize total water content ...")
-twc = xr.open_dataarray(ap.NICAM+"NICAM_twc_TWP.nc") 
+twc = xr.open_dataarray(ap.NICAM+"NICAM_twc_TWP.nc")[16:]
 twc1 = twc.where(iwp>=1).mean(axis=(0,2,3))
 twc2 = twc.where((iwp<1)&(iwp>=1e-2)).mean(axis=(0,2,3))
 twc3 = twc.where((iwp<1e-2)&(iwp>=1e-4)).mean(axis=(0,2,3))
@@ -70,9 +70,9 @@ ax3.plot([0,0], [0,0], 'b', label="Ice")
 ax3.plot([0,0], [0,0], 'b--', label="Snow")
 ax3.plot([0,0], [0,0], 'b-.', label="Graupel")
 ax3.plot([0,0], [0,0], 'k', label="Total water")
-ax1.set_xlabel("IWC (g/m$^3$)", fontsize=fs-2)
-ax2.set_xlabel("IWC (g/m$^3$)", fontsize=fs-2)
-ax3.set_xlabel("IWC (g/m$^3$)", fontsize=fs-2)
+ax1.set_xlabel("FWC (g/m$^3$)", fontsize=fs-2)
+ax2.set_xlabel("FWC (g/m$^3$)", fontsize=fs-2)
+ax3.set_xlabel("FWC (g/m$^3$)", fontsize=fs-2)
 ax1.set_ylabel("Height (km)", fontsize=fs-2)
 ax1.set_ylim([0,20])
 ax2.set_ylim([0,20])
@@ -83,9 +83,9 @@ ax3.legend(loc=1, fontsize=fs-4)
 ax1.grid(axis='y')
 ax2.grid(axis='y')
 ax3.grid(axis='y')
-ax1.set_title("Deep Convection\nIWP > 1000 g/m$2$", fontsize=fs)
-ax2.set_title("Anvils\n10 < IWP < 1000 g/m$2$", fontsize=fs)
-ax3.set_title("Thin Cirrus\n0.1 < IWP < 10 g/m$2$", fontsize=fs)
+ax1.set_title("Deep Convection\nFWP > 1000 g/m$2$", fontsize=fs)
+ax2.set_title("Anvils\n10 < FWP < 1000 g/m$2$", fontsize=fs)
+ax3.set_title("Thin Cirrus\n0.1 < FWP < 10 g/m$2$", fontsize=fs)
 
 ax1.annotate("(a)", xy=(0.05,0.95), xycoords="axes fraction", fontsize=fs-2)
 ax2.annotate("(b)", xy=(0.05,0.95), xycoords="axes fraction", fontsize=fs-2)

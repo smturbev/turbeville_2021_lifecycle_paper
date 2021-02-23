@@ -1,7 +1,7 @@
 #!/usr/bin/env python
-""" iwp_figsn.py
+""" fig11_iwp_all_regions.py
     Author: Sami Turbeville
-    Updated: 04 Aug 2020
+    Updated: 18 Feb 2021
     
     This script reads in the frozen water path for FV3,
     SAM, GEOS, ICON and FV3. It then plots the histograms
@@ -11,9 +11,9 @@
 import numpy as np
 import xarray as xr
 from utility import load, util
+import pandas as pd
 import utility.analysis_parameters as ap
 import matplotlib.pyplot as plt
-import pandas as pd
 
 # load all iwp 
 hydro_type = "frozen"
@@ -119,19 +119,19 @@ lower_bin_ind = np.argmin(abs(1-bins))
 upper_bin_ind = np.argmin(abs(3-bins))
 # sum count in each category and divide by total
 
-ds = pd.read_csv('../plots/cat_freq_allRegions.csv',index_col=0)
-ntwp = pd.read_csv('../plots/NICAM_TWP_cat_alb_olr_ttl_cs.csv',index_col=0)
-ftwp = pd.read_csv('../plots/FV3_TWP_cat_alb_olr_ttl_cs.csv',index_col=0)
-itwp = pd.read_csv('../plots/ICON_TWP_cat_alb_olr_ttl_cs.csv',index_col=0)
-stwp = pd.read_csv('../plots/SAM_TWP_cat_alb_olr_ttl_cs.csv',index_col=0)
-nshl = pd.read_csv('../plots/NICAM_SHL_cat_alb_olr_ttl_cs.csv',index_col=0)
-fshl = pd.read_csv('../plots/FV3_SHL_cat_alb_olr_ttl_cs.csv',index_col=0)
-ishl = pd.read_csv('../plots/ICON_SHL_cat_alb_olr_ttl_cs.csv',index_col=0)
-sshl = pd.read_csv('../plots/SAM_SHL_cat_alb_olr_ttl_cs.csv',index_col=0)
-nnau = pd.read_csv('../plots/NICAM_NAU_cat_alb_olr_ttl_cs.csv',index_col=0)
-fnau = pd.read_csv('../plots/FV3_NAU_cat_alb_olr_ttl_cs.csv',index_col=0)
-inau = pd.read_csv('../plots/ICON_NAU_cat_alb_olr_ttl_cs.csv',index_col=0)
-snau = pd.read_csv('../plots/SAM_NAU_cat_alb_olr_ttl_cs.csv',index_col=0)
+# ds = pd.read_csv('../tables/cat_freq_allRegions.csv',index_col=0)
+ntwp = pd.read_csv('../tables/NICAM_TWP_cat_alb_olr_ttl_cs.csv',index_col=0)
+ftwp = pd.read_csv('../tables/FV3_TWP_cat_alb_olr_ttl_cs.csv',index_col=0)
+itwp = pd.read_csv('../tables/ICON_TWP_cat_alb_olr_ttl_cs.csv',index_col=0)
+stwp = pd.read_csv('../tables/SAM_TWP_cat_alb_olr_ttl_cs.csv',index_col=0)
+nshl = pd.read_csv('../tables/NICAM_SHL_cat_alb_olr_ttl_cs.csv',index_col=0)
+fshl = pd.read_csv('../tables/FV3_SHL_cat_alb_olr_ttl_cs.csv',index_col=0)
+ishl = pd.read_csv('../tables/ICON_SHL_cat_alb_olr_ttl_cs.csv',index_col=0)
+sshl = pd.read_csv('../tables/SAM_SHL_cat_alb_olr_ttl_cs.csv',index_col=0)
+nnau = pd.read_csv('../tables/NICAM_NAU_cat_alb_olr_ttl_cs.csv',index_col=0)
+fnau = pd.read_csv('../tables/FV3_NAU_cat_alb_olr_ttl_cs.csv',index_col=0)
+inau = pd.read_csv('../tables/ICON_NAU_cat_alb_olr_ttl_cs.csv',index_col=0)
+snau = pd.read_csv('../tables/SAM_NAU_cat_alb_olr_ttl_cs.csv',index_col=0)
 
 print("normalize:")
 # normalize
@@ -295,10 +295,10 @@ sax.annotate(str(np.around(sshl.catfreq.CAT3)).split(".")[0]+"%", xy=(-0.1,0.068
 sax.annotate(str(np.around(sshl.catfreq.CS)).split(".")[0]+"%", xy=(-1.6,0.068), xycoords="data", fontsize=17, color=color0)
              
              
-cax.annotate(str(ds.DARDAR_NAU.cat1_freq)+"%", xy=(3.1,0.052), xycoords="data", fontsize=17, color=color1)
-cax.annotate(str(ds.DARDAR_NAU.cat2_freq)+"%", xy=(1.7,0.052), xycoords="data", fontsize=17, color=color2)
-cax.annotate(str(ds.DARDAR_NAU.cat3_freq)+"%", xy=(-0.1,0.052), xycoords="data", fontsize=17, color=color3)
-cax.annotate(str(ds.DARDAR_NAU.cs_freq)+"%", xy=(-1.6,0.052), xycoords="data", fontsize=17, color=color0)
+cax.annotate("9%", xy=(3.1,0.052), xycoords="data", fontsize=17, color=color1)
+cax.annotate("42%", xy=(1.7,0.052), xycoords="data", fontsize=17, color=color2)
+cax.annotate("27%", xy=(-0.1,0.052), xycoords="data", fontsize=17, color=color3)
+cax.annotate("22%", xy=(-1.6,0.052), xycoords="data", fontsize=17, color=color0)
 nax.annotate(str(np.around(nnau.catfreq.CAT1)).split(".")[0]+"%", xy=(3.1,0.052), xycoords="data", fontsize=17, color=color1)
 nax.annotate(str(np.around(nnau.catfreq.CAT2)).split(".")[0]+"%", xy=(1.7,0.052), xycoords="data", fontsize=17, color=color2)
 nax.annotate(str(np.around(nnau.catfreq.CAT3)).split(".")[0]+"%", xy=(-0.1,0.052), xycoords="data", fontsize=17, color=color3)

@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-""" fig05_study_domain_initialSSTs.py
+""" fig04_study_domain_initialSSTs.py
     author: Sami Turbeville
     date modified: 16 Feb 2021
     
@@ -39,6 +39,6 @@ ax.set_ylabel('Latitude')
 cbar = plt.colorbar(cs, shrink=0.8)
 cbar.set_label('Temperature (K)')
 ax.set_title('Initial Sea Surface Temperature for DYAMOND')
-plt.savefig('../plots/fig05_study_domians.png',dpi=200, bbox_inches="tight")
-print("saved as ../plots/fig05_study_domians.png")
+plt.savefig('../plots/fig04_study_domians.png',dpi=200, bbox_inches="tight")
+print("saved as ../plots/fig04_study_domians.png")
 plt.close()
