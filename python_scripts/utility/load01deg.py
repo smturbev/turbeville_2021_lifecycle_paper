@@ -10,9 +10,8 @@
 import xarray as xr
 import numpy as np
 import sys
-sys.path.append('/home/disk/p/smturbev/dyamond-analysis/python_scripts/')
-import utility.analysis_parameters as ap
-from utility import util
+from . import analysis_parameters as ap
+from . import util
 
 def get_asr(model, region):
     """ Return swd for models in region.

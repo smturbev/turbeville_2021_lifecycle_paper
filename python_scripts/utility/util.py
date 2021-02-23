@@ -5,7 +5,6 @@
     module for useful functions to keep code in python notebooks clean
 """
 from datetime import datetime
-from netCDF4 import Dataset
 import numpy as np
 import xarray as xr
 from scipy import stats
@@ -15,10 +14,8 @@ import matplotlib.pyplot as plt
 import matplotlib.patches as mpat
 import matplotlib.transforms as trans
 from matplotlib import cm
-from numba import jit
-sys.path.append('/home/disk/p/smturbev/dyamond-analysis/python_scripts/')
-import utility.analysis_parameters as ap
-from utility import load
+from . import analysis_parameters as ap
+from . import load
 np.warnings.filterwarnings("ignore")
 #################### Hydrometeors ###############################
 
@@ -222,34 +219,37 @@ def q_to_iwc(q, model, region, geos_twc=False):
         
         returns xarray or numpy array with iwc as kg/m3
     """
-    if model=="GEOS" and region=="TWP":
-        if geos_twc:
-            return xr.open_dataset('/home/disk/eos15/smturbev/dyamond/GEOS-3km/GEOS_native_twc_TWP.nc')['twc']
-        else:
-            print("If you want GEOS total condensate water content, set geos_twc=True")
-    t = load.get_temp(model, region)
-    qv = load.get_qv(model, region)
-    p = load.get_pres(model, region)
-    print('... Loaded variables, now starting caluclation...')
-    print('shape qv, t',qv.shape, t.shape)
     if model.lower() == "fv3":
+        t = load.get_temp(model, region)
+        qv = load.get_qv(model, region)
+        p = load.get_pres(model, region)
         rho = p / \
               (287*(1 + 0.61*(qv))*(np.nanmean(t, axis=(2))[:,:,np.newaxis,np.newaxis]))
         iwc = q.values * rho
         print("Warning: FV3 uses the spatially averaged density b/c \
         specific humidity and temperature are on different grids")
     elif model.lower() =="sam":
+        t = load.get_temp(model, region)
+        qv = load.get_qv(model, region)
+        p = load.get_pres(model, region)
         rho = p[:,:,np.newaxis,np.newaxis] / \
               (287*(1 + 0.61*qv)*t)
         iwc = q.values * rho
     else:
-        if model.lower() == "geos" or model.lower() == "icon":
-            t = t.astype('float32')
-            p = p.astype('float32')
-            qv = qv.astype('float16')
-        Tv = (1 + 0.61*qv.values)*t
-        print("... Tv ...")
-        del qv, t
+        if model.lower() == "icon":
+            t = load.get_temp(model, region).astype('float32')
+            qv = load.get_qv(model, region).astype('float16')
+            Tv = (1 + 0.61*qv.values)*t
+            print("... Tv ...")
+            del qv, t
+            p = load.get_pres(model, region).astype('float32')
+        else:
+            t = load.get_temp(model, region)
+            qv = load.get_qv(model, region)
+            p = load.get_pres(model, region)
+            Tv = (1 + 0.61*qv.values)*t
+            print("... Tv ...")
+            del qv, t
         rho = p / (287*Tv) 
         print("... rho ...")
         del p, Tv

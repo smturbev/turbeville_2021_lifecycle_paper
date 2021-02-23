@@ -15,16 +15,16 @@
         - load_frozen(model, region, ice_only=False)
 """
 
-from netCDF4 import Dataset
 import xarray as xr
 import numpy as np
 import time
 import sys
 import pandas as pd
-sys.path.append('/home/disk/p/smturbev/dyamond-analysis/python_scripts/')
-import utility.analysis_parameters as ap
-from utility import util, reshape
+from . import analysis_parameters as ap
+from . import util, reshape
 np.warnings.filterwarnings("ignore")
+
+NICAM_INCLUDE_SHOCK = False # True uses full time period, False cuts out the first two days
 
 ### ------------------ get methods -------------------------------- ###
 def get_iwp(model, region, ice_only=True, sam_noise=True, is3d=True):
@@ -36,7 +36,10 @@ def get_iwp(model, region, ice_only=True, sam_noise=True, is3d=True):
     if region.lower()=="twp":
         if model.lower()=="nicam":
             print("... returning frozen water path for NICAM.")
-            return(xr.open_dataset(ap.TWP_NICAM_IWP)).sa_cldi
+            if NICAM_INCLUDE_SHOCK:
+                return(xr.open_dataset(ap.TWP_NICAM_IWP).sa_cldi)
+            else:
+                return(xr.open_dataset(ap.TWP_NICAM_IWP).sa_cldi[192:])
         elif model.lower()=="fv3":
             iwp = xr.open_dataset(ap.TWP_FV3_IWP).intqi
             if not(ice_only):
@@ -79,7 +82,10 @@ def get_iwp(model, region, ice_only=True, sam_noise=True, is3d=True):
     elif region.lower()=="shl":
         if model.lower()=="nicam":
             print("... returning frozen water path for NICAM.")
-            return(xr.open_dataset(ap.SHL_NICAM_IWP)).sa_cldi
+            if NICAM_INCLUDE_SHOCK:
+                return(xr.open_dataset(ap.SHL_NICAM_IWP).sa_cldi)
+            else:
+                return(xr.open_dataset(ap.SHL_NICAM_IWP).sa_cldi[192:])
         elif model.lower()=="fv3":
             iwp = xr.open_dataset(ap.SHL_FV3_IWP).intqi
             if not(ice_only):
@@ -122,7 +128,10 @@ def get_iwp(model, region, ice_only=True, sam_noise=True, is3d=True):
     elif region.lower()=="nau":
         if model.lower()=="nicam":
             print("... returning frozen water path - NICAM.")
-            return(xr.open_dataset(ap.NAU_NICAM_IWP)).sa_cldi
+            if NICAM_INCLUDE_SHOCK:
+                return(xr.open_dataset(ap.NAU_NICAM_IWP).sa_cldi)
+            else:
+                return(xr.open_dataset(ap.NAU_NICAM_IWP).sa_cldi[192:])
         elif model.lower()=="fv3":
             iwp = xr.open_dataset(ap.NAU_FV3_IWP).intqi
             if not(ice_only):
@@ -171,7 +180,10 @@ def get_lwp(model, region, rain=False, sam_noise=True, is3d=True):
     if region.lower()=="twp":
         if model.lower()=="nicam":
             print("frozen water path")
-            return(xr.open_dataset(ap.TWP_NICAM_LWP)).sa_cldw
+            if NICAM_INCLUDE_SHOCK:
+                return(xr.open_dataset(ap.TWP_NICAM_LWP).sa_cldw)
+            else:
+                return(xr.open_dataset(ap.TWP_NICAM_LWP).sa_cldw[192:])
         elif model.lower()=="fv3":
             lwp = xr.open_dataset(ap.TWP_FV3_LWP).intql
             if rain:
@@ -197,43 +209,13 @@ def get_lwp(model, region, rain=False, sam_noise=True, is3d=True):
                     return (lwp + rwp)
             return lwp
         return
-    elif region.lower()=="nau":
-        if model.lower()=="nicam":
-            print("frozen water path")
-            return(xr.open_dataset(ap.NAU_NICAM_LWP)).sa_cldw
-        elif model.lower()=="fv3":
-            lwp = xr.open_dataset(ap.NAU_FV3_LWP).intql
-            if rain:
-                rwp = xr.open_dataset(ap.NAU_FV3_RWP).intqr
-                fwp = lwp + rwp
-                return fwp
-            return lwp
-        elif model.lower()=="icon":
-            ds = xr.open_dataset(ap.NAU_ICON_IWP)
-            lwp = reshape.reshape("TQC_DIA", ds, dim=2)
-            print(lwp.shape)
-            return lwp
-        elif model.lower()=="sam":
-            lwp = xr.open_dataset(ap.NAU_SAM_LWP).CWP
-            if sam_ok:
-                lwpmax = xr.open_dataset(ap.SAM_CWP_MAX).CWP.values
-                lwp_ok = lwp.where((lwp>lwpmax/64000)|(lwp==0))
-                lwp = lwp_ok
-            if rain:
-                rwp = xr.open_dataset(ap.NAU_SAM_RWP).RWP
-                if sam_ok:
-                    rwpmax = xr.open_dataset(ap.SAM_RWP_MAX).RWP.values
-                    rwp_ok = rwp.where((rwp>rwpmax/64000)|(rwp==0))
-                    fwp = lwp_ok + rwp_ok
-                else:
-                    fwp = lwp + rwp
-                return fwp
-            return lwp
-        return
     elif region.lower()=="shl":
         if model.lower()=="nicam":
             print("frozen water path")
-            return(xr.open_dataset(ap.SHL_NICAM_LWP)).sa_cldw
+            if NICAM_INCLUDE_SHOCK:
+                return(xr.open_dataset(ap.SHL_NICAM_LWP).sa_cldw)
+            else:
+                return(xr.open_dataset(ap.SHL_NICAM_LWP).sa_cldw[192:])
         elif model.lower()=="fv3":
             lwp = xr.open_dataset(ap.SHL_FV3_LWP).intql
             if rain:
@@ -263,6 +245,42 @@ def get_lwp(model, region, rain=False, sam_noise=True, is3d=True):
                 return fwp
             return lwp
         return
+    elif region.lower()=="nau":
+        if model.lower()=="nicam":
+            print("frozen water path")
+            if NICAM_INCLUDE_SHOCK:
+                return(xr.open_dataset(ap.NAU_NICAM_LWP).sa_cldw)
+            else:
+                return(xr.open_dataset(ap.NAU_NICAM_LWP).sa_cldw[192:])
+        elif model.lower()=="fv3":
+            lwp = xr.open_dataset(ap.NAU_FV3_LWP).intql
+            if rain:
+                rwp = xr.open_dataset(ap.NAU_FV3_RWP).intqr
+                fwp = lwp + rwp
+                return fwp
+            return lwp
+        elif model.lower()=="icon":
+            ds = xr.open_dataset(ap.NAU_ICON_IWP)
+            lwp = reshape.reshape("TQC_DIA", ds, dim=2)
+            print(lwp.shape)
+            return lwp
+        elif model.lower()=="sam":
+            lwp = xr.open_dataset(ap.NAU_SAM_LWP).CWP
+            if sam_ok:
+                lwpmax = xr.open_dataset(ap.SAM_CWP_MAX).CWP.values
+                lwp_ok = lwp.where((lwp>lwpmax/64000)|(lwp==0))
+                lwp = lwp_ok
+            if rain:
+                rwp = xr.open_dataset(ap.NAU_SAM_RWP).RWP
+                if sam_ok:
+                    rwpmax = xr.open_dataset(ap.SAM_RWP_MAX).RWP.values
+                    rwp_ok = rwp.where((rwp>rwpmax/64000)|(rwp==0))
+                    fwp = lwp_ok + rwp_ok
+                else:
+                    fwp = lwp + rwp
+                return fwp
+            return lwp
+        return
     else:
         raise Exception("models=SAM,ICON,FV3,NICAM; region=TWP,SHL")
     return
@@ -272,9 +290,10 @@ def get_ttliwp(model, region):
         for specificed model and region. """
     if region.lower()=="twp":
         if model.lower()=="nicam":
-            return xr.open_dataarray(ap.TWP_NICAM_TTLIWP)
-        elif model.lower()=="geos":
-            return xr.open_dataarray(ap.TWP_GEOS_TTLIWP)
+            if NICAM_INCLUDE_SHOCK:
+                return(xr.open_dataarray(ap.TWP_NICAM_TTLIWP))
+            else:
+                return(xr.open_dataarray(ap.TWP_NICAM_TTLIWP)[16:])
         elif model.lower()=="sam":
             return xr.open_dataarray(ap.TWP_SAM_TTLIWP)
         elif model.lower()=="icon":
@@ -285,9 +304,10 @@ def get_ttliwp(model, region):
             raise Exception("Model, %s, not defined. Try NICAM, FV3, ICON, GEOS, or SAM."%model)
     elif region.lower() == "shl":
         if model.lower()=="nicam":
-            return xr.open_dataarray(ap.SHL_NICAM_TTLIWP)
-        elif model.lower()=="geos":
-            return xr.open_dataarray(ap.SHL_GEOS_TTLIWP)
+            if NICAM_INCLUDE_SHOCK:
+                return(xr.open_dataarray(ap.SHL_NICAM_TTLIWP))
+            else:
+                return(xr.open_dataarray(ap.SHL_NICAM_TTLIWP)[16:])
         elif model.lower()=="sam":
             return xr.open_dataarray(ap.SHL_SAM_TTLIWP)
         elif model.lower()=="icon":
@@ -298,9 +318,10 @@ def get_ttliwp(model, region):
             raise Exception("Model, %s, not defined. Try NICAM, FV3, ICON, GEOS, or SAM."%model)
     elif region.lower() == "nau":
         if model.lower()=="nicam":
-            return xr.open_dataarray(ap.NAU_NICAM_TTLIWP)
-        elif model.lower()=="geos":
-            return xr.open_dataarray(ap.NAU_GEOS_TTLIWP)
+            if NICAM_INCLUDE_SHOCK:
+                return(xr.open_dataarray(ap.NAU_NICAM_TTLIWP))
+            else:
+                return(xr.open_dataarray(ap.NAU_NICAM_TTLIWP)[16:])    
         elif model.lower()=="sam":
             return xr.open_dataarray(ap.NAU_SAM_TTLIWP)
         elif model.lower()=="icon":
@@ -312,40 +333,6 @@ def get_ttliwp(model, region):
     else:
         raise Exception("Region not defined... try NAU, TWP or SHL.")
 
-
-def get_cre(model, region):
-    iwv = util.iwv(model, region) #integrated water vapor (water vapor path)
-    olr, alb = get_olr_alb(model, region)
-    # calculation of cs lw and lw cre
-    print("Calculating LW CRE...")
-    olr_clearsky = 280.13625 - np.maximum(np.zeros(iwv.shape), 7.8831*(iwv - 5.297))
-    del iwv
-    lw_cre = olr_clearsky - olr[:,0,:,:].values
-    # calculation of cs sw and sw cre
-    print("...done\nCalculating SW CRE...")
-    thours = alb.time.dt.hour.values
-    alb_cs = get_alb_cs(thours)
-    alb_cs = np.repeat((np.repeat(alb_cs[:,np.newaxis, np.newaxis], 
-                                  alb.shape[-2], axis=1)), 
-                       alb.shape[-1], axis=2)
-    if model.lower() == "nicam":
-        swd = get_swd(MODEL, REGION).values[11::12,0,:,:]
-        sw_cre = (alb[:,0,:,:].values - alb_cs)*swd
-    sw_cre = np.where(np.isnan(sw_cre), 0, sw_cre)
-    tot_cre = sw_cre + lw_cre
-    print("Returned lw_cre, sw_cre, tot_cre with shapes:", tot_cre.shape)
-    return lw_cre, sw_cre, tot_cre
-    
-def get_alb_cs(t):
-    """ Returns parameterized albedo by hour of day."""
-    a = 0.003
-    b = 0.055
-    if len(t) > 0:
-        y = np.array([(a * np.power((i-11.5),2) + b) for i in t])
-    else:
-        y = (a * ((t-11.5)**2) + b)
-    return y
-
 def get_levels(model, region):
     """Returns numpy array of vertical levels for given model and region."""
     if region.lower()=="twp":
@@ -354,25 +341,10 @@ def get_levels(model, region):
             z = xr.open_dataset(ap.TWP_ICON_Z).HHL.values
         elif model.lower()=="fv3" or model.lower()=="fv3-3.35km":
             z = xr.open_dataset(ap.TWP_FV3_Z).altitude.values
-        elif model.lower()=="geos" or model.lower()=="geos-3km":
-            z = np.nanmean(xr.open_dataset(ap.TWP_GEOS_Z).H.values, axis=(0,2,3))
         elif model.lower()=="sam" or model.lower()=="sam-4km":
             z = xr.open_dataset(ap.TWP_SAM_QI).z.values
         elif model.lower()=="nicam" or model.lower()=="nicam-3.5km":
             z = xr.open_dataset(ap.TWP_NICAM_QI).lev.values 
-        else:
-            raise Exception("Model ("+model+") is invalid. Try NICAM, FV3, GEOS, ICON or SAM for model")
-    elif region.lower()=="nau":
-        if model.lower()=="icon" or model.lower()=="icon-3.5km":
-            z = xr.open_dataset(ap.NAU_ICON_Z).HHL.values 
-        elif model.lower()=="fv3" or model.lower()=="fv3-3.35km":
-            z = xr.open_dataset(ap.NAU_FV3_Z).altitude.values
-        elif model.lower()=="geos" or model.lower()=="geos-3km":
-            z = np.nanmean(xr.open_dataset(ap.NAU_GEOS_Z).H.values, axis=(0,2,3))
-        elif model.lower()=="sam" or model.lower()=="sam-4km":
-            z = xr.open_dataset(ap.NAU_SAM_QI).z.values
-        elif model.lower()=="nicam" or model.lower()=="nicam-3.5km":
-            z = xr.open_dataset(ap.NAU_NICAM_QI).lev.values
         else:
             raise Exception("Model ("+model+") is invalid. Try NICAM, FV3, GEOS, ICON or SAM for model")
     elif region.lower()=="shl":
@@ -380,12 +352,21 @@ def get_levels(model, region):
             z = xr.open_dataset(ap.SHL_ICON_Z).HHL.values 
         elif model.lower()=="fv3" or model.lower()=="fv3-3.35km":
             z = xr.open_dataset(ap.SHL_FV3_Z).altitude.values
-        elif model.lower()=="geos" or model.lower()=="geos-3km":
-            z = np.nanmean(xr.open_dataset(ap.SHL_GEOS_Z).H.values, axis=(0,2,3))
         elif model.lower()=="sam" or model.lower()=="sam-4km":
             z = xr.open_dataset(ap.SHL_SAM_QI).z.values
         elif model.lower()=="nicam" or model.lower()=="nicam-3.5km":
             z = xr.open_dataset(ap.SHL_NICAM_QI).lev.values 
+        else:
+            raise Exception("Model ("+model+") is invalid. Try NICAM, FV3, GEOS, ICON or SAM for model")
+    elif region.lower()=="nau":
+        if model.lower()=="icon" or model.lower()=="icon-3.5km":
+            z = xr.open_dataset(ap.NAU_ICON_Z).HHL.values 
+        elif model.lower()=="fv3" or model.lower()=="fv3-3.35km":
+            z = xr.open_dataset(ap.NAU_FV3_Z).altitude.values
+        elif model.lower()=="sam" or model.lower()=="sam-4km":
+            z = xr.open_dataset(ap.NAU_SAM_QI).z.values
+        elif model.lower()=="nicam" or model.lower()=="nicam-3.5km":
+            z = xr.open_dataset(ap.NAU_NICAM_QI).lev.values
         else:
             raise Exception("Model ("+model+") is invalid. Try NICAM, FV3, GEOS, ICON or SAM for model")
     else:
@@ -399,7 +380,10 @@ def get_pr(model, region):
     """
     if region.lower()=="twp":
         if model.lower()=="nicam":
-            return xr.open_dataset(ap.TWP_NICAM_PR)["ss_tppn"][:,0,:,:]
+            if NICAM_INCLUDE_SHOCK:
+                return(xr.open_dataset(ap.TWP_NICAM_PR)["ss_tppn"][:,0,:,:])
+            else:
+                return(xr.open_dataset(ap.TWP_NICAM_PR)["ss_tppn"][192:,0,:,:])
         elif model.lower()=="fv3":
             return xr.open_dataset(ap.TWP_FV3_PR)["pr"]
         elif model.lower()=="icon":
@@ -407,8 +391,6 @@ def get_pr(model, region):
             p = util.precip(p,dt=15*60,returnPr=True)
             p = p.where(p>=0)
             return p
-        elif model.lower()=="geos":
-            return xr.open_dataset(ap.TWP_GEOS_PR)["PRECTOT"]
         elif model.lower()=="sam":
             p = xr.open_dataset(ap.TWP_SAM_PR)["Precac"]
             p = precip(p,dt=30*60,returnPr=True)
@@ -417,26 +399,12 @@ def get_pr(model, region):
             return p
         else: 
             raise Exception("Model should be one of: NICAM, FV3, GEOS, ICON, SAM")
-    elif region.lower()=="nau":
-        if model.lower()=="nicam":
-            return xr.open_dataset(ap.NAU_NICAM_PR)["ss_tppn"][:,0,:,:]
-        elif model.lower()=="fv3":
-            return xr.open_dataset(ap.NAU_FV3_PR)["pr"]
-        elif model.lower()=="icon":
-            print("Need to get all days/timesteps..")
-            return #xr.open_dataset(ap.NAU_ICON_PR)[
-        elif model.lower()=="geos":
-            return xr.open_dataset(ap.NAU_GEOS_PR)["PRECTOT"]
-        elif model.lower()=="sam":
-            p = xr.open_dataset(ap.NAU_SAM_PR)["Precac"]
-            p = precip(p,dt=30*60,returnPr=True)
-            p = p.where(p>=0)
-            return p
-        else: 
-            raise Exception("Model should be one of: NICAM, FV3, GEOS, ICON, SAM")
     elif region.lower()=="shl":
         if model.lower()=="nicam":
-            return xr.open_dataset(ap.SHL_NICAM_PR)["ss_tppn"][:,0,:,:]
+            if NICAM_INCLUDE_SHOCK:
+                return(xr.open_dataset(ap.SHL_NICAM_PR)["ss_tppn"][:,0,:,:])
+            else:
+                return(xr.open_dataset(ap.SHL_NICAM_PR)["ss_tppn"][192:,0,:,:])
         elif model.lower()=="fv3":
             return xr.open_dataset(ap.SHL_FV3_PR)["pr"]
         elif model.lower()=="icon":
@@ -444,13 +412,29 @@ def get_pr(model, region):
             p = util.precip(p,dt=15*60,returnPr=True)
             p = p.where(p>=0)
             return p
-        elif model.lower()=="geos":
-            return xr.open_dataset(ap.SHL_GEOS_PR)["PRECTOT"]
         elif model.lower()=="sam":
             p = xr.open_dataset(ap.SHL_SAM_PR)["Precac"]
             p = precip(p,dt=30*60,returnPr=True)
             p = p.where(p>=0)
             p[1632,:,:] = np.nan
+            return p
+        else: 
+            raise Exception("Model should be one of: NICAM, FV3, GEOS, ICON, SAM")
+    elif region.lower()=="nau":
+        if model.lower()=="nicam":
+            if NICAM_INCLUDE_SHOCK:
+                return(xr.open_dataset(ap.NAU_NICAM_PR)["ss_tppn"][:,0,:,:])
+            else:
+                return(xr.open_dataset(ap.NAU_NICAM_PR)["ss_tppn"][192:,0,:,:])
+        elif model.lower()=="fv3":
+            return xr.open_dataset(ap.NAU_FV3_PR)["pr"]
+        elif model.lower()=="icon":
+            print("Need to get all days/timesteps..")
+            return #xr.open_dataset(ap.NAU_ICON_PR)[
+        elif model.lower()=="sam":
+            p = xr.open_dataset(ap.NAU_SAM_PR)["Precac"]
+            p = precip(p,dt=30*60,returnPr=True)
+            p = p.where(p>=0)
             return p
         else: 
             raise Exception("Model should be one of: NICAM, FV3, GEOS, ICON, SAM")
@@ -474,21 +458,10 @@ def get_pres(model, region):
             p = ((xr.open_dataset(ap.TWP_SAM_P)["p"].values)*100)[:,:] #mb to Pa
             print("shape of SAM p: ", p.shape)
         elif model.lower()=="nicam" or model.lower()=="nicam-3.5km":
-            p = xr.open_dataset(ap.TWP_NICAM_P)["ms_pres"].values # Pa
-        else:
-            raise Exception("Model ("+model+") is invalid. Try NICAM, FV3, GEOS, ICON or SAM for model")
-    elif region.lower()=="nau":
-        if model.lower()=="icon" or model.lower()=="icon-3.5km":
-            p = xr.open_dataset(ap.NAU_ICON_P)["P"].values #Pa
-        elif model.lower()=="fv3" or model.lower()=="fv3-3.35km":
-            p = xr.open_dataset(ap.NAU_FV3_P)["pres"].values #Pa
-        elif model.lower()=="geos" or model.lower()=="geos-3km":
-            p = xr.open_dataset(ap.NAU_GEOS_P)["P"].values #Pa
-        elif model.lower()=="sam" or model.lower()=="sam-4km":
-            p = (xr.open_dataset(ap.NAU_SAM_P)["p"].values*100)[:,:] #mb to Pa
-            print("shape of SAM p: ", p.shape)
-        elif model.lower()=="nicam" or model.lower()=="nicam-3.5km":
-            p = xr.open_dataset(ap.NAU_NICAM_P)["ms_pres"].values
+            if NICAM_INCLUDE_SHOCK:
+                p = xr.open_dataset(ap.TWP_NICAM_P)["ms_pres"].values # Pa
+            else:
+                p = xr.open_dataset(ap.TWP_NICAM_P)["ms_pres"].values[16:]
         else:
             raise Exception("Model ("+model+") is invalid. Try NICAM, FV3, GEOS, ICON or SAM for model")
     elif region.lower()=="shl":
@@ -502,7 +475,27 @@ def get_pres(model, region):
             p = (xr.open_dataset(ap.SHL_SAM_P)["p"].values*100)[:,:] #mb to Pa
             print("shape of SAM p:", p.shape)
         elif model.lower()=="nicam" or model.lower()=="nicam-3.5km":
-            p = xr.open_dataset(ap.SHL_NICAM_P)["ms_pres"].values # Pa
+            if NICAM_INCLUDE_SHOCK:
+                p = xr.open_dataset(ap.SHL_NICAM_P)["ms_pres"].values # Pa
+            else:
+                p = xr.open_dataset(ap.SHL_NICAM_P)["ms_pres"].values[16:]
+        else:
+            raise Exception("Model ("+model+") is invalid. Try NICAM, FV3, GEOS, ICON or SAM for model")
+    elif region.lower()=="nau":
+        if model.lower()=="icon" or model.lower()=="icon-2.5km":
+            p = xr.open_dataset(ap.NAU_ICON_P)["P"].values #Pa
+        elif model.lower()=="fv3" or model.lower()=="fv3-3.35km":
+            p = xr.open_dataset(ap.NAU_FV3_P)["pres"].values #Pa
+        elif model.lower()=="geos" or model.lower()=="geos-3km":
+            p = xr.open_dataset(ap.NAU_GEOS_P)["P"].values #Pa
+        elif model.lower()=="sam" or model.lower()=="sam-4km":
+            p = (xr.open_dataset(ap.NAU_SAM_P)["p"].values*100)[:,:] #mb to Pa
+            print("shape of SAM p: ", p.shape)
+        elif model.lower()=="nicam" or model.lower()=="nicam-3.5km":
+            if NICAM_INCLUDE_SHOCK:
+                p = xr.open_dataset(ap.NAU_NICAM_P)["ms_pres"].values # Pa
+            else:
+                p = xr.open_dataset(ap.NAU_NICAM_P)["ms_pres"].values[16:]
         else:
             raise Exception("Model ("+model+") is invalid. Try NICAM, FV3, GEOS, ICON or SAM for model")
     else:
@@ -518,44 +511,48 @@ def get_temp(model, region):
         region = string of 'FV3', 'ICON', 'GEOS', 'SAM', or 'NICAM' (five of the DYAMOND models
     """
     if region.lower()=="twp":
-        if model.lower()=="icon" or model.lower()=="icon-3.5km":
+        if model.lower()=="icon" or model.lower()=="icon-2.5km":
             t = xr.open_dataset(ap.TWP_ICON_T)["NEW"].values.astype('float32') #K
         elif model.lower()=="fv3" or model.lower()=="fv3-3.35km":
             t = xr.open_dataset(ap.TWP_FV3_T)["temp"].values #K 
-        elif model.lower()=="geos" or model.lower()=="geos-3km":
-            t = xr.open_dataset(ap.TWP_GEOS_T)["T"].values # K 
         elif model.lower()=="sam" or model.lower()=="sam-4km":
             t = xr.open_dataset(ap.TWP_SAM_T)["TABS"].values # K
         elif model.lower()=="nicam" or model.lower()=="nicam-3.5km":
-            t = xr.open_dataset(ap.TWP_NICAM_T)["ms_tem"].values # K
-        else:
-            raise Exception("Model ("+model+") is invalid. Try NICAM, FV3, GEOS, ICON or SAM for model")
-    elif region.lower()=="nau":
-        if model.lower()=="icon" or model.lower()=="icon-3.5km":
-            t = xr.open_dataset(ap.NAU_ICON_T)["T"].values #K
-        elif model.lower()=="fv3" or model.lower()=="fv3-3.35km":
-            t = xr.open_dataset(ap.NAU_FV3_T)["temp"].values #K 
-        elif model.lower()=="geos" or model.lower()=="geos-3km":
-            t = xr.open_dataset(ap.NAU_GEOS_T)["T"].values # K 
-        elif model.lower()=="sam" or model.lower()=="sam-4km":
-            t = xr.open_dataset(ap.NAU_SAM_T)["TABS"].values # K 
-            print("shape of SAM t: ", t.shape)
-        elif model.lower()=="nicam" or model.lower()=="nicam-3.5km":
-            t = xr.open_dataset(ap.NAU_NICAM_T)["ms_tem"].values # K
+            if NICAM_INCLUDE_SHOCK:
+                t = xr.open_dataset(ap.TWP_NICAM_T)["ms_tem"].values # K
+            else:
+                t = xr.open_dataset(ap.TWP_NICAM_T)["ms_tem"].values[16:]
+                
         else:
             raise Exception("Model ("+model+") is invalid. Try NICAM, FV3, GEOS, ICON or SAM for model")
     elif region.lower()=="shl":
-        if model.lower()=="icon" or model.lower()=="icon-3.5km":
+        if model.lower()=="icon" or model.lower()=="icon-2.5km":
             t = xr.open_dataset(ap.SHL_ICON_T) #K
             t = reshape.reshape("T", t, dim=3).values
         elif model.lower()=="fv3" or model.lower()=="fv3-3.35km":
             t = xr.open_dataset(ap.SHL_FV3_T)["temp"].values #K 
-        elif model.lower()=="geos" or model.lower()=="geos-3km":
-            t = xr.open_dataset(ap.SHL_GEOS_T)["T"].values # K 
         elif model.lower()=="sam" or model.lower()=="sam-4km":
             t = xr.open_dataset(ap.SHL_SAM_T)["TABS"].values # K 
         elif model.lower()=="nicam" or model.lower()=="nicam-3.5km":
-            t = xr.open_dataset(ap.SHL_NICAM_T)["ms_tem"].values # K
+            if NICAM_INCLUDE_SHOCK:
+                t = xr.open_dataset(ap.SHL_NICAM_T)["ms_tem"].values # K
+            else:
+                t = xr.open_dataset(ap.SHL_NICAM_T)["ms_tem"].values[16:]
+        else:
+            raise Exception("Model ("+model+") is invalid. Try NICAM, FV3, GEOS, ICON or SAM for model")
+    elif region.lower()=="nau":
+        if model.lower()=="icon" or model.lower()=="icon-2.5km":
+            t = xr.open_dataset(ap.NAU_ICON_T)["T"].values #K
+        elif model.lower()=="fv3" or model.lower()=="fv3-3.35km":
+            t = xr.open_dataset(ap.NAU_FV3_T)["temp"].values #K 
+        elif model.lower()=="sam" or model.lower()=="sam-4km":
+            t = xr.open_dataset(ap.NAU_SAM_T)["TABS"].values # K 
+            print("shape of SAM t: ", t.shape)
+        elif model.lower()=="nicam" or model.lower()=="nicam-3.5km":
+            if NICAM_INCLUDE_SHOCK:
+                t = xr.open_dataset(ap.NAU_NICAM_T)["ms_tem"].values # K
+            else:
+                t = xr.open_dataset(ap.NAU_NICAM_T)["ms_tem"].values[16:]
         else:
             raise Exception("Model ("+model+") is invalid. Try NICAM, FV3, GEOS, ICON or SAM for model")
     else:
@@ -580,21 +577,11 @@ def get_qv(model, region):
         elif model.lower()=="sam" or model.lower()=="sam-4km":
             qv = xr.open_dataset(ap.TWP_SAM_QV)["QV"]/1000 #g/kg to kg/kg
         elif model.lower()=="nicam" or model.lower()=="nicam-3.5km":
-            qv = xr.open_dataset(ap.TWP_NICAM_QV)["ms_qv"]
+            if NICAM_INCLUDE_SHOCK:
+                qv = xr.open_dataset(ap.TWP_NICAM_QV)["ms_qv"]
+            else:
+                qv = xr.open_dataset(ap.TWP_NICAM_QV)["ms_qv"][16:]
         else:
-            raise Exception("Model ("+model+") is invalid. Try NICAM, FV3, GEOS, ICON or SAM for model")
-    elif region.lower()=="nau":
-        if model.lower()=="icon" or model.lower()=="icon-3.5km":
-            qv = xr.open_dataset(ap.NAU_ICON_QV)["QV"] #kg/kg
-        elif model.lower()=="fv3" or model.lower()=="fv3-3.35km":
-            qv = xr.open_dataset(ap.NAU_FV3_QV)["qv"] #kg/kg
-        elif model.lower()=="geos" or model.lower()=="geos-3km":
-            qv = xr.open_dataset(ap.NAU_GEOS_QV)["QV"] #kg/kg
-        elif model.lower()=="sam" or model.lower()=="sam-4km":
-            qv = xr.open_dataset(ap.NAU_SAM_QV)["QV"]/1000 #SAM is saved as g/kg - convert to kg/kg to match
-        elif model.lower()=="nicam" or model.lower()=="nicam-3.5km":
-            qv = xr.open_dataset(ap.NAU_NICAM_QV)["ms_qv"] #kg/kg
-        else: 
             raise Exception("Model ("+model+") is invalid. Try NICAM, FV3, GEOS, ICON or SAM for model")
     elif region.lower()=="shl":
         if model.lower()=="icon" or model.lower()=="icon-3.5km":
@@ -607,8 +594,27 @@ def get_qv(model, region):
         elif model.lower()=="sam" or model.lower()=="sam-4km":
             qv = xr.open_dataset(ap.SHL_SAM_QV)["QV"]/1000 #g/kg to kg/kg
         elif model.lower()=="nicam" or model.lower()=="nicam-3.5km":
-            qv = xr.open_dataset(ap.SHL_NICAM_QV)["ms_qv"]
+            if NICAM_INCLUDE_SHOCK:
+                qv = xr.open_dataset(ap.SHL_NICAM_QV)["ms_qv"]
+            else:
+                qv = xr.open_dataset(ap.SHL_NICAM_QV)["ms_qv"][16:]
         else:
+            raise Exception("Model ("+model+") is invalid. Try NICAM, FV3, GEOS, ICON or SAM for model")
+    elif region.lower()=="nau":
+        if model.lower()=="icon" or model.lower()=="icon-3.5km":
+            qv = xr.open_dataset(ap.NAU_ICON_QV)["QV"] #kg/kg
+        elif model.lower()=="fv3" or model.lower()=="fv3-3.35km":
+            qv = xr.open_dataset(ap.NAU_FV3_QV)["qv"] #kg/kg
+        elif model.lower()=="geos" or model.lower()=="geos-3km":
+            qv = xr.open_dataset(ap.NAU_GEOS_QV)["QV"] #kg/kg
+        elif model.lower()=="sam" or model.lower()=="sam-4km":
+            qv = xr.open_dataset(ap.NAU_SAM_QV)["QV"]/1000 #SAM is saved as g/kg - convert to kg/kg to match
+        elif model.lower()=="nicam" or model.lower()=="nicam-3.5km":
+            if NICAM_INCLUDE_SHOCK:
+                qv = xr.open_dataset(ap.NAU_NICAM_QV)["ms_qv"]
+            else:
+                qv = xr.open_dataset(ap.NAU_NICAM_QV)["ms_qv"][16:]
+        else: 
             raise Exception("Model ("+model+") is invalid. Try NICAM, FV3, GEOS, ICON or SAM for model")
     else:
         raise Exception("Region ("+region+") is invalid. Try TWP, NAU or SHL for region.")
@@ -624,21 +630,24 @@ def get_twc(model, region):
     """
     if region.lower()=="twp":
         if model.lower()=="icon" or model.lower()=="icon-3.5km":
-            qv = xr.open_dataset(ap.TWP_ICON_TWC)["iwc"] #kg/kg
+            q = xr.open_dataset(ap.TWP_ICON_TWC)["iwc"] #kg/kg
         elif model.lower()=="fv3" or model.lower()=="fv3-3.35km":
-            qv = xr.open_dataset(ap.TWP_FV3_TWC)["iwc"] #kg/kg
+            q = xr.open_dataset(ap.TWP_FV3_TWC)["iwc"] #kg/kg
         elif model.lower()=="geos" or model.lower()=="geos-3km":
-            qv = xr.open_dataset(ap.TWP_GEOS_TWC)["twc"] #kg/kg
+            q = xr.open_dataset(ap.TWP_GEOS_TWC)["twc"] #kg/kg
         elif model.lower()=="sam" or model.lower()=="sam-4km":
-            qv = xr.open_dataset(ap.TWP_SAM_TWC)["iwc"]/1000 #g/kg to kg/kg
+            q = xr.open_dataset(ap.TWP_SAM_TWC)["iwc"]/1000 #g/kg to kg/kg
         elif model.lower()=="nicam" or model.lower()=="nicam-3.5km":
-            qv = xr.open_dataset(ap.TWP_NICAM_TWC)["twc"]
+            if NICAM_INCLUDE_SHOCK:
+                q = xr.open_dataset(ap.TWP_NICAM_TWC)["twc"]
+            else:
+                q = xr.open_dataset(ap.TWP_NICAM_TWC)["twc"][16:]
         else:
             raise Exception("Model ("+model+") is invalid. Try NICAM, FV3, GEOS, ICON or SAM for model")
     else:
         raise Exception("Region ("+region+") is invalid. Try TWP for region.")
-    print("Returned Mixing Ratio of water vapor (kg/m3) for "+model+" in "+region+" with shape", qv.shape)
-    return qv
+    print("Returned Mixing Ratio of water vapor (kg/m3) for "+model+" in "+region+" with shape", q.shape)
+    return q
 
 
 def get_swd(model, region):
@@ -685,6 +694,8 @@ def get_swd(model, region):
             swd = xr.open_dataset(ap.NAU_NICAM_SWD)['ss_swd_toa']
         elif region.lower()=="shl":
             swd = xr.open_dataset(ap.SHL_NICAM_SWD)['ss_swd_toa']
+        if not(NICAM_INCLUDE_SHOCK):
+            swd = swd[192:]
     elif model.lower()=="fv3":
         if region.lower()=="twp":
             swd = xr.open_dataset(ap.TWP_FV3_SWD)['fsdt']
@@ -759,6 +770,8 @@ def get_asr(model, region):
             swd = xr.open_dataset(ap.SHL_NICAM_SWD)['ss_swd_toa']
             swu = xr.open_dataset(ap.SHL_NICAM_SWU)['ss_swu_toa']
         asr = swd - swu
+        if not(NICAM_INCLUDE_SHOCK):
+            asr = asr[192:]
     elif model.lower()=="fv3":
         if region.lower()=="twp":
             swd = xr.open_dataset(ap.TWP_FV3_SWD)['fsdt']
@@ -806,7 +819,6 @@ def get_olr_alb(model, region):
             alb = swu/swd
             del swu, swd
             print("... calculated albedo and opened olr (%s seconds elapsed)..."%str(time.time()-st))
-            return olr, alb
         elif (region.lower()=="nau") or (region.lower()=="nauru"):
             print("Getting olr and albedo for NICAM NAURU:")
             st= time.time()
@@ -817,7 +829,6 @@ def get_olr_alb(model, region):
             alb = swu/swd
             del swu, swd
             print("... calculated albedo and opened olr (%s seconds elapsed)..."%str(time.time()-st))
-            return olr, alb
         elif region.lower()=="shl":
             print("Getting olr and albedo for NICAM SAHEL:")
             st= time.time()
@@ -828,8 +839,11 @@ def get_olr_alb(model, region):
             alb = swu/swd
             del swu, swd
             print("... calculated albedo and opened olr (%s seconds elapsed)..."%str(time.time()-st))
-            return olr, alb
         else: print("Region not supported (try TWP, NAU, SHL)")
+        if not(NICAM_INCLUDE_SHOCK):
+            olr = olr[192:]
+            alb = alb[192:]
+        return olr, alb
     elif model.lower()=="fv3":
         if region.lower()=="twp":
             print("Getting olr and albedo for FV3 TWP:")
@@ -912,24 +926,6 @@ def get_olr_alb(model, region):
         else: 
             raise Exception("Region not supported. Try 'TWP', 'NAU', 'SHL'.")
         return olr, alb
-    elif model.lower()=="geos" or model.lower()=="geos5":
-        if region.lower()=="twp":
-            print("Getting olr and albedo for GEOS TWP:")
-            olr = xr.open_dataset(ap.TWP_GEOS_OLR)["OLR"][11::12,:,:]
-            swu = xr.open_dataset(ap.TWP_GEOS_SW)["OSR"][11::12,:,:]
-            swd = xr.open_dataset(ap.TWP_GEOS_SW)["RADSWT"][11::12,:,:]
-            alb = swu/swd
-        elif region.lower()=="nau":
-            print("Getting olr and albedo for GEOS NAU:")
-            olr = xr.open_dataset(ap.NAU_GEOS_OLR)["OLR"][11::12,:,:]
-            alb = None #xr.open_dataset(ap.NAU_GEOS_ALB)["ALBEDO"][11::12,:,:]
-        elif region.lower()=="shl":
-            print("Getting olr and albedo for GEOS SHL:")
-            olr = xr.open_dataset(ap.SHL_GEOS_OLR)["OLR"][11::12,:,:]
-            alb = None #xr.open_dataset(ap.SHL_GEOS_ALB)["ALBEDO"][11::12,:,:]
-        else: 
-            raise Exception("Region not supported. Try 'TWP', 'NAU', 'SHL'.")
-        return olr, alb
     elif model.lower()=="sam":
         if region.lower()=="twp":
             print("Getting olr and albedo for SAM TWP:")
@@ -980,6 +976,8 @@ def get_swu(model, region):
         elif region.lower()=="shl":
             swu = xr.open_dataset(ap.SHL_NICAM_SWU)['ss_swu_toa'][11::12,:,:,:]
         else: print("Region not supported (try TWP, NAU, SHL)")
+        if not(NICAM_INCLUDE_SHOCK):
+            swu = swu[192:]
     elif model.lower()=="fv3":
         if region.lower()=="twp":
             swu = xr.open_dataset(ap.TWP_FV3_SWU)["fsut"][11::12,:,:]
@@ -1008,11 +1006,6 @@ def get_swu(model, region):
                                        "cell":swu.cell})
         else: 
             raise Exception("Region not supported. Try 'TWP', 'NAU', 'SHL'.")
-    elif model.lower()=="geos" or model.lower()=="geos5":
-        if region.lower()=="twp":
-            swu = xr.open_dataset(ap.TWP_GEOS_SW)["OSR"][11::12,:,:]
-        else: 
-            raise Exception("Region not supported. Try 'TWP'.")
     elif model.lower()=="sam":
         if region.lower()=="twp":
             swn = xr.open_dataset(ap.TWP_SAM_SWN)["SWNTA"][5::6,:,:]
@@ -1047,12 +1040,12 @@ def load_tot_hydro(model, region, ice_only=True):
             print("Getting hydrometeors for TWP:")
             print("... opening all hydrometeors for NICAM...")
             qi = xr.open_dataset(ap.TWP_NICAM_QI)['ms_qi']
-            ql = Dataset(ap.TWP_NICAM_QL,'r').variables['ms_qc']
+            ql = xr.open_dataset(ap.TWP_NICAM_QL)['ms_qc'].values
             if ice_only:
                 return (qi + ql)
-            qs = Dataset(ap.TWP_NICAM_QS,'r').variables['ms_qs']
-            qg = Dataset(ap.TWP_NICAM_QG,'r').variables['ms_qg']
-            qr = Dataset(ap.TWP_NICAM_QR,'r').variables['ms_qr']
+            qs = xr.open_dataset(ap.TWP_NICAM_QS)['ms_qs']
+            qg = xr.open_dataset(ap.TWP_NICAM_QG)['ms_qg'].values
+            qr = xr.open_dataset(ap.TWP_NICAM_QR)['ms_qr'].values
             if qi.shape!=ql.shape or qi.shape!=qs.shape:
                 print(qi.shape, ql.shape, qs.shape, qg.shape, qr.shape)
             print("    done (%s seconds elapsed)...\n... adding qi, qs, qg, ql, qr..."%str(time.time()-st))
@@ -1061,17 +1054,16 @@ def load_tot_hydro(model, region, ice_only=True):
             q_xr = xr.DataArray(q, dims=['time','lev','lat','lon'], 
                                 coords={'time':qi.time, 'lev':qi.lev, 'lat':qi.lat, 'lon':qi.lon})
             print("    done (%s seconds elapsed)"%str(time.time()-st))
-            return q_xr
         elif (region.lower()=="nau") or (region.lower()=="nauru"):
             print("Getting hydrometeors for NAURU:")
             print("... opening all hydrometeors for NICAM...")
             qi = xr.open_dataset(ap.NAU_NICAM_QI)['ms_qi']
-            ql = Dataset(ap.NAU_NICAM_QL,'r').variables['ms_qc']
+            ql = xr.open_dataset(ap.NAU_NICAM_QL)['ms_qc'].values
             if ice_only:
                 return (qi + ql)
-            qs = Dataset(ap.NAU_NICAM_QS,'r').variables['ms_qs']
-            qg = Dataset(ap.NAU_NICAM_QG,'r').variables['ms_qg']
-            qr = Dataset(ap.NAU_NICAM_QR,'r').variables['ms_qr']
+            qs = xr.open_dataset(ap.NAU_NICAM_QS)['ms_qs']
+            qg = xr.open_dataset(ap.NAU_NICAM_QG)['ms_qg'].values
+            qr = xr.open_dataset(ap.NAU_NICAM_QR)['ms_qr'].values
             if qi.shape!=ql.shape or qi.shape!=qs.shape:
                 print(qi.shape, ql.shape, qs.shape, qg.shape, qr.shape)
                 return
@@ -1081,17 +1073,16 @@ def load_tot_hydro(model, region, ice_only=True):
             q_xr = xr.DataArray(q, dims=['time','lev','lat','lon'], 
                                 coords={'time':qi.time, 'lev':qi.lev, 'lat':qi.lat, 'lon':qi.lon})
             print("    done (%s seconds elapsed)"%str(time.time()-st))
-            return q_xr
         elif region.lower()=="shl":
             print("Getting hydrometeors for SAHEL:")
             print("... opening all hydrometeors for NICAM...")
             qi = xr.open_dataset(ap.SHL_NICAM_QI)['ms_qi']
-            ql = Dataset(ap.SHL_NICAM_QL,'r').variables['ms_qc']
+            ql = xr.open_dataset(ap.SHL_NICAM_QL)['ms_qc']
             if ice_only:
                 return (qi + ql)
-            qs = Dataset(ap.SHL_NICAM_QS,'r').variables['ms_qs']
-            qg = Dataset(ap.SHL_NICAM_QG,'r').variables['ms_qg']
-            qr = Dataset(ap.SHL_NICAM_QR,'r').variables['ms_qr']
+            qs = xr.open_dataset(ap.SHL_NICAM_QS)['ms_qs']
+            qg = xr.open_dataset(ap.SHL_NICAM_QG)['ms_qg']
+            qr = xr.open_dataset(ap.SHL_NICAM_QR)['ms_qr']
             print("    done (%s seconds elapsed)..."%str(time.time()-st))
             if qi.shape!=ql.shape or qi.shape!=qs.shape:
                 print(qi.shape, ql.shape, qs.shape, qg.shape, qr.shape)
@@ -1100,13 +1091,15 @@ def load_tot_hydro(model, region, ice_only=True):
             q_xr = xr.DataArray(q, dims=['time','lev','lat','lon'], 
                                 coords={'time':qi.time, 'lev':qi.lev, 'lat':qi.lat, 'lon':qi.lon})
             print("    done (%s seconds elapsed)"%str(time.time()-st))
-            return q_xr
         else: print("Region not supported (try TWP, NAU, SHL)")
+        if not(NICAM_INCLUDE_SHOCK):
+            q_xr = q_xr[16:]
+        return q_xr
     elif model.lower()=="fv3": #FV3
         if region.lower()=="twp":
             print("Getting all hydrometeors for FV3 TWP:")
             qi = load_frozen(model, region, ice_only=ice_only)
-            ql = Dataset(ap.TWP_FV3_QL,'r').variables['ql']
+            ql = xr.open_dataset(ap.TWP_FV3_QL)['ql']
             print("... opened qi and ql (%s s elapsed)..."%(time.time()-st))
             q = qi.values + ql
             print("... added qi + ql (%s s elapsed)..."%(time.time()-st))
@@ -1116,7 +1109,7 @@ def load_tot_hydro(model, region, ice_only=True):
         elif region.lower()=="nau":
             print("Getting all hydrometeors for FV3 NAU:")
             qi = load_frozen(model, region, ice_only=ice_only)
-            ql = Dataset(ap.NAU_FV3_QL,'r').variables['ql']
+            ql = xr.open_dataset(ap.NAU_FV3_QL)['ql']
             print("... opened qi and ql (%s s elapsed)..."%(time.time()-st))
             q = qi.values + ql
             print("... added qi + ql (%s s elapsed)..."%(time.time()-st))
@@ -1126,7 +1119,7 @@ def load_tot_hydro(model, region, ice_only=True):
         elif region.lower()=="shl":
             print("Getting all hydrometeors for FV3 SHL:")
             qi = load_frozen(model, region, ice_only=ice_only)
-            ql = Dataset(ap.SHL_FV3_QL,'r').variables['ql']
+            ql = xr.open_dataset(ap.SHL_FV3_QL)['ql']
             print("... opened qi and ql (%s s elapsed)..."%(time.time()-st))
             q = qi.values + ql
             print("... added qi + ql (%s s elapsed)..."%(time.time()-st))
@@ -1139,7 +1132,7 @@ def load_tot_hydro(model, region, ice_only=True):
         if region.lower()=="twp":
             print("Getting all hydrometeors for ICON TWP:")
             qi = load_frozen(model, region, ice_only=ice_only)
-            ql = Dataset(ap.TWP_ICON_QL,'r').variables['NEW']
+            ql = xr.open_dataset(ap.TWP_ICON_QL)['NEW']
             print("... opened qi and ql (%s s elapsed)..."%(time.time()-st))
             q = qi.values + ql
             print("... added qi + ql (%s s elapsed)..."%(time.time()-st))
@@ -1150,7 +1143,7 @@ def load_tot_hydro(model, region, ice_only=True):
         elif region.lower()=="nau":
             print("Getting all hydrometeors for ICON NAU:")
             qi = load_frozen(model, region, ice_only=ice_only)
-            ql = Dataset(ap.NAU_ICON_QL,'r').variables['QC_DIA']
+            ql = xr.open_dataset(ap.NAU_ICON_QL)['QC_DIA']
             print("... opened qi and ql (%s s elapsed)..."%(time.time()-st))
             q = qi.values + ql
             print("... added qi + ql (%s s elapsed)..."%(time.time()-st))
@@ -1230,8 +1223,8 @@ def load_frozen(model, region, ice_only=True):
             print("... opening all hydrometeors for NICAM...")
             qi = xr.open_dataset(ap.TWP_NICAM_QI)['ms_qi']
             if not(ice_only):
-                qs = Dataset(ap.TWP_NICAM_QS,'r').variables['ms_qs']
-                qg = Dataset(ap.TWP_NICAM_QG,'r').variables['ms_qg']
+                qs = xr.open_dataset(ap.TWP_NICAM_QS)['ms_qs']
+                qg = xr.open_dataset(ap.TWP_NICAM_QG)['ms_qg']
                 print("    done (%s seconds elapsed)..."%str(time.time()-st))
                 q = qi.values + qs + qg
                 del qs,qg
@@ -1239,17 +1232,17 @@ def load_frozen(model, region, ice_only=True):
                 q_xr = xr.DataArray(q, dims=['time','lev','lat','lon'], 
                                     coords={'time':qi.time, 'lev':qi.lev, 'lat':qi.lat, 'lon':qi.lon})
                 print("    returned qi+qs+qg (%s seconds elapsed)"%str(time.time()-st))
-                return q_xr
+                qi = q_xr
+                del q_xr
             else:
                 print("    returned only qi (%s seconds elapsed)"%str(time.time()-st))
-                return qi
         elif (region.lower()=="nau") or (region.lower()=="nauru"):
             print("Getting frozen hydrometeors for NAURU:")
             print("... opening all hydrometeors for nicam...")
             qi = xr.open_dataset(ap.NAU_NICAM_QI)['ms_qi']
             if not(ice_only):
-                qs = Dataset(ap.NAU_NICAM_QS,'r').variables['ms_qs']
-                qg = Dataset(ap.NAU_NICAM_QG,'r').variables['ms_qg']
+                qs = xr.open_dataset(ap.NAU_NICAM_QS)['ms_qs']
+                qg = xr.open_dataset(ap.NAU_NICAM_QG)['ms_qg']
                 print("    done (%s seconds elapsed)..."%str(time.time()-st))
                 q = qi.values + qs + qg
                 del qs,qg
@@ -1257,17 +1250,17 @@ def load_frozen(model, region, ice_only=True):
                 q_xr = xr.DataArray(q, dims=['time','lev','lat','lon'], 
                                     coords={'time':qi.time, 'lev':qi.lev, 'lat':qi.lat, 'lon':qi.lon})
                 print("    returned qi+qs+qg (%s seconds elapsed)"%str(time.time()-st))
-                return q_xr
+                qi = q_xr
+                del q_xr
             else:
                 print("    returned qi only (%s seconds elapsed)"%str(time.time()-st))
-                return qi
         elif region.lower()=="shl":
             print("Getting frozen hydrometeors for SAHEL:")
             print("... opening all hydrometeors for NICAM...")
             qi = xr.open_dataset(ap.SHL_NICAM_QI)['ms_qi']
             if not(ice_only):
-                qs = Dataset(ap.SHL_NICAM_QS,'r').variables['ms_qs']
-                qg = Dataset(ap.SHL_NICAM_QG,'r').variables['ms_qg']
+                qs = xr.open_dataset(ap.SHL_NICAM_QS)['ms_qs']
+                qg = xr.open_dataset(ap.SHL_NICAM_QG)['ms_qg']
                 print("    done  with qs+qg+qi (%s seconds elapsed)..."%str(time.time()-st))
                 q = qi.values + qs + qg
                 del qs,qg
@@ -1275,12 +1268,15 @@ def load_frozen(model, region, ice_only=True):
                 q_xr = xr.DataArray(q, dims=['time','lev','lat','lon'], 
                                     coords={'time':qi.time, 'lev':qi.lev, 'lat':qi.lat, 'lon':qi.lon})
                 print("    returned qi+qs+qg (%s seconds elapsed)"%str(time.time()-st))
-                return q_xr
+                qi = q_xr
+                del q_xr
             else:
                 print("    returned qi only (%s seconds elapsed)"%str(time.time()-st))
-                return qi
         else:
             raise Exception("Region not supported (try TWP, NAU, SHL)")
+        if not(NICAM_INCLUDE_SHOCK):
+            qi = qi[16:]
+        return qi
     elif model.lower()=="fv3":
         if region.lower()=="twp":
             print("Getting frozen hydrometeors for TWP:")
@@ -1373,21 +1369,21 @@ def load_tot_hydro1x1(model, region, return_ind=False, iceliq_only=True):
         print("   time, lev, lat, lon = dims: ",(qi.dims))
         qi = qi[:,:,lat0:lat1,lon0:lon1]
         if region.lower()=="twp":
-            ql = Dataset(ap.TWP_NICAM_QL,'r').variables['ms_qc'][:,:,lat0:lat1,lon0:lon1]
-            qs = Dataset(ap.TWP_NICAM_QS,'r').variables['ms_qs'][:,:,lat0:lat1,lon0:lon1]
-            qg = Dataset(ap.TWP_NICAM_QG,'r').variables['ms_qg'][:,:,lat0:lat1,lon0:lon1]
-            qr = Dataset(ap.TWP_NICAM_QR,'r').variables['ms_qr'][:,:,lat0:lat1,lon0:lon1]
+            ql = xr.open_dataset(ap.TWP_NICAM_QL)['ms_qc'][:,:,lat0:lat1,lon0:lon1]
+            qs = xr.open_dataset(ap.TWP_NICAM_QS)['ms_qs'][:,:,lat0:lat1,lon0:lon1]
+            qg = xr.open_dataset(ap.TWP_NICAM_QG)['ms_qg'][:,:,lat0:lat1,lon0:lon1]
+            qr = xr.open_dataset(ap.TWP_NICAM_QR)['ms_qr'][:,:,lat0:lat1,lon0:lon1]
         elif region.lower()=="nau":
-            ql = Dataset(ap.NAU_NICAM_QL,'r').variables['ms_qc'][:,:,lat0:lat1,lon0:lon1]
-            qs = Dataset(ap.NAU_NICAM_QS,'r').variables['ms_qs'][:,:,lat0:lat1,lon0:lon1]
-            qg = Dataset(ap.NAU_NICAM_QG,'r').variables['ms_qg'][:,:,lat0:lat1,lon0:lon1]
-            qr = Dataset(ap.NAU_NICAM_QR,'r').variables['ms_qr'][:,:,lat0:lat1,lon0:lon1]
+            ql = xr.open_dataset(ap.NAU_NICAM_QL)['ms_qc'][:,:,lat0:lat1,lon0:lon1]
+            qs = xr.open_dataset(ap.NAU_NICAM_QS)['ms_qs'][:,:,lat0:lat1,lon0:lon1]
+            qg = xr.open_dataset(ap.NAU_NICAM_QG)['ms_qg'][:,:,lat0:lat1,lon0:lon1]
+            qr = xr.open_dataset(ap.NAU_NICAM_QR)['ms_qr'][:,:,lat0:lat1,lon0:lon1]
         elif region.lower()=="shl":
             qi = qi[:,:,lat0:lat1,lon0:lon1]
-            ql = Dataset(ap.SHL_NICAM_QL,'r').variables['ms_qc'][:,:,lat0:lat1,lon0:lon1]
-            qs = Dataset(ap.SHL_NICAM_QS,'r').variables['ms_qs'][:,:,lat0:lat1,lon0:lon1]
-            qg = Dataset(ap.SHL_NICAM_QG,'r').variables['ms_qg'][:,:,lat0:lat1,lon0:lon1]
-            qr = Dataset(ap.SHL_NICAM_QR,'r').variables['ms_qr'][:,:,lat0:lat1,lon0:lon1]
+            ql = xr.open_dataset(ap.SHL_NICAM_QL)['ms_qc'][:,:,lat0:lat1,lon0:lon1]
+            qs = xr.open_dataset(ap.SHL_NICAM_QS)['ms_qs'][:,:,lat0:lat1,lon0:lon1]
+            qg = xr.open_dataset(ap.SHL_NICAM_QG)['ms_qg'][:,:,lat0:lat1,lon0:lon1]
+            qr = xr.open_dataset(ap.SHL_NICAM_QR)['ms_qr'][:,:,lat0:lat1,lon0:lon1]
         else: raise Exception("Region not supported (try TWP)")
         if qi.shape!=ql.shape or qi.shape!=qs.shape:
             print(qi.shape, ql.shape, qs.shape, qg.shape, qr.shape)
@@ -1400,6 +1396,8 @@ def load_tot_hydro1x1(model, region, return_ind=False, iceliq_only=True):
         q_xr = xr.DataArray(q, dims=['time','lev','lat','lon'], 
                             coords={'time':qi.time, 'lev':qi.lev, 'lat':qi.lat, 'lon':qi.lon})
         print("    done (%s seconds elapsed)"%str(time.time()-st))
+        if not(NICAM_INCLUDE_SHOCK):
+            q_xr = q_xr[16:]
         if return_ind:
             return q_xr, (lat0,lat1,lon0,lon1)
         else:
@@ -1535,9 +1533,7 @@ def load_liq(model, region, rain=False):
                 q_xr = xr.DataArray(q, dims=['time','lev','lat','lon'], 
                                 coords={'time':ql.time, 'lev':ql.lev, 'lat':ql.lat, 'lon':ql.lon},
                                attrs={'name':'liquid+rain_water_content','units':'kg/kg'})
-                return q_xr
-            else:
-                return ql           
+                ql = q_xr    
         elif (region.lower()=="nau") or (region.lower()=="nauru"):
             print("Getting liquid hydrometeors for NAURU:")
             print("... opening all hydrometeors for NICAM...")
@@ -1550,9 +1546,7 @@ def load_liq(model, region, rain=False):
                 q_xr = xr.DataArray(q, dims=['time','lev','lat','lon'], 
                                 coords={'time':ql.time, 'lev':ql.lev, 'lat':ql.lat, 'lon':ql.lon},
                                attrs={'name':'liquid+rain_water_content','units':'kg/kg'})
-                return q_xr
-            else:
-                return ql
+                ql = q_xr
         elif region.lower()=="shl":
             print("Getting liquid hydrometeors for SAHEL:")
             print("... opening all hydrometeors for NICAM...")
@@ -1565,10 +1559,11 @@ def load_liq(model, region, rain=False):
                 q_xr = xr.DataArray(q, dims=['time','lev','lat','lon'], 
                                 coords={'time':ql.time, 'lev':ql.lev, 'lat':ql.lat, 'lon':ql.lon},
                                attrs={'name':'liquid+rain_water_content','units':'kg/kg'})
-                return q_xr
-            else:
-                return ql
+                ql = q_xr
         else: print("Region not supported (try TWP, NAU, SHL)")
+        if not(NICAM_INCLUDE_SHOCK):
+            ql = ql[16:]
+        return ql
     elif model.lower()=="fv3": #FV3
         if region.lower()=="twp":
             return (xr.open_dataset(ap.TWP_FV3_QL)['ql'][:])
