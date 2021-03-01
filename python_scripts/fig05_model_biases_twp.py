@@ -13,7 +13,7 @@ from utility import util, load01deg
 import utility.analysis_parameters as ap
 import statistics as stats
 import matplotlib.pyplot as plt
-import vert_cld_frac
+from utility import vert_cld_frac
 
 c = ap.COLORS
 REGION = "TWP"

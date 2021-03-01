@@ -91,6 +91,9 @@ for j,m in enumerate(models):
         if m=="CCCM":
             m = "OBS"
             lab = "CCCM"
+            isocre[j] = isocre[j]/6
+            swcre[j] = swcre[j]/6
+            lwcre[j] = lwcre[j]/6
         else:
             lab = m
         ax1.scatter([2.3+0.1*j],[isocre[j]], c=c[m], 
@@ -109,7 +112,7 @@ ax1.set_title('Isolated TTL Cirrus CRE\nTWP', fontsize=fs)
 ax1.set_ylabel('CRE [W/m$^2$]', fontsize=fs)
 ax1.tick_params(axis='y', labelsize=fs-4)
 ax1.tick_params(axis='x', labelsize=fs)
-ax1.set_ylim([-75,75])
+ax1.set_ylim([-30,30])
 ax1.axhline(y=0, color='gray', alpha=0.6)
 ax1.legend()
 

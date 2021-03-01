@@ -17,22 +17,22 @@ regions = ["SHL","TWP","NAU"]
 models = ["CCCM","NICAM","FV3","ICON","SAM"]
 net=False
 
-dar  = pd.read_csv("../plots/DARDAR_cat_alb_olr_ttl_cs.csv")
-ntwp = pd.read_csv("../plots/NICAM_TWP_cat_alb_olr_ttl_cs.csv")
-ftwp = pd.read_csv("../plots/FV3_TWP_cat_alb_olr_ttl_cs.csv")
-itwp = pd.read_csv("../plots/ICON_TWP_cat_alb_olr_ttl_cs.csv")
-stwp = pd.read_csv("../plots/SAM_TWP_cat_alb_olr_ttl_cs.csv")
-nshl = pd.read_csv("../plots/NICAM_SHL_cat_alb_olr_ttl_cs.csv")
-fshl = pd.read_csv("../plots/FV3_SHL_cat_alb_olr_ttl_cs.csv")
-ishl = pd.read_csv("../plots/ICON_SHL_cat_alb_olr_ttl_cs.csv")
-sshl = pd.read_csv("../plots/SAM_SHL_cat_alb_olr_ttl_cs.csv")
-nnau = pd.read_csv("../plots/NICAM_NAU_cat_alb_olr_ttl_cs.csv")
-fnau = pd.read_csv("../plots/FV3_NAU_cat_alb_olr_ttl_cs.csv")
-inau = pd.read_csv("../plots/ICON_NAU_cat_alb_olr_ttl_cs.csv")
-snau = pd.read_csv("../plots/SAM_NAU_cat_alb_olr_ttl_cs.csv")
-cre_twp = pd.read_csv("../plots/isolated_ttl_cirrus_iceonly_noliq_percentiles_TWP.csv")
-cre_shl = pd.read_csv("../plots/isolated_ttl_cirrus_iceonly_noliq_percentiles_SHL.csv")
-cre_nau = pd.read_csv("../plots/isolated_ttl_cirrus_iceonly_noliq_percentiles_NAU.csv")
+dar  = pd.read_csv("../tables/DARDAR_cat_alb_olr_ttl_cs.csv")
+ntwp = pd.read_csv("../tables/NICAM_TWP_cat_alb_olr_ttl_cs.csv")
+ftwp = pd.read_csv("../tables/FV3_TWP_cat_alb_olr_ttl_cs.csv")
+itwp = pd.read_csv("../tables/ICON_TWP_cat_alb_olr_ttl_cs.csv")
+stwp = pd.read_csv("../tables/SAM_TWP_cat_alb_olr_ttl_cs.csv")
+nshl = pd.read_csv("../tables/NICAM_SHL_cat_alb_olr_ttl_cs.csv")
+fshl = pd.read_csv("../tables/FV3_SHL_cat_alb_olr_ttl_cs.csv")
+ishl = pd.read_csv("../tables/ICON_SHL_cat_alb_olr_ttl_cs.csv")
+sshl = pd.read_csv("../tables/SAM_SHL_cat_alb_olr_ttl_cs.csv")
+nnau = pd.read_csv("../tables/NICAM_NAU_cat_alb_olr_ttl_cs.csv")
+fnau = pd.read_csv("../tables/FV3_NAU_cat_alb_olr_ttl_cs.csv")
+inau = pd.read_csv("../tables/ICON_NAU_cat_alb_olr_ttl_cs.csv")
+snau = pd.read_csv("../tables/SAM_NAU_cat_alb_olr_ttl_cs.csv")
+cre_twp = pd.read_csv("../tables/isolated_ttl_cirrus_iceonly_noliq_percentiles_TWP.csv")
+cre_shl = pd.read_csv("../tables/isolated_ttl_cirrus_iceonly_noliq_percentiles_SHL.csv")
+cre_nau = pd.read_csv("../tables/isolated_ttl_cirrus_iceonly_noliq_percentiles_NAU.csv")
 
 tc_med_olr = dar.twp_olr_med.values[:-1]
 tc_med_alb = dar.twp_alb_med.values[:-1]
@@ -248,14 +248,14 @@ for i,r in enumerate(regions):
                 ax[3].scatter([i+0.1*j],[swcre[j]/6], edgecolor=c[m], label=labsw,
                        marker='s', c='none', s=fs*4)
                 ax[3].scatter([i+0.1*j],[netcre[j]/6], c=c[m], 
-                       marker='o', s=fs, label=labnet)
+                       marker='o', s=fs*2, label=labnet)
             else:
                 ax[3].scatter([i+0.1*j],[lwcre[j]], c=c[m], 
                        marker='s', s=fs*4, label=lablw) #markerfacecolor='none'
                 ax[3].scatter([i+0.1*j],[swcre[j]], edgecolor=c[m], label=labsw,
                        marker='s', c='none', s=fs*4)
                 ax[3].scatter([i+0.1*j],[netcre[j]], c=c[m], 
-                       marker='o', s=fs, label=labnet)
+                       marker='o', s=fs*2, label=labnet)
 ax[3].set_xlim([-0.3,2.7])
 ax[3].set_xticklabels(['SHL', 'TWP', 'NAU'])
 ax[3].grid(which='minor')
@@ -264,14 +264,14 @@ if net:
 else:
     ax[3].set_title('Isolated TTL Cirrus CRE', fontsize=fs)
 ax[3].set_ylabel('CRE [W/m$^2$]', fontsize=fs)
-if not(net):
-    ax[3].legend()
+ax[3].legend(loc=3)
 ax[3].tick_params(axis='y', labelsize=fs-4)
 ax[3].tick_params(axis='x', labelsize=fs)
 
 ax[0].set_ylim([0.01,0.85])
 ax[1].set_ylim([0.01,0.85])
 ax[2].set_ylim([0.01,0.85])
+ax[3].set_ylim([-30,30])
 
 ax[1].set_ylabel(None)
 ax[2].set_ylabel(None)
@@ -283,7 +283,7 @@ ax[1].annotate("(b)", xy=(0.01,0.94), xycoords="axes fraction", fontsize=fs)
 ax[2].annotate("(c)", xy=(0.01,0.94), xycoords="axes fraction", fontsize=fs)
 ax[3].annotate("(d)", xy=(0.01,0.94), xycoords="axes fraction", fontsize=fs)
 
-plt.savefig('../plots/fig11_median_category_alb_olr_allmodels_stn.png',
+plt.savefig('../plots/fig12_cat_lifestages_cre_all_regions.png',
             dpi=150,bbox_inches='tight')
-print('    saved to ../plots/fig11_median_category_alb_olr_allmodels_stn.png')
+print('    saved to ../plots/fig12_cat_lifestages_cre_all_regions.png')
 plt.close()
