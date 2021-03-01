@@ -36,7 +36,10 @@ def get_iwp(model, region, ice_only=True, sam_noise=True, is3d=True):
         print("... Getting iwp for %s in the %s region ..."%(model, region))
     else:
         print("... Getting fwp for %s in the %s region ..."%(model, region))
-    ind0 = 0 if INCLUDE_SHOCK else ind0 = 96*2 # exclude first two days
+    if INCLUDE_SHOCK:
+        ind0=0
+    else:
+        ind0 = 96*2 # exclude first two days
     if model.lower()=="nicam":
         print("... returning frozen water path for NICAM.")
         if region.lower()=="twp":
@@ -45,7 +48,7 @@ def get_iwp(model, region, ice_only=True, sam_noise=True, is3d=True):
             return(xr.open_dataset(ap.SHL_NICAM_IWP).sa_cldi[ind0:])
         elif region.lower()=="nau":
             return(xr.open_dataset(ap.NAU_NICAM_IWP).sa_cldi[ind0:])
-        print("NICAM only has frozen water path (2d) output... not iwp, swp, gwp separately") if ice_only
+        print("NICAM only has frozen water path (2d) output... not iwp, swp, gwp separately")
     elif model.lower()=="fv3":
         if region.lower()=="twp":
             iwp = xr.open_dataset(ap.TWP_FV3_IWP).intqi
@@ -91,7 +94,7 @@ def get_iwp(model, region, ice_only=True, sam_noise=True, is3d=True):
         return iwp[ind0:]
     elif model.lower()=="sam":
         if region.lower()=="twp":
-            iwp = xr.open_dataset(ap.TWP_SAM_WP_NOISE).IWP if is3d else iwp = xr.open_dataset(ap.TWP_SAM_IWP).IWP
+            iwp = xr.open_dataset(ap.TWP_SAM_WP_NOISE).IWP if is3d else  xr.open_dataset(ap.TWP_SAM_IWP).IWP
             print("SAM,", iwp.shape)
             if not(ice_only):
                 if sam_noise:
@@ -106,7 +109,7 @@ def get_iwp(model, region, ice_only=True, sam_noise=True, is3d=True):
                     print("fwp = iwp + swp + gwp")
                 return iwp[ind0//12:]
         elif region.lower()=="shl":
-            iwp = xr.open_dataset(ap.SHL_SAM_WP_NOISE).IWP if is3d else iwp = xr.open_dataset(ap.SHL_SAM_IWP).IWP
+            iwp = xr.open_dataset(ap.SHL_SAM_WP_NOISE).IWP if is3d else  xr.open_dataset(ap.SHL_SAM_IWP).IWP
             print("SAM,", iwp.shape)
             if not(ice_only):
                 if sam_noise:
@@ -121,7 +124,7 @@ def get_iwp(model, region, ice_only=True, sam_noise=True, is3d=True):
                     print("fwp = iwp + swp + gwp")
                 return iwp[ind0//12:]
         elif region.lower()=="nau":
-            iwp = xr.open_dataset(ap.NAU_SAM_WP_NOISE).IWP if is3d else iwp = xr.open_dataset(ap.NAU_SAM_IWP).IWP
+            iwp = xr.open_dataset(ap.NAU_SAM_WP_NOISE).IWP if is3d else  xr.open_dataset(ap.NAU_SAM_IWP).IWP
             print("SAM,", iwp.shape)
             if not(ice_only):
                 if sam_noise:
@@ -142,7 +145,10 @@ def get_iwp(model, region, ice_only=True, sam_noise=True, is3d=True):
 
 def get_lwp(model, region, rain=False, sam_noise=True, is3d=True):
     """ Return the 2D iwp on native grid. """
-    ind0 = 0 if INCLUDE_SHOCK else ind0 = 96*2 # exclude first two days
+    if INCLUDE_SHOCK: 
+        ind0=0
+    else:
+        ind0 = 96*2 # exclude first two days
     if model.lower()=="nicam":
         print("... returning frozen water path for NICAM.")
         if region.lower()=="twp":
@@ -151,7 +157,6 @@ def get_lwp(model, region, rain=False, sam_noise=True, is3d=True):
             return(xr.open_dataset(ap.SHL_NICAM_LWP).sa_cldw[ind0:])
         elif region.lower()=="nau":
             return(xr.open_dataset(ap.NAU_NICAM_LWP).sa_cldw[ind0:])
-        print("NICAM only has frozen water path (2d) output... not iwp, swp, gwp separately") if ice_only
     elif model.lower()=="fv3":
         if region.lower()=="twp":
             cwp = xr.open_dataset(ap.TWP_FV3_LWP).intql
@@ -182,8 +187,8 @@ def get_lwp(model, region, rain=False, sam_noise=True, is3d=True):
         elif region.lower()=="nau":
             ds = xr.open_dataset(ap.NAU_ICON_IWP)
         else: assert Exception("region not valid, try SHL, NAU, or TWP")
-            cwp = reshape.reshape("TQC_DIA", ds, dim=2)
-            print(lwp.shape)
+        cwp = reshape.reshape("TQC_DIA", ds, dim=2)
+        print(lwp.shape)
         if rain:
             rwp = reshape.reshape("TQR", ds, dim=2)
             print(rwp.shape)
@@ -235,7 +240,10 @@ def get_lwp(model, region, rain=False, sam_noise=True, is3d=True):
 def get_ttliwp(model, region):
     """ Returns the integrated frozen water path in the 14-18km layer
         for specificed model and region. """
-    ind0 = 0 if INCLUDE_SHOCK else ind0 = 8*2 # exclude first two days
+    if INCLUDE_SHOCK: 
+        ind0=0
+    else:
+        ind0 = 8*2 # exclude first two days
     if model.lower()=="nicam":
         print("... returning frozen water path for NICAM.")
         if region.lower()=="twp":
@@ -244,7 +252,6 @@ def get_ttliwp(model, region):
             return(xr.open_dataarray(ap.SHL_NICAM_TTLIWP)[ind0:])
         elif region.lower()=="nau":
             return(xr.open_dataarray(ap.NAU_NICAM_TTLIWP)[ind0:])
-        print("NICAM only has frozen water path (2d) output... not iwp, swp, gwp separately") if ice_only
     elif model.lower()=="fv3":
         if region.lower()=="twp":
             return xr.open_dataarray(ap.TWP_SAM_TTLIWP)[ind0:]
@@ -277,7 +284,10 @@ def get_pr(model, region):
     """ Returns preciptiation rate in mm/s for given model and region
             Region must be "twp", "nau" or "shl".
     """
-    ind0 = 0 if INCLUDE_SHOCK else ind0 = 96*2 # exclude first two days
+    if INCLUDE_SHOCK: 
+        ind0=0
+    else:
+        ind0 = 96*2 # exclude first two days
     if model.lower()=="nicam":
         print("... returning frozen water path for NICAM.")
         if region.lower()=="twp":
@@ -286,7 +296,6 @@ def get_pr(model, region):
             return(xr.open_dataset(ap.SHL_NICAM_PR)["ss_tppn"][ind0:,0,:,:])
         elif region.lower()=="nau":
             return(xr.open_dataset(ap.NAU_NICAM_PR)["ss_tppn"][ind0:,0,:,:])
-        print("NICAM only has frozen water path (2d) output... not iwp, swp, gwp separately") if ice_only
     elif model.lower()=="fv3":
         if region.lower()=="twp":
             return xr.open_dataset(ap.TWP_FV3_PR)["pr"][ind0:]
@@ -326,7 +335,10 @@ def get_swd(model, region):
         For models that don't output swd we will use the zonal mean
             to estimate swd for closest latitude.
     """
-    ind0 = 0 if INCLUDE_SHOCK else ind0 = 96*2 # exclude first two days
+    if INCLUDE_SHOCK: 
+        ind0=0
+    else:
+        ind0 = 96*2 # exclude first two days
     if model.lower()=="nicam":
         if region.lower()=="twp":
             swd = xr.open_dataset(ap.TWP_NICAM_SWD)['ss_swd_toa'][ind0*2:]
@@ -376,7 +388,8 @@ def get_swd(model, region):
             swn = xr.open_dataset(ap.SHL_SAM_SWN)['SWNTA']
             swd_n = xr.open_dataset(ap.SHL_NICAM_SWD)['ss_swd_toa']
         print(swn.shape, swd_n[:1920*2:2,0,:,:].shape)
-        raise Exception("SW net from SAM and SW downward from NICAM don't match", swn.shape, swd_n[:1920*2:2,0,:,:].shape) if (swn.shape != swd_n[:1920*2:2,0,:,:].shape)
+        if (swn.shape != swd_n[:1920*2:2,0,:,:].shape):
+            raise Exception("SW net from SAM and SW downward from NICAM don't match {},{}".format(swn.shape, swd_n[:1920*2:2,0,:,:].shape))
         swd = np.zeros(swn.shape)
         print('starting loop...')
         for la in range(len(swn.lat)):
@@ -387,7 +400,10 @@ def get_swd(model, region):
 
 def get_asr(model, region):
     """ Return asr (absorbed sw radiation) for models in region."""
-    ind0 = 0 if INCLUDE_SHOCK else ind0 = 96*2 # exclude first two days
+    if INCLUDE_SHOCK: 
+        ind0=0
+    else:
+        ind0 = 96*2 # exclude first two days
     if model.lower()=="nicam":
             if region.lower()=="twp":
                 swd = xr.open_dataset(ap.TWP_NICAM_SWD)['ss_swd_toa']
@@ -440,7 +456,10 @@ def get_asr(model, region):
 
 def get_swu(model, region):
     """Returns the (olr, alb) of each model and region as a tuple of xarrays"""
-    ind0 = 0 if INCLUDE_SHOCK else ind0 = 8*2 # exclude first two days
+    if INCLUDE_SHOCK: 
+        ind0=0
+    else:
+        ind0 = 8*2 # exclude first two days
     if model.lower()=="nicam":
         if region.lower()=="twp":
             swu = xr.open_dataset(ap.TWP_NICAM_SWU)['ss_swu_toa']
@@ -491,7 +510,10 @@ def get_swu(model, region):
 
 def get_olr_alb(model, region):
     """Returns 3hrly xarray of (olr, alb) of each model and region as a tuple of xarrays"""
-    ind0 = 0 if INCLUDE_SHOCK else ind0 = 8*2 # exclude first two days
+    if INCLUDE_SHOCK: 
+        ind0=0
+    else:
+        ind0 = 8*2 # exclude first two days
     if model.lower()=="nicam":
         if region.lower()=="twp":
             print("Getting olr and albedo for NICAM TWP:")
@@ -639,7 +661,10 @@ def get_olr_alb(model, region):
 ### ------ 3D ----- ###
 def get_levels(model, region):
     """Returns numpy array of vertical levels for given model and region."""
-    ind0 = 0 if INCLUDE_SHOCK else ind0 = 8*2 # exclude first two days
+    if INCLUDE_SHOCK: 
+        ind0=0
+    else:
+        ind0 = 8*2 # exclude first two days
     if model.lower()=="nicam":
         print("... returning frozen water path for NICAM.")
         if region.lower()=="twp":
@@ -648,7 +673,6 @@ def get_levels(model, region):
             z = xr.open_dataset(ap.SHL_NICAM_QI).lev.values 
         elif region.lower()=="nau":
             z = xr.open_dataset(ap.NAU_NICAM_QI).lev.values 
-        print("NICAM only has frozen water path (2d) output... not iwp, swp, gwp separately") if ice_only
     elif model.lower()=="fv3":
         if region.lower()=="twp":
             z = xr.open_dataset(ap.TWP_FV3_Z).altitude.values
@@ -685,7 +709,10 @@ def get_pres(model, region):
             Sahel - Niamey or Nauru
         region = string of 'FV3', 'ICON', 'GEOS', 'SAM', or 'NICAM' (five of the DYAMOND models
     """
-    ind0 = 0 if INCLUDE_SHOCK else ind0 = 8*2 # exclude first two days
+    if INCLUDE_SHOCK: 
+        ind0=0
+    else:
+        ind0 = 8*2 # exclude first two days
     if model.lower()=="nicam":
         print("... returning frozen water path for NICAM.")
         if region.lower()=="twp":
@@ -694,7 +721,6 @@ def get_pres(model, region):
             p = xr.open_dataset(ap.SHL_NICAM_P)["ms_pres"][ind0:]
         elif region.lower()=="nau":
             p = xr.open_dataset(ap.NAU_NICAM_P)["ms_pres"][ind0:]
-        print("NICAM only has frozen water path (2d) output... not iwp, swp, gwp separately") if ice_only
     elif model.lower()=="fv3":
         if region.lower()=="twp":
             p = xr.open_dataset(ap.TWP_FV3_P)["pres"][ind0:]
@@ -730,7 +756,10 @@ def get_temp(model, region):
             Sahel - Niamey or Nauru
         region = string of 'FV3', 'ICON', 'GEOS', 'SAM', or 'NICAM' (five of the DYAMOND models
     """
-    ind0 = 0 if INCLUDE_SHOCK else ind0 = 8*2 # exclude first two days
+    if INCLUDE_SHOCK: 
+        ind0=0
+    else:
+        ind0 = 8*2 # exclude first two days
     if model.lower()=="nicam":
         print("... returning frozen water path for NICAM.")
         if region.lower()=="twp":
@@ -740,7 +769,6 @@ def get_temp(model, region):
         elif region.lower()=="nau":
             t = xr.open_dataset(ap.NAU_NICAM_T)["ms_tem"][ind0:]
         else: raise Exception("region not valid, try SHL, NAU, or TWP")
-        print("NICAM only has frozen water path (2d) output... not iwp, swp, gwp separately") if ice_only
     elif model.lower()=="fv3":
         if region.lower()=="twp":
             t = xr.open_dataset(ap.TWP_FV3_T)["temp"][ind0:]
@@ -777,7 +805,10 @@ def get_qv(model, region):
             Sahel - Niamey or Nauru
         region = string of 'FV3', 'ICON', 'GEOS', 'SAM', or 'NICAM' (five of the DYAMOND models)
     """
-    ind0 = 0 if INCLUDE_SHOCK else ind0 = 8*2 # exclude first two days
+    if INCLUDE_SHOCK: 
+        ind0=0
+    else:
+        ind0 = 8*2 # exclude first two days
     if model.lower()=="nicam":
         print("... returning frozen water path for NICAM.")
         if region.lower()=="twp":
@@ -787,7 +818,6 @@ def get_qv(model, region):
         elif region.lower()=="nau":
             qv = xr.open_dataset(ap.NAU_NICAM_QV)["ms_qv"][ind0:]
         else: raise Exception("region not valid, try SHL, NAU, or TWP")
-        print("NICAM only has frozen water path (2d) output... not iwp, swp, gwp separately") if ice_only
     elif model.lower()=="fv3":
         if region.lower()=="twp":
             qv = xr.open_dataset(ap.TWP_FV3_QV)["qv"][ind0:]
@@ -807,11 +837,11 @@ def get_qv(model, region):
         else: raise Exception("region not valid, try SHL, NAU, or TWP")
     elif model.lower()=="sam":
         if region.lower()=="twp":
-            qv = xr.open_dataset(ap.TWP_SAM_QV)["QV"]/1000[ind0:,:]
+            qv = (xr.open_dataset(ap.TWP_SAM_QV)["QV"]/1000)[ind0:,:]
         elif region.lower()=="shl":
-            qv = xr.open_dataset(ap.SHL_SAM_QV)["QV"]/1000[ind0:,:]
+            qv = (xr.open_dataset(ap.SHL_SAM_QV)["QV"]/1000)[ind0:,:]
         elif region.lower()=="nau":
-            qv = xr.open_dataset(ap.NAU_SAM_QV)["QV"]/1000[ind0:,:]
+            qv = (xr.open_dataset(ap.NAU_SAM_QV)["QV"]/1000)[ind0:,:]
         else: raise Exception("try valid region (SHL, NAU, TWP)")
     else: raise Exception("invalide model: model = SAM, ICON, FV3, NICAM")
     print("\t returned water vapor mixing ratio with shape", qv.shape)
@@ -824,7 +854,10 @@ def get_twc(model, region):
             Sahel - Niamey or Nauru
         region = string of 'FV3', 'ICON', 'GEOS', 'SAM', or 'NICAM' (five of the DYAMOND models)
     """
-    ind0 = 0 if INCLUDE_SHOCK else ind0 = 8*2# exclude first two days
+    if INCLUDE_SHOCK: 
+        ind0=0
+    else:
+        ind0 = 8*2 # exclude first two days
     if region.lower()=="twp":
         if model.lower()=="icon" or model.lower()=="icon-3.5km":
             q = xr.open_dataset(ap.TWP_ICON_TWC)["iwc"] #kg/kg
@@ -851,7 +884,10 @@ def load_tot_hydro(model, region, ice_only=True):
         region = string of 'FV3', 'ICON', 'GEOS', 'SAM', or 'NICAM' (five of the DYAMOND models)
     """
     st = time.time()
-    ind0 = 0 if INCLUDE_SHOCK else ind0 = 8*2 # exclude first two days
+    if INCLUDE_SHOCK: 
+        ind0=0
+    else:
+        ind0 = 8*2 # exclude first two days
     if model.lower()=="nicam":
         if region.lower()=="twp":
             print("Getting hydrometeors for TWP:")
@@ -968,7 +1004,10 @@ def load_tot_hydro1x1(model, region, return_ind=False, iceliq_only=True):
         model  = string of 'FV3', 'ICON', 'GEOS', 'SAM', or 'NICAM' (five of the DYAMOND models)
     """
     st = time.time()
-    ind0 = 0 if INCLUDE_SHOCK else ind0 = 8*2 # exclude first two days
+    if INCLUDE_SHOCK: 
+        ind0=0
+    else:
+        ind0 = 8*2 # exclude first two days
     if region.lower()=="twp":
         lat0, lat1, lon0, lon1 = -1,0,147,148
     elif region.lower()=="nau":
@@ -1123,7 +1162,7 @@ def load_tot_hydro1x1(model, region, return_ind=False, iceliq_only=True):
         else:
             return qxr[ind0:]
     else: raise Exception("Model not supported at this time (try 'NICAM', 'FV3', 'GEOS'/'GEOS5', 'ICON', 'SAM')")
-  
+
 
 def load_frozen(model, region, ice_only=True):
     """ Returns xarray of frozen hydrometeors.
@@ -1133,7 +1172,10 @@ def load_frozen(model, region, ice_only=True):
         region = string of 'FV3', 'ICON', 'GEOS', 'SAM', or 'NICAM' (five of the DYAMOND models)
     """
     st= time.time()
-    ind0 = 0 if INCLUDE_SHOCK else ind0 = 8*2 # exclude first two days
+    if INCLUDE_SHOCK: 
+        ind0=0
+    else:
+        ind0 = 8*2 # exclude first two days
     if model.lower()=="nicam":
         if region.lower()=="twp":
             print("Getting frozen hydrometeors for NICAM TWP:")
@@ -1233,7 +1275,10 @@ def load_liq(model, region, rain=False):
         region = string of 'FV3', 'ICON', 'GEOS', 'SAM', or 'NICAM' (five of the DYAMOND models)
     """
     st = time.time()
-    ind0 = 0 if INCLUDE_SHOCK else ind0 = 8*2 # exclude first two days
+    if INCLUDE_SHOCK: 
+        ind0=0
+    else:
+        ind0 = 8*2 # exclude first two days
     if model.lower()=="nicam": #NICAM
         if region.lower()=="twp":
             print("Getting hydrometeors for NICAM TWP:")
