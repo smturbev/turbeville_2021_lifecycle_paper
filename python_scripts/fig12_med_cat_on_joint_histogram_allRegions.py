@@ -17,88 +17,92 @@ regions = ["SHL","TWP","NAU"]
 models = ["CCCM","NICAM","FV3","ICON","SAM"]
 net=False
 
-dar  = pd.read_csv("../tables/DARDAR_cat_alb_olr_ttl_cs.csv")
-ntwp = pd.read_csv("../tables/NICAM_TWP_cat_alb_olr_ttl_cs.csv")
-ftwp = pd.read_csv("../tables/FV3_TWP_cat_alb_olr_ttl_cs.csv")
-itwp = pd.read_csv("../tables/ICON_TWP_cat_alb_olr_ttl_cs.csv")
-stwp = pd.read_csv("../tables/SAM_TWP_cat_alb_olr_ttl_cs.csv")
-nshl = pd.read_csv("../tables/NICAM_SHL_cat_alb_olr_ttl_cs.csv")
-fshl = pd.read_csv("../tables/FV3_SHL_cat_alb_olr_ttl_cs.csv")
-ishl = pd.read_csv("../tables/ICON_SHL_cat_alb_olr_ttl_cs.csv")
-sshl = pd.read_csv("../tables/SAM_SHL_cat_alb_olr_ttl_cs.csv")
-nnau = pd.read_csv("../tables/NICAM_NAU_cat_alb_olr_ttl_cs.csv")
-fnau = pd.read_csv("../tables/FV3_NAU_cat_alb_olr_ttl_cs.csv")
-inau = pd.read_csv("../tables/ICON_NAU_cat_alb_olr_ttl_cs.csv")
-snau = pd.read_csv("../tables/SAM_NAU_cat_alb_olr_ttl_cs.csv")
-cre_twp = pd.read_csv("../tables/isolated_ttl_cirrus_iceonly_noliq_percentiles_TWP.csv")
-cre_shl = pd.read_csv("../tables/isolated_ttl_cirrus_iceonly_noliq_percentiles_SHL.csv")
-cre_nau = pd.read_csv("../tables/isolated_ttl_cirrus_iceonly_noliq_percentiles_NAU.csv")
+# dar  = pd.read_csv("../tables/DARDAR_cat_alb_olr_ttl_cs.csv")
+ctwp = pd.read_csv("../tables/CCCM_TWP.csv", index_col=0)
+ntwp = pd.read_csv("../tables/NICAM_TWP.csv", index_col=0)
+ftwp = pd.read_csv("../tables/FV3_TWP.csv", index_col=0)
+itwp = pd.read_csv("../tables/ICON_TWP.csv", index_col=0)
+stwp = pd.read_csv("../tables/SAM_TWP.csv", index_col=0)
+cshl = pd.read_csv("../tables/CCCM_SHL.csv", index_col=0)
+nshl = pd.read_csv("../tables/NICAM_SHL.csv", index_col=0)
+fshl = pd.read_csv("../tables/FV3_SHL.csv", index_col=0)
+ishl = pd.read_csv("../tables/ICON_SHL.csv", index_col=0)
+sshl = pd.read_csv("../tables/SAM_SHL.csv", index_col=0)
+cnau = pd.read_csv("../tables/CCCM_NAU.csv", index_col=0)
+nnau = pd.read_csv("../tables/NICAM_NAU.csv", index_col=0)
+fnau = pd.read_csv("../tables/FV3_NAU.csv", index_col=0)
+inau = pd.read_csv("../tables/ICON_NAU.csv", index_col=0)
+snau = pd.read_csv("../tables/SAM_NAU.csv", index_col=0)
 
-tc_med_olr = dar.twp_olr_med.values[:-1]
-tc_med_alb = dar.twp_alb_med.values[:-1]
-tn_med_olr = ntwp.olr_med.values[:-1]
-tn_med_alb = ntwp.alb_med.values[:-1]
-tf_med_olr = ftwp.olr_med.values[:-1]
-tf_med_alb = ftwp.alb_med.values[:-1]
-ti_med_olr = itwp.olr_med.values[:-1]
-ti_med_alb = itwp.alb_med.values[:-1]
-ts_med_olr = stwp.olr_med.values[:-1]
-ts_med_alb = stwp.alb_med.values[:-1]
+# cre_twp = pd.read_csv("../tables/isolated_ttl_cirrus_iceonly_noliq_percentiles_TWP.csv")
+# cre_shl = pd.read_csv("../tables/isolated_ttl_cirrus_iceonly_noliq_percentiles_SHL.csv")
+# cre_nau = pd.read_csv("../tables/isolated_ttl_cirrus_iceonly_noliq_percentiles_NAU.csv")
 
-tc_tmed_olr = dar.twp_olr_med.values[1:]
-tc_tmed_alb = dar.twp_alb_med.values[1:]
-tn_tmed_olr = ntwp.olr_ttl.values
-tn_tmed_alb = ntwp.alb_ttl.values
-tf_tmed_olr = ftwp.olr_ttl.values
-tf_tmed_alb = ftwp.alb_ttl.values
-ti_tmed_olr = itwp.olr_ttl.values
-ti_tmed_alb = itwp.alb_ttl.values
-ts_tmed_olr = stwp.olr_ttl.values
-ts_tmed_alb = stwp.alb_ttl.values
+tc_med_olr = ctwp.OLR.values[:-2] #np.array([105,195,263])
+tc_med_alb = ctwp.ALB.values[:-2] #np.array([0.63,0.28,0.09])
+tn_med_olr = ntwp.OLR.values[:-2]
+tn_med_alb = ntwp.ALB.values[:-2]
+tf_med_olr = ftwp.OLR.values[:-2]
+tf_med_alb = ftwp.ALB.values[:-2]
+ti_med_olr = itwp.OLR.values[:-2]
+ti_med_alb = itwp.ALB.values[:-2]
+ts_med_olr = stwp.OLR.values[:-2]
+ts_med_alb = stwp.ALB.values[:-2]
 
-sc_med_olr = dar.shl_olr_med.values[:-1]
-sc_med_alb = dar.shl_alb_med.values[:-1]
-sn_med_olr = nshl.olr_med.values[:-1]
-sn_med_alb = nshl.alb_med.values[:-1]
-sf_med_olr = fshl.olr_med.values[:-1]
-sf_med_alb = fshl.alb_med.values[:-1]
-si_med_olr = ishl.olr_med.values[:-1]
-si_med_alb = ishl.alb_med.values[:-1]
-ss_med_olr = sshl.olr_med.values[:-1]
-ss_med_alb = sshl.alb_med.values[:-1]
+tc_tmed_olr = ctwp.OLR_TTL.values[:-2] #np.array([104,157,240])
+tc_tmed_alb = ctwp.ALB_TTL.values[:-2] #np.array([0.6598,0.3444,0.1049661])
+tn_tmed_olr = ntwp.OLR_TTL.values[:-2]
+tn_tmed_alb = ntwp.ALB_TTL.values[:-2]
+tf_tmed_olr = ftwp.OLR_TTL.values[:-2]
+tf_tmed_alb = ftwp.ALB_TTL.values[:-2]
+ti_tmed_olr = itwp.OLR_TTL.values[:-2]
+ti_tmed_alb = itwp.ALB_TTL.values[:-2]
+ts_tmed_olr = stwp.OLR_TTL.values[:-2]
+ts_tmed_alb = stwp.ALB_TTL.values[:-2]
 
-sc_tmed_olr = dar.shl_olr_med.values[1:]
-sc_tmed_alb = dar.shl_alb_med.values[1:]
-sn_tmed_olr = nshl.olr_ttl.values
-sn_tmed_alb = nshl.alb_ttl.values
-sf_tmed_olr = fshl.olr_ttl.values
-sf_tmed_alb = fshl.alb_ttl.values
-si_tmed_olr = ishl.olr_ttl.values
-si_tmed_alb = ishl.alb_ttl.values
-ss_tmed_olr = sshl.olr_ttl.values
-ss_tmed_alb = sshl.alb_ttl.values
+sc_med_olr = cshl.OLR.values[:-2] #np.array([105,195,263])
+sc_med_alb = cshl.ALB.values[:-2] #np.array([0.63,0.28,0.09])
+sn_med_olr = nshl.OLR.values[:-2]
+sn_med_alb = nshl.ALB.values[:-2]
+sf_med_olr = fshl.OLR.values[:-2]
+sf_med_alb = fshl.ALB.values[:-2]
+si_med_olr = ishl.OLR.values[:-2]
+si_med_alb = ishl.ALB.values[:-2]
+ss_med_olr = sshl.OLR.values[:-2]
+ss_med_alb = sshl.ALB.values[:-2]
 
-nc_med_olr = dar.nau_olr_med.values[:-1]
-nc_med_alb = dar.nau_alb_med.values[:-1]
-nn_med_olr = nnau.olr_med.values[:-1]
-nn_med_alb = nnau.alb_med.values[:-1]
-nf_med_olr = fnau.olr_med.values[:-1]
-nf_med_alb = fnau.alb_med.values[:-1]
-ni_med_olr = inau.olr_med.values[:-1]
-ni_med_alb = inau.alb_med.values[:-1]
-ns_med_olr = snau.olr_med.values[:-1]
-ns_med_alb = snau.alb_med.values[:-1]
+sc_tmed_olr = cshl.OLR_TTL.values[:-2] #np.array([104,157,240])
+sc_tmed_alb = cshl.ALB_TTL.values[:-2] #np.array([0.6598,0.3444,0.1049661])
+sn_tmed_olr = nshl.OLR_TTL.values[:-2]
+sn_tmed_alb = nshl.ALB_TTL.values[:-2]
+sf_tmed_olr = fshl.OLR_TTL.values[:-2]
+sf_tmed_alb = fshl.ALB_TTL.values[:-2]
+si_tmed_olr = ishl.OLR_TTL.values[:-2]
+si_tmed_alb = ishl.ALB_TTL.values[:-2]
+ss_tmed_olr = sshl.OLR_TTL.values[:-2]
+ss_tmed_alb = sshl.ALB_TTL.values[:-2]
 
-nc_tmed_olr = dar.nau_olr_med.values[1:]
-nc_tmed_alb = dar.nau_alb_med.values[1:]
-nn_tmed_olr = nnau.olr_ttl.values
-nn_tmed_alb = nnau.alb_ttl.values
-nf_tmed_olr = fnau.olr_ttl.values
-nf_tmed_alb = fnau.alb_ttl.values
-ni_tmed_olr = inau.olr_ttl.values
-ni_tmed_alb = inau.alb_ttl.values
-ns_tmed_olr = snau.olr_ttl.values
-ns_tmed_alb = snau.alb_ttl.values
+nc_med_olr = cnau.OLR.values[:-2] #np.array([105,195,263])
+nc_med_alb = cnau.ALB.values[:-2] #np.array([0.63,0.28,0.09])
+nn_med_olr = nnau.OLR.values[:-2]
+nn_med_alb = nnau.ALB.values[:-2]
+nf_med_olr = fnau.OLR.values[:-2]
+nf_med_alb = fnau.ALB.values[:-2]
+ni_med_olr = inau.OLR.values[:-2]
+ni_med_alb = inau.ALB.values[:-2]
+ns_med_olr = snau.OLR.values[:-2]
+ns_med_alb = snau.ALB.values[:-2]
+
+nc_tmed_olr = cnau.OLR_TTL.values[:-2] #np.array([104,157,240])
+nc_tmed_alb = cnau.ALB_TTL.values[:-2] #np.array([0.6598,0.3444,0.1049661])
+nn_tmed_olr = nnau.OLR_TTL.values[:-2]
+nn_tmed_alb = nnau.ALB_TTL.values[:-2]
+nf_tmed_olr = fnau.OLR_TTL.values[:-2]
+nf_tmed_alb = fnau.ALB_TTL.values[:-2]
+ni_tmed_olr = inau.OLR_TTL.values[:-2]
+ni_tmed_alb = inau.ALB_TTL.values[:-2]
+ns_tmed_olr = snau.OLR_TTL.values[:-2]
+ns_tmed_alb = snau.ALB_TTL.values[:-2]
 
 lw = 5
 ms = 20
@@ -214,20 +218,43 @@ ax[1].tick_params(labelsize=fs-4)
 ax[3].set_xticks([-0.3,0.7,1.7,2.7], minor=True)
 ax[3].set_xticks([0.25,1.25,2.25])
 ax[3].plot([-0.3,2.7],[0,0],'gray',lw=0.5)
+models=["CCCM","NICAM","FV3","ICON","SAM"]
+
 for i,r in enumerate(regions):
     print(i,r)
     if r=="TWP":
-        lwcre = (cre_twp.olrcs.values[1:] - cre_twp.olr_med.values[1:])
-        swcre = (cre_twp.albcs.values[1:] - cre_twp.alb_med.values[1:])*413.2335274
-        netcre = lwcre + swcre
+        olr_cs = np.array([ctwp.OLR.CS, ntwp.OLR.CS,
+                           ftwp.OLR.CS, itwp.OLR.CS, stwp.OLR.CS])
+        alb_cs = np.array([ctwp.ALB.CS, ntwp.ALB.CS,
+                           ftwp.ALB.CS, itwp.ALB.CS, stwp.ALB.CS])
+        olr_isottl = np.array([ctwp.OLR.ISO_TTL, ntwp.OLR.ISO_TTL,
+                               ftwp.OLR.ISO_TTL, itwp.OLR.ISO_TTL, stwp.OLR.ISO_TTL])
+        alb_isottl = np.array([ctwp.ALB.ISO_TTL, ntwp.ALB.ISO_TTL,
+                               ftwp.ALB.ISO_TTL, itwp.ALB.ISO_TTL, stwp.ALB.ISO_TTL])
+        const = 413.2335274
     elif r=="NAU":
-        lwcre = (cre_nau.olrcs.values[1:] - cre_nau.olr_med.values[1:]) 
-        swcre = (cre_nau.albcs.values[1:] - cre_nau.alb_med.values[1:])*413.2335274
-        netcre = lwcre + swcre
+        olr_cs = np.array([cnau.OLR.CS, nnau.OLR.CS,
+                           fnau.OLR.CS, inau.OLR.CS, snau.OLR.CS])
+        alb_cs = np.array([cnau.ALB.CS, nnau.ALB.CS,
+                           fnau.ALB.CS, inau.ALB.CS, snau.ALB.CS])
+        olr_isottl = np.array([cnau.OLR.ISO_TTL, nnau.OLR.ISO_TTL,
+                               fnau.OLR.ISO_TTL, inau.OLR.ISO_TTL, snau.OLR.ISO_TTL])
+        alb_isottl = np.array([cnau.ALB.ISO_TTL, nnau.ALB.ISO_TTL,
+                               fnau.ALB.ISO_TTL, inau.ALB.ISO_TTL, snau.ALB.ISO_TTL])
+        const = 413.2335274
     else:
-        lwcre = (cre_shl.olrcs.values[1:] - cre_shl.olr_med.values[1:])
-        swcre = (cre_shl.albcs.values[1:] - cre_shl.alb_med.values[1:])*435.2760211
-        netcre = lwcre + swcre
+        olr_cs = np.array([cshl.OLR.CS, nshl.OLR.CS,
+                           fshl.OLR.CS, ishl.OLR.CS, sshl.OLR.CS])
+        alb_cs = np.array([cshl.ALB.CS, nshl.ALB.CS,
+                           fshl.ALB.CS, ishl.ALB.CS, sshl.ALB.CS])
+        olr_isottl = np.array([cshl.OLR.ISO_TTL, nshl.OLR.ISO_TTL,
+                               fshl.OLR.ISO_TTL, ishl.OLR.ISO_TTL, sshl.OLR.ISO_TTL])
+        alb_isottl = np.array([cshl.ALB.ISO_TTL, nshl.ALB.ISO_TTL,
+                               fshl.ALB.ISO_TTL, ishl.ALB.ISO_TTL, sshl.ALB.ISO_TTL])
+        const = 435.2760211 # SHL
+    lwcre = (olr_cs - olr_isottl)
+    swcre = (alb_cs - alb_isottl)*const
+    netcre = lwcre + swcre
     for j,m in enumerate(models):
         if m=="CCCM":
             m = "OBS"

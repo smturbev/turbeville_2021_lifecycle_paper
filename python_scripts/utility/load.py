@@ -168,14 +168,14 @@ def get_lwp(model, region, rain=False, sam_noise=True, is3d=True):
         elif region.lower()=="shl":
             cwp = xr.open_dataset(ap.SHL_FV3_LWP).intql
             if rain:
-                rwp = xr.open_dataset(ap.SHL_FV3_LWP).intqr
+                rwp = xr.open_dataset(ap.SHL_FV3_RWP).intqr
                 lwp = cwp + rwp
                 return lwp[ind0:]
             return cwp[ind0:]
         elif region.lower()=="nau":
             cwp = xr.open_dataset(ap.NAU_FV3_LWP).intql
             if rain:
-                rwp = xr.open_dataset(ap.NAU_FV3_LWP).intqr
+                rwp = xr.open_dataset(ap.NAU_FV3_RWP).intqr
                 lwp = cwp + rwp
                 return lwp[ind0:]
             return cwp[ind0:]
@@ -188,12 +188,7 @@ def get_lwp(model, region, rain=False, sam_noise=True, is3d=True):
             ds = xr.open_dataset(ap.NAU_ICON_IWP)
         else: assert Exception("region not valid, try SHL, NAU, or TWP")
         cwp = reshape.reshape("TQC_DIA", ds, dim=2)
-        print(lwp.shape)
-        if rain:
-            rwp = reshape.reshape("TQR", ds, dim=2)
-            print(rwp.shape)
-            lwp = cwp + rwp
-            return lwp[ind0:]
+        print(cwp.shape)
         return cwp[ind0:]
     elif model.lower()=="sam":
         if region.lower()=="twp":
@@ -635,8 +630,11 @@ def get_olr_alb(model, region):
             alb = swu/swd
         else: 
             raise Exception("Region not supported. Try 'TWP', 'NAU', 'SHL'.")
+        alb = alb[11::12]
+        olr = olr[11::12]
         alb = alb[ind0:]
         olr = olr[ind0:]
+        print(olr.shape, alb.shape)
     elif model.lower()=="sam":
         if region.lower()=="twp":
             print("Getting olr and albedo for SAM TWP:")
