@@ -37,7 +37,7 @@ def get_ilwc(model, region):
                          for ICON dimensions are (time, z, xydim)
     """
     qi = load.load_frozen(model, region, ice_only=True).astype('float16')
-    ql = load.load_liq(model, region).astype('float16')
+    ql = load.load_liq(model, region).values.astype('float16')
     qil = (qi + ql).astype('float16')
     del qi, ql
     print('... added qi + ql ...\n... del qi, ql...')
@@ -72,7 +72,7 @@ def get_cld_frac(model, region, ice_only=True, q=None):
         - model (str)     : dyamond model (eg. NICAM, FV3, ICON, etc.)
         - region (str)    : TWP, NAU, or SHL
         - ice_only (bool) : if False, uses 2D -> 3D froz hydrometeor estimation
-        - q (np.array)    : None or np.array
+        - q (np.array)    : Mixing ratio - None or np.array
     """
     if model=="OBS":
         # CloudSat-CALIPSO (cc) & DARDAR (dd)
@@ -97,7 +97,6 @@ def get_cld_frac(model, region, ice_only=True, q=None):
         print("\treturned dardar as tuple of numpy array of cld frac and altitude")
         return (cc_frac), (dd_frac, dz)
     else:
-        print(type(q))
         if q is not None:
             print("\tq is not None")
             iwc = util.q_to_iwc(q, model, region)
@@ -124,7 +123,8 @@ def get_cld_frac(model, region, ice_only=True, q=None):
         if model=="FV3":
             model_z = np.nanmean(model_z, axis=0)
         if model=="ICON":
-            model_z = np.nanmean(model_z, axis=(0,2))[14:]
+            model_z = np.nanmean(model_z, axis=(1))[14:]
+            print("ICON z", model_z.shape, model_z)
         print("\treturning model cld frac and z for",model, region)
         return (model_frac, model_z)
     return
@@ -150,7 +150,9 @@ def plot_vert_cld_frac(region, ax=None, ice_only=True, savename=None):
     s_frac, sz = get_cld_frac("SAM",region,ice_only=ice_only)
     f_frac, fz = get_cld_frac("FV3",region,ice_only=ice_only)
     cc_frac, (dd_frac, dz) = get_cld_frac("OBS",region)
-
+    print("Testing mean cld frac...")
+    print(i_frac.mean(), n_frac.mean(), s_frac.mean(), f_frac.mean())
+    print("Plotting...")
     # plot cld frac for fthres
     if ax is None:
         fig = plt.figure(figsize=(5,4))
@@ -183,7 +185,7 @@ def plot_vert_cld_frac(region, ax=None, ice_only=True, savename=None):
     ax.set_title('Cloud Occurrence, %s'%(region), fontsize=16)
     ax.grid()
     if ax is None:
-        if savename==None:
+        if savename is None:
             plt.savefig("../plots/frozen_cloud_occurrence_%s.png"%(region), bbox_inches="tight", dpi=200)
             print("saved as ../plots/frozen_cloud_occurrence_%s.png"%(region))
         else:
@@ -215,7 +217,7 @@ def plot_shl_twp_nau_cld_frac(fs=20, savename=None):
         print("saved as %s"%(savename))
     plt.close()
 
-def plot_vert_cld_frac_model(region, model, ax=None, ice_only=True, plot_ttl=True):
+def plot_vert_cld_frac_model(model, region, ax=None, ice_only=True, plot_ttl=True):
     """Produces the figure of vertical cloud fraction for the region and model specified.
     Parameters:
         - region (str)   : TWP, NAU, or SHL
@@ -231,6 +233,7 @@ def plot_vert_cld_frac_model(region, model, ax=None, ice_only=True, plot_ttl=Tru
     """
     print("Beginning...")
     if model.lower()=="icon":
+        print("icon")
         frac, z = get_cld_frac("ICON",region,ice_only=ice_only)
     elif model.lower()=="nicam":
         frac, z = get_cld_frac("NICAM",region,ice_only=ice_only)
@@ -252,8 +255,6 @@ def plot_vert_cld_frac_model(region, model, ax=None, ice_only=True, plot_ttl=Tru
         cf_list = SHL_CF_DICT
     elif region.lower()=="nau":
         cf_list = NAU_CF_DICT
-    else:
-        raise Exception("use region=twp, shl or nau")
     if not(ice_only):
         alpha=0.5
     else:
@@ -261,7 +262,8 @@ def plot_vert_cld_frac_model(region, model, ax=None, ice_only=True, plot_ttl=Tru
     if model=="OBS":
         ind0 = np.argmin(abs(dz.values-5000))
         ax.plot(dd_frac[:ind0], dz[:ind0]/1000, color=c['OBS'], lw=5, label="DARDAR ({}%)".format(cf_list["DARDAR"])) #cut-off DARDAR at 5km
-        ax.plot(cc_frac[:ind0], cc_frac.alt[:ind0], color=c['OBS'], lw=4, label="CloudSat-\nCALIPSO ({}%)".format(cf_list["CCCM"]), linestyle="dashed")
+        ax.plot(cc_frac[:ind0], cc_frac.alt[:ind0], color=c['OBS'], lw=4, 
+                label="CloudSat-\nCALIPSO ({}%)".format(cf_list["CCCM"]), linestyle="dashed")
     else:
         ax.plot(frac, z/1000, color=c[model], lw=3, label="{} ({}%)".format(model, cf_list[model]), alpha=alpha)
     if plot_ttl:

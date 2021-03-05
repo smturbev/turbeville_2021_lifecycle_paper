@@ -254,11 +254,11 @@ def get_ttliwp(model, region):
             return(xr.open_dataarray(ap.NAU_NICAM_TTLIWP)[ind0:])
     elif model.lower()=="fv3":
         if region.lower()=="twp":
-            return xr.open_dataarray(ap.TWP_SAM_TTLIWP)[ind0:]
+            return xr.open_dataarray(ap.TWP_FV3_TTLIWP)[ind0:]
         elif region.lower()=="shl":
-            return xr.open_dataarray(ap.SHL_SAM_TTLIWP)[ind0:]
+            return xr.open_dataarray(ap.SHL_FV3_TTLIWP)[ind0:]
         elif region.lower()=="nau":
-            return xr.open_dataarray(ap.NAU_SAM_TTLIWP)[ind0:]
+            return xr.open_dataarray(ap.NAU_FV3_TTLIWP)[ind0:]
     elif model.lower()=="icon":
         if region.lower()=="twp":
             return xr.open_dataarray(ap.TWP_ICON_TTLIWP)[ind0:]
@@ -271,9 +271,9 @@ def get_ttliwp(model, region):
         if region.lower()=="twp":
             return xr.open_dataarray(ap.TWP_SAM_TTLIWP)[ind0:]
         elif region.lower()=="shl":
-            return xr.open_dataarray(ap.TWP_SAM_TTLIWP)[ind0:]
+            return xr.open_dataarray(ap.SHL_SAM_TTLIWP)[ind0:]
         elif region.lower()=="nau":
-            return xr.open_dataarray(ap.TWP_SAM_TTLIWP)[ind0:]
+            return xr.open_dataarray(ap.NAU_SAM_TTLIWP)[ind0:]
         else:
             raise Exception("try valid region (SHL, NAU, TWP)")
     else: raise Exception("invalide model: model = SAM, ICON, FV3, NICAM")
@@ -380,23 +380,31 @@ def get_swd(model, region):
     elif model.lower()=="sam":
         if region.lower()=="twp":
             swn = xr.open_dataset(ap.TWP_SAM_SWN)['SWNTA']
-            swd_n = xr.open_dataset(ap.TWP_NICAM_SWD)['ss_swd_toa']
+            swd_n = xr.open_dataset(ap.TWP_NICAM_SWD)#['ss_swd_toa']
         elif region.lower()=="nau":
             swn = xr.open_dataset(ap.NAU_SAM_SWN)['SWNTA']
-            swd_n = xr.open_dataset(ap.NAU_NICAM_SWD)['ss_swd_toa']
+            swd_n = xr.open_dataset(ap.NAU_NICAM_SWD)#['ss_swd_toa']
         elif region.lower()=="shl":
             swn = xr.open_dataset(ap.SHL_SAM_SWN)['SWNTA']
-            swd_n = xr.open_dataset(ap.SHL_NICAM_SWD)['ss_swd_toa']
-        print(swn.shape, swd_n[:1920*2:2,0,:,:].shape)
-        if (swn.shape != swd_n[:1920*2:2,0,:,:].shape):
-            raise Exception("SW net from SAM and SW downward from NICAM don't match {},{}".format(swn.shape, swd_n[:1920*2:2,0,:,:].shape))
-        swd = np.zeros(swn.shape)
-        print('starting loop...')
-        for la in range(len(swn.lat)):
-            ind = np.argmin(abs(swn.lat.values[la]-swd_n.lat.values))
-            swd[:,la,:] = np.repeat((np.nanmean(swd_n[:1920*2:2,0,ind,:],axis=1))[:,np.newaxis], swn.shape[-1], axis=1)
-        print('...looping done\n\t return calculated sw downward at toa for SAM')
-    return swd[ind0:]
+            swd_n = xr.open_dataset(ap.SHL_NICAM_SWD)
+#         print(swn.shape, swd_n[:1920*2:2,0,:,:].shape)
+        swd = swd_n.reindex(indexers={"lat":swn.lat.values,"lon":swn.lon.values}, 
+                            method="nearest")
+        swd = swd.ss_swd_toa[:1920*2:2,0]
+        if swd.shape!=swn.shape:
+            raise Exception("Didn't work {},{},{}".format(swd.shape, swn.shape, swd_n['ss_swd_toa'].shape))
+        print("SWD", swd.shape)
+        swd = swd[ind0//2:]
+        print("Excluding initial shock", not(INCLUDE_SHOCK), swd.shape)
+#         swd = np.zeros(swn.shape)
+#         print('starting loop...')
+#         for la in range(len(swn.lat)):
+#             for lo in range(len(swn.lon)):
+#                 ind_la = np.argmin(abs(swn.lat.values[la]-swd_n.lat.values))
+#                 ind_lo = np.argmin(abs(swn.lon.values[lo]-swd_n.lon.values))
+#                 swd[:,la,lo] = swd_n[:1920*2:2,0,ind_la,ind_lo]
+#         print('...looping done\n\t return calculated sw downward at toa for SAM')
+    return swd
 
 def get_asr(model, region):
     """ Return asr (absorbed sw radiation) for models in region."""
@@ -538,6 +546,8 @@ def get_olr_alb(model, region):
             print("... calculating albedo for shape",olr.shape,swu.shape,swd.shape)
         else: print("Region not supported (try TWP, NAU, SHL)")
         alb = swu/swd
+        alb = alb[ind0:]
+        olr = olr[ind0:]
         del swu, swd
         print("... calculated albedo and opened olr (%s seconds elapsed)..."%str(time.time()-st))
     elif model.lower()=="fv3":
@@ -545,6 +555,7 @@ def get_olr_alb(model, region):
             print("Getting olr and albedo for FV3 TWP:")
             olr = xr.open_dataset(ap.TWP_FV3_OLR)["flut"][11::12,:,:]
             swu = xr.open_dataset(ap.TWP_FV3_SWU)["fsut"][11::12,:,:]
+            swu = swu[ind0:]
             swd = get_swd("FV3", "TWP")[11::12,:,:]
             alb = swu.values/swd
             print(olr.shape, alb.shape)
@@ -552,6 +563,7 @@ def get_olr_alb(model, region):
             print("Getting olr and albedo for FV3 NAU:")
             olr = xr.open_dataset(ap.NAU_FV3_OLR)["flut"][11::12,:,:]
             swu = xr.open_dataset(ap.NAU_FV3_SWU)["fsut"][11::12,:,:]
+            swu = swu[ind0:]
             swd = get_swd("FV3", "NAU")[11::12,:,:]
             alb = swu.values/swd
             print(olr.shape, alb.shape)
@@ -559,11 +571,14 @@ def get_olr_alb(model, region):
             print("Getting olr and albedo for FV3 SHL:")
             olr = xr.open_dataset(ap.SHL_FV3_OLR)["flut"][11::12,:,:]
             swu = xr.open_dataset(ap.SHL_FV3_SWU)["fsut"][11::12,:,:]
+            swu = swu[ind0:]
             swd = get_swd("FV3", "SHL")[11::12,:,:]
             alb = swu.values/swd
             print(olr.shape, alb.shape)
         else: 
             raise Exception("Region not supported. Try 'TWP', 'NAU', 'SHL'.")
+        alb = alb
+        olr = olr[ind0:]
     elif model.lower()=="icon":
         if region.lower()=="twp":
             print("Getting olr and albedo for ICON TWP:")
@@ -620,43 +635,46 @@ def get_olr_alb(model, region):
             alb = swu/swd
         else: 
             raise Exception("Region not supported. Try 'TWP', 'NAU', 'SHL'.")
+        alb = alb[ind0:]
+        olr = olr[ind0:]
     elif model.lower()=="sam":
         if region.lower()=="twp":
             print("Getting olr and albedo for SAM TWP:")
             olr = xr.open_dataset(ap.TWP_SAM_OLR)["LWNTA"][5::6,:,:]
             swn = xr.open_dataset(ap.TWP_SAM_SWN)["SWNTA"][5::6,:,:]
+            olr = olr[ind0:]
+            swn = swn[ind0:]
             swd = get_swd("SAM", "TWP")[5::6,:,:]
-            swu = swd - swn
-            alb = swu.values/swd
-            alb = xr.DataArray(alb, dims=olr.dims, coords=olr.coords, attrs={'long_name':'albedo at TOA (aver)',
-                                                                'units':'None'})
-            alb = alb.where((alb.values>0)&(swd>0))
-            print("mean", alb.mean())
-            print(olr.shape, alb.shape)
         elif region.lower()=="nau":
             print("Getting olr and albedo for SAM NAU:")
             olr = xr.open_dataset(ap.NAU_SAM_OLR)["LWNTA"][5::6,:,:]
             swn = xr.open_dataset(ap.NAU_SAM_SWN)["SWNTA"][5::6,:,:]
+            olr = olr[ind0:]
+            swn = swn[ind0:]
             swd = get_swd("SAM", "NAU")[5::6,:,:]
-            swu = swd - swn
-            alb = swu.values/swd
-            alb = xr.DataArray(alb, dims=olr.dims, coords=olr.coords, attrs={'long_name':'albedo at TOA (aver)',
-                                                                'units':'None'})
-            print(olr.shape, alb.shape)
         elif region.lower()=="shl":
             print("Getting olr and albedo for SAM SHL:")
             olr = xr.open_dataset(ap.SHL_SAM_OLR)["LWNTA"][5::6,:,:]
             swn = xr.open_dataset(ap.SHL_SAM_SWN)["SWNTA"][5::6,:,:]
+            olr = olr[ind0:]
+            swn = swn[ind0:]
             swd = get_swd("SAM", "SHL")[5::6,:,:]
-            swu = swd - swn
-            alb = swu.values/swd
-            alb = xr.DataArray(alb, dims=olr.dims, coords=olr.coords, attrs={'long_name':'albedo at TOA (aver)',
-                                                                'units':'None'})
-            print(olr.shape, alb.shape)
         else: 
             raise Exception("Region not supported. Try 'TWP', 'NAU', 'SHL'.")
+        print(swd.shape, swn.shape)
+        swu = swd.values - swn.values
+        print("... subtracted...")
+        alb = swu/swd.values
+        print("... calculated alb...")
+        alb = xr.DataArray(alb, dims=olr.dims, coords=olr.coords, attrs={'long_name':'albedo at TOA (aver)',
+                                                            'units':'None'})
+        print("... made xarray...")
+        alb = alb.where((alb.values>0)&(swd.values>0))
+        print("... made sure alb values are valid...")
+        print("... calculated mean", alb.mean().values, "...")
+        print("... returning olr and albedo", olr.shape, alb.shape, "...")
     else: raise Exception("Model not supported at this time (try 'NICAM', 'FV3', 'GEOS'/'GEOS5', 'ICON', 'SAM')")
-    return olr[ind0:], alb[ind0:]
+    return olr, alb
 
 ### ------ 3D ----- ###
 def get_levels(model, region):
@@ -682,11 +700,11 @@ def get_levels(model, region):
             z = xr.open_dataset(ap.NAU_FV3_Z).altitude.values
     elif model.lower()=="icon":
         if region.lower()=="twp":
-            z = xr.open_dataset(ap.SHL_ICON_Z).HHL.values[ind0:]
+            z = xr.open_dataset(ap.SHL_ICON_Z).HHL.values[0]
         elif region.lower()=="shl":
-            z = xr.open_dataset(ap.SHL_ICON_Z).HHL.values[ind0:]
+            z = xr.open_dataset(ap.SHL_ICON_Z).HHL.values[0]
         elif region.lower()=="nau":
-            z = xr.open_dataset(ap.SHL_ICON_Z).HHL.values[ind0:]
+            z = xr.open_dataset(ap.SHL_ICON_Z).HHL.values[0]
         else: assert Exception("region not valid, try SHL, NAU, or TWP")
         print(z.shape, ind0>0, "shape of z, if true removed first day of model output")
     elif model.lower()=="sam":
@@ -782,7 +800,7 @@ def get_temp(model, region):
             t = xr.open_dataset(ap.TWP_ICON_T)["NEW"][ind0:]
         elif region.lower()=="shl":
             t = xr.open_dataset(ap.SHL_ICON_T) #K
-            t = reshape.reshape("T", t, dim=3)
+            t = reshape.reshape("T", t, dim=3)[ind0:]
         elif region.lower()=="nau":
             t = xr.open_dataset(ap.NAU_ICON_T)["T"][ind0:]
         else: raise Exception("region not valid, try SHL, NAU, or TWP")
@@ -1222,11 +1240,11 @@ def load_frozen(model, region, ice_only=True):
             qi = xr.open_dataset(ap.NAU_FV3_QI)['qi']
         else: raise Exception("Region not supported (try 'TWP', 'NAU', 'SHL')")
         if ice_only:
-            return qi
+            return qi[ind0:]
         else:
             qi_tot = ice_to_total("FV3", region, qi)
             print("Warning: returned ESTIMATED total frozen hydrometeors")
-            return qi_tot
+            return qi_tot[ind0:]
     elif model.lower()=="icon":
         if region.lower()=="twp":
             print("Getting frozen hydrometeors for ICON TWP:")
@@ -1242,9 +1260,9 @@ def load_frozen(model, region, ice_only=True):
         if not(ice_only):
             qi_tot = ice_to_total(model, region, qi)
             print("returned estimated total frozen hydrometeors")
-            return qi_tot
+            return qi_tot[ind0:]
         else:
-            return qi
+            return qi[ind0:]
     elif model.lower()=="sam":
         if region.lower()=="twp":
             print("Getting frozen hydrometeors for SAM TWP:")
@@ -1258,11 +1276,11 @@ def load_frozen(model, region, ice_only=True):
         else: 
             raise Exception("Region not supported (try 'TWP', 'NAU', 'SHL')")
         if ice_only:
-            return qi
+            return qi[ind0:]
         else:
             qi_tot = ice_to_total(model, region, qi)
             print("returned estimated total frozen hydrometeors")
-            return qi_tot
+            return qi_tot[ind0:]
     else: raise Exception("Model not supported at this time (try 'NICAM', 'FV3', 'GEOS'/'GEOS5', 'ICON', 'SAM')")
     return
 

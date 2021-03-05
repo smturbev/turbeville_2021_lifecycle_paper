@@ -43,12 +43,13 @@ def get_cat_ttl_iwp(model, region):
     else:
         ttliwp = load.get_ttliwp(model, region)
         iwp = load.get_iwp(model, region, ice_only=False)
+        print(ttliwp.shape, iwp.shape)
         if model.lower()=="nicam":
-            iwp = iwp[11::12,0,:,:]
+            iwp = iwp[1::12,0,:,:]
         if model.lower()=="icon":
-            iwp = iwp[11::12,:]
+            iwp = iwp[1::12,:]
         elif model.lower()=="fv3":
-            iwp = iwp[11::12,:,:]
+            iwp = iwp[1::12,:,:]
         print(iwp.shape, ttliwp.shape)
         ttliwp1 = np.where((iwp>=1.0), ttliwp, np.nan)
         ttliwp2 = np.where((iwp>=1e-2)&(iwp<1.0), ttliwp, np.nan)
@@ -162,10 +163,6 @@ def main():
     ncat2 = np.nansum(nhist[lower_bin_ind:upper_bin_ind])/nno *100
     ncat1 = np.nansum(nhist[upper_bin_ind:])/nno *100
     ncat0 = 100. - (ncat1+ncat2+ncat3)
-    # ncat3 = 28
-    # ncat2 = 66
-    # ncat1 = 6
-    # ncat0 = 0
     fcat3 = np.nansum(fhist[cs_bin_ind:lower_bin_ind])/fno *100
     fcat2 = np.nansum(fhist[lower_bin_ind:upper_bin_ind])/fno *100
     fcat1 = np.nansum(fhist[upper_bin_ind:])/fno *100
@@ -303,7 +300,7 @@ def main():
     sax.annotate("Cirrus-free", xy=(-2.4,0.062), xycoords="data", color="k", fontsize=fs)
     # sax.set_title("SAM FWP, "+REGION+"\n {:} profiles".format(sno), size=16)
     sax.set_xlabel("log10(IWP) [g/m$^2$]", fontsize=fs)
-    sax.set_ylabel("SAM\Fraction of profiles", fontsize=fs)
+    sax.set_ylabel("SAM\nFraction of profiles", fontsize=fs)
 
     nax.bar(xmid[:cs_bin_ind], nhist[:cs_bin_ind], color='lightgray', width=0.1)
     nax.bar(xmid[cs_bin_ind:lower_bin_ind], nhist[cs_bin_ind:lower_bin_ind], color='C0', width=0.1)

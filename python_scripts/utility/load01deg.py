@@ -118,6 +118,7 @@ def get_swu(model, region):
         For models that don't output swd we will use the zonal mean
             to estimate swd for closest latitude.
     """
+    ind0=0 if INCLUDE_SHOCK else 96*2 # exclude first two days
     if model.lower()=="icon":
         if region.lower()=="twp":
             swu = xr.open_dataset(ap.ALL_TWP_ICON_SWU)['ASOU_T'][:]
@@ -236,6 +237,7 @@ def get_swd(model, region):
         For models that don't output swd we will use the zonal mean
             to estimate swd for closest latitude.
     """
+    ind0=0 if INCLUDE_SHOCK else 96*2 # exclude first two days
     if model.lower()=="icon":
         if region.lower()=="twp":
             swu = xr.open_dataset(ap.ALL_TWP_ICON_SWU)['ASOU_T'][:]
@@ -326,7 +328,7 @@ def get_olr(model, region):
         For models that don't output olr we will use the zonal mean
             to estimate olr for closest latitude.
     """
-    # icon has net and upward
+    ind0=0 if INCLUDE_SHOCK else 96*2 # exclude first two days
     if model.lower()=="icon":
         if region.lower()=="twp":
             olr = xr.open_dataset(ap.ALL_TWP_ICON_OLR)['ATHB_T'][:]
@@ -394,7 +396,6 @@ def get_olr(model, region):
             olr = -xr.open_dataset(ap.ALL_NAU_ECMWF_OLR)['ttr'][:,:,:]/3600
         elif region.lower()=="shl":
             olr = -xr.open_dataset(ap.ALL_SHL_ECMWF_OLR)['ttr'][:,:,:]/3600
-    print("Returned olr for "+model+" ("+region+") with shape:", olr.shape)
     else: raise Exception("model not valid.")
     if model.lower()=="sam":
         olr = olr[ind0//2:]
@@ -402,6 +403,7 @@ def get_olr(model, region):
         olr = olr[ind0//4:]
     else:
         olr = olr[ind0:]
+    print("Returned olr for "+model+" ("+region+") with shape:", olr.shape)
     return olr
 
 def get_iwp(model, region, ice_only=True):
@@ -409,7 +411,7 @@ def get_iwp(model, region, ice_only=True):
             If ice_only=False, returns frozen water path,
             otherwise returns ice only.
     """
-    # icon has net and upward
+    ind0=0 if INCLUDE_SHOCK else 96*2 # exclude first two days
     if model.lower()=="icon":
         if region.lower()=="twp":
             iwp = xr.open_dataset(ap.ALL_TWP_ICON_IWP)['TQI_DIA'][:]
@@ -537,7 +539,7 @@ def get_iwp(model, region, ice_only=True):
             if not(ice_only):
                 swp = xr.open_dataset(ap.ALL_SHL_ECMWF_SWP)["tcsw"][:,:,:]
                 fwp = iwp + swp.values
-    print("Returned iwp for "+model+" ("+region+") with shape:", iwp.shape)
+    else: raise Exception("Invalid model")
     if ice_only:
         if model.lower()=="sam":
             iwp = iwp[ind0//2:]
@@ -545,6 +547,7 @@ def get_iwp(model, region, ice_only=True):
             iwp = iwp[ind0//4:]
         else:
             iwp = iwp[ind0:]
+        print("Returned iwp for "+model+" ("+region+") with shape:", iwp.shape)
         return iwp
     else:
         if model.lower()=="sam":
@@ -553,5 +556,6 @@ def get_iwp(model, region, ice_only=True):
             fwp = fwp[ind0//4:]
         else:
             fwp = fwp[ind0:]
+        print("Returned fwp for "+model+" ("+region+") with shape:", iwp.shape)
         return fwp
     return

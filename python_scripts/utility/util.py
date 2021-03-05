@@ -229,25 +229,25 @@ def q_to_iwc(q, model, region, geos_twc=False):
         print("Warning: FV3 uses the spatially averaged density b/c \
         specific humidity and temperature are on different grids")
     elif model.lower() =="sam":
-        t = load.get_temp(model, region)
-        qv = load.get_qv(model, region)
-        p = load.get_pres(model, region)
+        t = load.get_temp(model, region).values
+        qv = load.get_qv(model, region).values
+        p = load.get_pres(model, region).values
         rho = p[:,:,np.newaxis,np.newaxis] / \
               (287*(1 + 0.61*qv)*t)
         iwc = q.values * rho
     else:
         if model.lower() == "icon":
-            t = load.get_temp(model, region).astype('float32')
-            qv = load.get_qv(model, region).astype('float16')
-            Tv = (1 + 0.61*qv.values)*t
+            t = load.get_temp(model, region).values.astype('float32')
+            qv = load.get_qv(model, region).values.astype('float16')
+            Tv = (1 + 0.61*qv)*t
             print("... Tv ...")
             del qv, t
-            p = load.get_pres(model, region).astype('float32')
+            p = load.get_pres(model, region).values.astype('float32')
         else:
-            t = load.get_temp(model, region)
-            qv = load.get_qv(model, region)
-            p = load.get_pres(model, region)
-            Tv = (1 + 0.61*qv.values)*t
+            t = load.get_temp(model, region).values
+            qv = load.get_qv(model, region).values
+            p = load.get_pres(model, region).values
+            Tv = (1 + 0.61*qv)*t
             print("... Tv ...")
             del qv, t
         rho = p / (287*Tv) 

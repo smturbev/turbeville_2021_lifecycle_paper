@@ -80,29 +80,25 @@ print(calb.shape, colr.shape)
 # average over ~30km (0.3deg) to match CCCM footprint
 # Choose the daytime values only (smaller dataset to average spatially)
 
-i_alb_llavg = np.zeros((3937,30,30))
-f_alb_llavg = np.zeros((3840,30,30))
-# g_alb_llavg = np.zeros((3925,30,30))
-s_alb_llavg = np.zeros((1920,30,30))
-n_alb_llavg = np.zeros((3936,30,30))
+i_alb_llavg = np.zeros((ialb.shape[0],30,30))
+f_alb_llavg = np.zeros((falb.shape[0],30,30))
+s_alb_llavg = np.zeros((salb.shape[0],30,30))
+n_alb_llavg = np.zeros((nalb.shape[0],30,30))
 
-i_olr_llavg = np.zeros((3937,30,30))
-f_olr_llavg = np.zeros((3840,30,30))
-# g_olr_llavg = np.zeros((3925,30,30))
-s_olr_llavg = np.zeros((1920,30,30))
-n_olr_llavg = np.zeros((3936,30,30))
+i_olr_llavg = np.zeros((iolr.shape[0],30,30))
+f_olr_llavg = np.zeros((folr.shape[0],30,30))
+s_olr_llavg = np.zeros((solr.shape[0],30,30))
+n_olr_llavg = np.zeros((nolr.shape[0],30,30))
 
 for n in range(30):
     for m in range(30):
         i_alb_llavg[:,n,m] = np.mean(ialb[:,3*n:(3*n)+3,3*m:(3*m)+3], axis=(1,2))
         f_alb_llavg[:,n,m] = np.mean(falb[:,3*n:(3*n)+3,3*m:(3*m)+3], axis=(1,2))
-#         g_alb_llavg[:,n,m] = np.mean(galb[:,3*n:(3*n)+3,3*m:(3*m)+3], axis=(1,2))
         s_alb_llavg[:,n,m] = np.mean(salb[:,3*n:(3*n)+3,3*m:(3*m)+3], axis=(1,2))
         n_alb_llavg[:,n,m] = np.mean(nalb[:,3*n:(3*n)+3,3*m:(3*m)+3], axis=(1,2))
         
         i_olr_llavg[:,n,m] = np.mean(iolr[:,3*n:(3*n)+3,3*m:(3*m)+3], axis=(1,2))
         f_olr_llavg[:,n,m] = np.mean(folr[:,3*n:(3*n)+3,3*m:(3*m)+3], axis=(1,2))
-#         g_olr_llavg[:,n,m] = np.mean(golr[:,3*n:(3*n)+3,3*m:(3*m)+3], axis=(1,2))
         s_olr_llavg[:,n,m] = np.mean(solr[:,3*n:(3*n)+3,3*m:(3*m)+3], axis=(1,2))
         n_olr_llavg[:,n,m] = np.mean(nolr[:,3*n:(3*n)+3,3*m:(3*m)+3], axis=(1,2))
 print('done')
@@ -158,8 +154,6 @@ calb_shl = cswu_shl/cswd_shl
 del cswu_shl, cswd_shl
 
 # use between 10am-2pm LT or 9UTC-13UTC
-# galb_shl = galb_shl.where(galb_shl.time.dt.hour<13 & galb_shl.time.dt.hour>=9)
-# golr_shl = golr_shl.where(golr_shl.time.dt.hour<13 & golr_shl.time.dt.hour>=9)
 falb_shl = falb_shl.where((falb_shl.time.dt.hour<13) & (falb_shl.time.dt.hour>=9))
 folr_shl = folr_shl.where((folr_shl.time.dt.hour<13) & (folr_shl.time.dt.hour>=9))
 ialb_shl = ialb_shl.where((ialb_shl.time.dt.hour<13) & (ialb_shl.time.dt.hour>=9))
@@ -183,29 +177,25 @@ print(calb_shl.shape, colr_shl.shape)
 # average over ~30km (0.3deg) to match CCCM footprint
 # Choose the daytime values only (smaller dataset to average spatially)
 
-i_alb_shl_llavg = np.zeros((3937,30,30))
-f_alb_shl_llavg = np.zeros((3840,30,30))
-# g_alb_shl_llavg = np.zeros((3925,30,30))
-s_alb_shl_llavg = np.zeros((1920,30,30))
-n_alb_shl_llavg = np.zeros((3936,30,30))
+i_alb_shl_llavg = np.zeros((ialb_shl.shape[0],30,30))
+f_alb_shl_llavg = np.zeros((falb_shl.shape[0],30,30))
+s_alb_shl_llavg = np.zeros((salb_shl.shape[0],30,30))
+n_alb_shl_llavg = np.zeros((nalb_shl.shape[0],30,30))
 
-i_olr_shl_llavg = np.zeros((3937,30,30))
-f_olr_shl_llavg = np.zeros((3840,30,30))
-# g_olr_shl_llavg = np.zeros((3925,30,30))
-s_olr_shl_llavg = np.zeros((1920,30,30))
-n_olr_shl_llavg = np.zeros((3936,30,30))
+i_olr_shl_llavg = np.zeros((iolr_shl.shape[0],30,30))
+f_olr_shl_llavg = np.zeros((folr_shl.shape[0],30,30))
+s_olr_shl_llavg = np.zeros((solr_shl.shape[0],30,30))
+n_olr_shl_llavg = np.zeros((nolr_shl.shape[0],30,30))
 
 for n in range(30):
     for m in range(30):
         i_alb_shl_llavg[:,n,m] = np.mean(ialb_shl[:,3*n:(3*n)+3,3*m:(3*m)+3], axis=(1,2))
         f_alb_shl_llavg[:,n,m] = np.mean(falb_shl[:,3*n:(3*n)+3,3*m:(3*m)+3], axis=(1,2))
-#         g_alb_shl_llavg[:,n,m] = np.mean(galb_shl[:,3*n:(3*n)+3,3*m:(3*m)+3], axis=(1,2))
         s_alb_shl_llavg[:,n,m] = np.mean(salb_shl[:,3*n:(3*n)+3,3*m:(3*m)+3], axis=(1,2))
         n_alb_shl_llavg[:,n,m] = np.mean(nalb_shl[:,3*n:(3*n)+3,3*m:(3*m)+3], axis=(1,2))
         
         i_olr_shl_llavg[:,n,m] = np.mean(iolr_shl[:,3*n:(3*n)+3,3*m:(3*m)+3], axis=(1,2))
         f_olr_shl_llavg[:,n,m] = np.mean(folr_shl[:,3*n:(3*n)+3,3*m:(3*m)+3], axis=(1,2))
-#         g_olr_shl_llavg[:,n,m] = np.mean(golr_shl[:,3*n:(3*n)+3,3*m:(3*m)+3], axis=(1,2))
         s_olr_shl_llavg[:,n,m] = np.mean(solr_shl[:,3*n:(3*n)+3,3*m:(3*m)+3], axis=(1,2))
         n_olr_shl_llavg[:,n,m] = np.mean(nolr_shl[:,3*n:(3*n)+3,3*m:(3*m)+3], axis=(1,2))
 print('done')
@@ -286,29 +276,25 @@ print(calb_nau.shape, colr_nau.shape)
 # average over ~30km (0.3deg) to match CCCM footprint
 # Choose the daytime values only (smaller dataset to average spatially)
 
-i_alb_nau_llavg = np.zeros((3937,30,30))
-f_alb_nau_llavg = np.zeros((3840,30,30))
-# g_alb_nau_llavg = np.zeros((3925,30,30))
-s_alb_nau_llavg = np.zeros((1920,30,30))
-n_alb_nau_llavg = np.zeros((3936,30,30))
+i_alb_nau_llavg = np.zeros((ialb_nau.shape[0],30,30))
+f_alb_nau_llavg = np.zeros((falb_nau.shape[0],30,30))
+s_alb_nau_llavg = np.zeros((salb_nau.shape[0],30,30))
+n_alb_nau_llavg = np.zeros((nalb_nau.shape[0],30,30))
 
-i_olr_nau_llavg = np.zeros((3937,30,30))
-f_olr_nau_llavg = np.zeros((3840,30,30))
-# g_olr_nau_llavg = np.zeros((3925,30,30))
-s_olr_nau_llavg = np.zeros((1920,30,30))
-n_olr_nau_llavg = np.zeros((3936,30,30))
+i_olr_nau_llavg = np.zeros((iolr_nau.shape[0],30,30))
+f_olr_nau_llavg = np.zeros((folr_nau.shape[0],30,30))
+s_olr_nau_llavg = np.zeros((solr_nau.shape[0],30,30))
+n_olr_nau_llavg = np.zeros((nolr_nau.shape[0],30,30))
 
 for n in range(30):
     for m in range(30):
         i_alb_nau_llavg[:,n,m] = np.mean(ialb_nau[:,3*n:(3*n)+3,3*m:(3*m)+3], axis=(1,2))
         f_alb_nau_llavg[:,n,m] = np.mean(falb_nau[:,3*n:(3*n)+3,3*m:(3*m)+3], axis=(1,2))
-#         g_alb_nau_llavg[:,n,m] = np.mean(galb_nau[:,3*n:(3*n)+3,3*m:(3*m)+3], axis=(1,2))
         s_alb_nau_llavg[:,n,m] = np.mean(salb_nau[:,3*n:(3*n)+3,3*m:(3*m)+3], axis=(1,2))
         n_alb_nau_llavg[:,n,m] = np.mean(nalb_nau[:,3*n:(3*n)+3,3*m:(3*m)+3], axis=(1,2))
         
         i_olr_nau_llavg[:,n,m] = np.mean(iolr_nau[:,3*n:(3*n)+3,3*m:(3*m)+3], axis=(1,2))
         f_olr_nau_llavg[:,n,m] = np.mean(folr_nau[:,3*n:(3*n)+3,3*m:(3*m)+3], axis=(1,2))
-#         g_olr_nau_llavg[:,n,m] = np.mean(golr_nau[:,3*n:(3*n)+3,3*m:(3*m)+3], axis=(1,2))
         s_olr_nau_llavg[:,n,m] = np.mean(solr_nau[:,3*n:(3*n)+3,3*m:(3*m)+3], axis=(1,2))
         n_olr_nau_llavg[:,n,m] = np.mean(nolr_nau[:,3*n:(3*n)+3,3*m:(3*m)+3], axis=(1,2))
 print('done')

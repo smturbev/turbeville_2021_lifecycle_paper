@@ -175,8 +175,6 @@ for i in range(20):
 fig = plt.figure(figsize=(12,6), constrained_layout=True)
 fs=12
 gs = fig.add_gridspec(2,3,width_ratios=[6,6,0.4])
-axz = fig.add_subplot(gs[:,0])
-axz = vert_cld_frac.plot_vert_cld_frac(REGION, ax=axz)
 
 ax0 = fig.add_subplot(gs[0,1])
 ms = 100
@@ -223,9 +221,12 @@ h, l = ax0.get_legend_handles_labels()
 axc.legend(h, l, loc="center", fontsize=fs)
 axc.axis("off")
 
-axz.annotate("(a)", xy=(0.71, 19), xycoords="data")
-ax0.annotate("(b)", xy=(256, 53), xycoords="data")
-ax1.annotate("(c)", xy=(256, 122), xycoords="data")
+axz = fig.add_subplot(gs[:,0])
+axz = vert_cld_frac.plot_vert_cld_frac(REGION, ax=axz)
+
+axz.annotate("(a)", xy=(0.71, 19), xycoords="data", fontsize=14)
+ax0.annotate("(b)", xy=(256, 53), xycoords="data", fontsize=14)
+ax1.annotate("(c)", xy=(256, 122), xycoords="data", fontsize=14)
 
 plt.savefig("../plots/fig05_%s_model_biases.png"%REGION,dpi=150,bbox_inches="tight")
 print("... saved to ../plots/fig05_%s_model_biases.png"%REGION)

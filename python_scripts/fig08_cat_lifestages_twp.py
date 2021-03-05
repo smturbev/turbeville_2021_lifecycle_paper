@@ -15,33 +15,33 @@ from utility import util, analysis_parameters as ap
 c = ap.COLORS
 ttl = True
 
-ntwp = pd.read_csv("../tables/NICAM_TWP_cat_alb_olr_ttl_cs.csv")
-ftwp = pd.read_csv("../tables/FV3_TWP_cat_alb_olr_ttl_cs.csv")
-itwp = pd.read_csv("../tables/ICON_TWP_cat_alb_olr_ttl_cs.csv")
-stwp = pd.read_csv("../tables/SAM_TWP_cat_alb_olr_ttl_cs.csv")
-cre_twp = pd.read_csv("../tables/isolated_ttl_cirrus_iceonly_noliq_percentiles_TWP.csv")
+ctwp = pd.read_csv("../tables/CCCM_TWP.csv", index_col=0)
+ntwp = pd.read_csv("../tables/NICAM_TWP.csv", index_col=0)
+ftwp = pd.read_csv("../tables/FV3_TWP.csv", index_col=0)
+itwp = pd.read_csv("../tables/ICON_TWP.csv", index_col=0)
+stwp = pd.read_csv("../tables/SAM_TWP.csv", index_col=0)
 
-c_med_olr = np.array([105,195,263])
-c_med_alb = np.array([0.63,0.28,0.09])
-n_med_olr = ntwp.olr_med.values[:-1]
-n_med_alb = ntwp.alb_med.values[:-1]
-f_med_olr = ftwp.olr_med.values[:-1]
-f_med_alb = ftwp.alb_med.values[:-1]
-i_med_olr = itwp.olr_med.values[:-1]
-i_med_alb = itwp.alb_med.values[:-1]
-s_med_olr = stwp.olr_med.values[:-1]
-s_med_alb = stwp.alb_med.values[:-1]
+c_med_olr = ctwp.OLR.values[:-2] #np.array([105,195,263])
+c_med_alb = ctwp.ALB.values[:-2] #np.array([0.63,0.28,0.09])
+n_med_olr = ntwp.OLR.values[:-2]
+n_med_alb = ntwp.ALB.values[:-2]
+f_med_olr = ftwp.OLR.values[:-2]
+f_med_alb = ftwp.ALB.values[:-2]
+i_med_olr = itwp.OLR.values[:-2]
+i_med_alb = itwp.ALB.values[:-2]
+s_med_olr = stwp.OLR.values[:-2]
+s_med_alb = stwp.ALB.values[:-2]
 
-c_tmed_olr = np.array([104,157,240])
-c_tmed_alb = np.array([0.6598,0.3444,0.1049661])
-n_tmed_olr = ntwp.olr_ttl.values
-n_tmed_alb = ntwp.alb_ttl.values
-f_tmed_olr = ftwp.olr_ttl.values
-f_tmed_alb = ftwp.alb_ttl.values
-i_tmed_olr = itwp.olr_ttl.values
-i_tmed_alb = itwp.alb_ttl.values
-s_tmed_olr = stwp.olr_ttl.values
-s_tmed_alb = stwp.alb_ttl.values
+c_tmed_olr = ctwp.OLR_TTL.values[:-2] #np.array([104,157,240])
+c_tmed_alb = ctwp.ALB_TTL.values[:-2] #np.array([0.6598,0.3444,0.1049661])
+n_tmed_olr = ntwp.OLR_TTL.values[:-2]
+n_tmed_alb = ntwp.ALB_TTL.values[:-2]
+f_tmed_olr = ftwp.OLR_TTL.values[:-2]
+f_tmed_alb = ftwp.ALB_TTL.values[:-2]
+i_tmed_olr = itwp.OLR_TTL.values[:-2]
+i_tmed_alb = itwp.ALB_TTL.values[:-2]
+s_tmed_olr = stwp.OLR_TTL.values[:-2]
+s_tmed_alb = stwp.ALB_TTL.values[:-2]
 
 lw = 5
 ms = 20
@@ -57,15 +57,15 @@ ax.plot(f_med_olr, f_med_alb, lw=lw, marker='.', ms=ms, label="FV3", alpha=a, zo
 ax.plot(i_med_olr, i_med_alb, lw=lw, marker='.',ms=ms, label="ICON", alpha=a, zorder=13, color=c["ICON"])
 ax.plot(s_med_olr, s_med_alb, lw=lw, marker='.',ms=ms, label="SAM", alpha=a, zorder=14, color=c["SAM"])
 if ttl:
-    ax.plot(c_tmed_olr, c_tmed_alb, lw=lw-2, marker='.',ms=ms+4, alpha=a, zorder=10, 
+    ax.plot(c_tmed_olr, c_tmed_alb, lw=lw-2, marker='.',ms=ms+6, alpha=a, zorder=10, 
             color=c["OBS"], linestyle='--', fillstyle='none')
-    ax.plot(n_tmed_olr, n_tmed_alb, lw=lw-2, marker='.',ms=ms+4, alpha=a, zorder=10, 
+    ax.plot(n_tmed_olr, n_tmed_alb, lw=lw-2, marker='.',ms=ms+6, alpha=a, zorder=10, 
             color=c["NICAM"], linestyle='--', fillstyle='none')
-    ax.plot(f_tmed_olr, f_tmed_alb, lw=lw-2, marker='.', ms=ms+4, alpha=a, zorder=12, 
+    ax.plot(f_tmed_olr, f_tmed_alb, lw=lw-2, marker='.', ms=ms+6, alpha=a, zorder=12, 
             color=c["FV3"], linestyle='--', fillstyle='none')
-    ax.plot(i_tmed_olr, i_tmed_alb, lw=lw-2, marker='.',ms=ms+4, alpha=a, zorder=13, 
+    ax.plot(i_tmed_olr, i_tmed_alb, lw=lw-2, marker='.',ms=ms+6, alpha=a, zorder=13, 
             color=c["ICON"], linestyle='--', fillstyle='none')
-    ax.plot(s_tmed_olr, s_tmed_alb, lw=lw-2, marker='.',ms=ms+4, alpha=a, zorder=14, 
+    ax.plot(s_tmed_olr, s_tmed_alb, lw=lw-2, marker='.',ms=ms+6, alpha=a, zorder=14, 
             color=c["SAM"], linestyle='--', fillstyle='none')
     ax.plot(0,0,color='gray',marker='.',ms=ms,lw=lw,label='All-Sky')
     ax.plot(0,0,color='gray',marker='.',ms=ms+4,lw=lw-2,linestyle='--',fillstyle='none',label='TTL-Ci')
@@ -84,8 +84,16 @@ ax.set_title('Category Median Albedo and OLR\nTWP', fontsize=fs)
 ax.tick_params(labelsize=fs-4)
 
 models=["CCCM","NICAM","FV3","ICON","SAM"]
-lwcre = (cre_twp.olrcs.values[1:] - cre_twp.olr_med.values[1:])
-swcre = (cre_twp.albcs.values[1:] - cre_twp.alb_med.values[1:])*413.2335274
+olr_cs = np.array([ctwp.OLR.CS, ntwp.OLR.CS,
+                   ftwp.OLR.CS, itwp.OLR.CS, stwp.OLR.CS])
+alb_cs = np.array([ctwp.ALB.CS, ntwp.ALB.CS,
+                   ftwp.ALB.CS, itwp.ALB.CS, stwp.ALB.CS])
+olr_isottl = np.array([ctwp.OLR.ISO_TTL, ntwp.OLR.ISO_TTL,
+                       ftwp.OLR.ISO_TTL, itwp.OLR.ISO_TTL, stwp.OLR.ISO_TTL])
+alb_isottl = np.array([ctwp.ALB.ISO_TTL, ntwp.ALB.ISO_TTL,
+                       ftwp.ALB.ISO_TTL, itwp.ALB.ISO_TTL, stwp.ALB.ISO_TTL])
+lwcre = (olr_cs - olr_isottl)
+swcre = (alb_cs - alb_isottl)*413.2335274
 isocre = lwcre + swcre
 for j,m in enumerate(models):
         if m=="CCCM":
