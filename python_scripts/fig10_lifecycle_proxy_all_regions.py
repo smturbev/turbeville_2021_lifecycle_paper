@@ -244,8 +244,8 @@ nolr_nau = load01deg.get_olr("NICAM", "NAU")[:,0,:,:]
 
 # load observational data
 # calipso-ceres-cloudsat-modis (CCCM)
-cswu_nau= xr.open_dataset(ap.CERES_NAU)["CERES SW TOA flux - upwards"]
-cswd_nau= xr.open_dataset(ap.CERES_NAU)["CERES SW TOA flux - downwards"]
+cswu_nau = xr.open_dataset(ap.CERES_NAU)["CERES SW TOA flux - upwards"]
+cswd_nau = xr.open_dataset(ap.CERES_NAU)["CERES SW TOA flux - downwards"]
 colr_nau = xr.open_dataset(ap.CERES_NAU)["Outgoing LW radiation at TOA"]
 calb_nau = cswu_nau/cswd_nau
 del cswu_nau, cswd_nau
@@ -316,7 +316,8 @@ fig = plt.figure(figsize=(6*5+1,3*6), constrained_layout=True)
 gs = fig.add_gridspec(3,16*5+1)
 cmap = cm.gist_earth_r
 ms = 30
-lw=2
+lw = 2
+fs = 24
 c = 'b'
 levs = np.arange(-3.2, -1, 0.2)
 xbins = np.linspace(70,320,26)
@@ -326,7 +327,7 @@ colr = colr[~np.isnan(calb)]
 calb = calb[~np.isnan(calb)]
 util.dennisplot("density", colr, calb, levels=levs, 
                 model="CERES CCCM (All year, 2007-10)", region="TWP", 
-                var_name="",units="", cmap=cmap, ax=cax, colorbar_on=False)
+                var_name="",units="", cmap=cmap, ax=cax, colorbar_on=False, fs=fs)
 cax.plot([np.nanmean(colr)],[np.nanmean(calb)], 'r.', ms=ms)
 cymean, _, _ = stats.binned_statistic(colr.values.flatten(), calb.values.flatten(), bins=xbins)
 # cax.plot(xbinmid, cymean, c, lw=lw)
@@ -335,7 +336,7 @@ nax = fig.add_subplot(gs[1,16:16*2])
 nolr_flat = nolr_flat[~np.isnan(nalb_flat)]
 nalb_flat = nalb_flat[~np.isnan(nalb_flat)]
 util.dennisplot("density", nolr_flat, nalb_flat, levels=levs, model="NICAM", region="TWP", 
-           var_name="",units="", cmap=cmap, ax=nax, colorbar_on=False)
+           var_name="",units="", cmap=cmap, ax=nax, colorbar_on=False, fs=fs)
 nax.plot([np.nanmean(nolr_flat)],[np.nanmean(nalb_flat)], 'r.', ms=ms)
 nymean, _, _ = stats.binned_statistic(nolr_flat, nalb_flat, bins=xbins)
 # nax.plot(xbinmid, nymean, c, lw=lw)
@@ -344,7 +345,7 @@ fax = fig.add_subplot(gs[1,16*2:16*3])
 folr_flat = folr_flat[~np.isnan(falb_flat)]
 falb_flat = falb_flat[~np.isnan(falb_flat)]
 fax, cs = util.dennisplot("density", folr_flat, falb_flat, levels=levs, model="FV3", region="TWP", 
-           var_name="",units="", cmap=cmap, ax=fax, colorbar_on=False)
+           var_name="",units="", cmap=cmap, ax=fax, colorbar_on=False, fs=fs)
 fax.plot([np.nanmean(folr_flat)],[np.nanmean(falb_flat)], 'r.', ms=ms)
 fymean, _, _ = stats.binned_statistic(folr_flat, falb_flat, bins=xbins)
 # fax.plot(xbinmid, fymean, c, lw=lw)
@@ -353,7 +354,7 @@ iax = fig.add_subplot(gs[1,16*3:16*4])
 iolr_flat = iolr_flat[~np.isnan(ialb_flat)]
 ialb_flat = ialb_flat[~np.isnan(ialb_flat)]
 util.dennisplot("density", iolr_flat, ialb_flat, levels=levs, model="ICON", region="TWP", 
-           var_name="",units="", cmap=cmap, ax=iax, colorbar_on=False)
+           var_name="",units="", cmap=cmap, ax=iax, colorbar_on=False, fs=fs)
 iax.plot([np.nanmean(iolr_flat)],[np.nanmean(ialb_flat[~np.isnan(ialb_flat)])], 'r.', ms=ms)
 iymean, _, _ = stats.binned_statistic(iolr_flat, ialb_flat, bins=xbins)
 # iax.plot(xbinmid, iymean, c, lw=lw)
@@ -362,18 +363,23 @@ sax = fig.add_subplot(gs[1,16*4:16*5])
 solr_flat = solr_flat[~np.isnan(salb_flat)]
 salb_flat = salb_flat[~np.isnan(salb_flat)]
 util.dennisplot("density", solr_flat, salb_flat, levels=levs, model="SAM", region="TWP", 
-           var_name="",units="", cmap=cmap, ax=sax, colorbar_on=False)
+           var_name="",units="", cmap=cmap, ax=sax, colorbar_on=False, fs=fs)
 sax.plot([np.nanmean(solr_flat)],[np.nanmean(salb_flat)], 'r.', ms=ms)
 symean, _, _ = stats.binned_statistic(solr_flat, salb_flat, bins=xbins)
 # sax.plot(xbinmid, symean, c, lw=lw)
 print("5/15: made sam axis...")
+cax.tick_params(labelsize=fs-4)
+nax.tick_params(labelsize=fs-4)
+fax.tick_params(labelsize=fs-4)
+iax.tick_params(labelsize=fs-4)
+sax.tick_params(labelsize=fs-4)
 
 cax = fig.add_subplot(gs[0,:16])
 colr_shl = colr_shl[~np.isnan(calb_shl)]
 calb_shl = calb_shl[~np.isnan(calb_shl)]
 util.dennisplot("density", colr_shl, calb_shl, levels=levs, 
                 model="CERES CCCM (JAS, 2007-10)", region="SHL", 
-                var_name="",units="", cmap=cmap, ax=cax, colorbar_on=False)
+                var_name="",units="", cmap=cmap, ax=cax, colorbar_on=False, fs=fs)
 cax.plot([np.nanmean(colr_shl)],[np.nanmean(calb_shl)], 'r.', ms=ms)
 cymean, _, _ = stats.binned_statistic(colr_shl.values.flatten(), calb_shl.values.flatten(), bins=xbins)
 # cax.plot(xbinmid, cymean, c, lw=lw)
@@ -382,7 +388,7 @@ nax = fig.add_subplot(gs[0,16:16*2])
 nolr_shl_flat = nolr_shl_flat[~np.isnan(nalb_shl_flat)]
 nalb_shl_flat = nalb_shl_flat[~np.isnan(nalb_shl_flat)]
 util.dennisplot("density", nolr_shl_flat, nalb_shl_flat, levels=levs, model="NICAM", region="SHL", 
-           var_name="",units="", cmap=cmap, ax=nax, colorbar_on=False)
+           var_name="",units="", cmap=cmap, ax=nax, colorbar_on=False, fs=fs)
 nax.plot([np.nanmean(nolr_shl_flat)],[np.nanmean(nalb_shl_flat)], 'r.', ms=ms)
 nymean, _, _ = stats.binned_statistic(nolr_shl_flat, nalb_shl_flat, bins=xbins)
 # nax.plot(xbinmid, nymean, c, lw=lw)
@@ -391,7 +397,7 @@ fax = fig.add_subplot(gs[0,16*2:16*3])
 folr_shl_flat = folr_shl_flat[~np.isnan(falb_shl_flat)]
 falb_shl_flat = falb_shl_flat[~np.isnan(falb_shl_flat)]
 fax, cs = util.dennisplot("density", folr_shl_flat, falb_shl_flat, levels=levs, model="FV3", region="SHL", 
-           var_name="",units="", cmap=cmap, ax=fax, colorbar_on=False)
+           var_name="",units="", cmap=cmap, ax=fax, colorbar_on=False, fs=fs)
 fax.plot([np.nanmean(folr_shl_flat)],[np.nanmean(falb_shl_flat)], 'r.', ms=ms)
 fymean, _, _ = stats.binned_statistic(folr_shl_flat, falb_shl_flat, bins=xbins)
 # fax.plot(xbinmid, fymean, c, lw=lw)
@@ -400,7 +406,7 @@ iax = fig.add_subplot(gs[0,16*3:16*4])
 iolr_shl_flat = iolr_shl_flat[~np.isnan(ialb_shl_flat)]
 ialb_shl_flat = ialb_shl_flat[~np.isnan(ialb_shl_flat)]
 util.dennisplot("density", iolr_shl_flat, ialb_shl_flat, levels=levs, model="ICON", region="SHL", 
-           var_name="",units="", cmap=cmap, ax=iax, colorbar_on=False)
+           var_name="",units="", cmap=cmap, ax=iax, colorbar_on=False, fs=fs)
 iax.plot([np.nanmean(iolr_shl_flat)],[np.nanmean(ialb_shl_flat[~np.isnan(ialb_shl_flat)])], 'r.', ms=ms)
 iymean, _, _ = stats.binned_statistic(iolr_shl_flat, ialb_shl_flat, bins=xbins)
 # iax.plot(xbinmid, iymean, c, lw=lw)
@@ -409,25 +415,30 @@ sax = fig.add_subplot(gs[0,16*4:16*5])
 solr_shl_flat = solr_shl_flat[~np.isnan(salb_shl_flat)]
 salb_shl_flat = salb_shl_flat[~np.isnan(salb_shl_flat)]
 util.dennisplot("density", solr_shl_flat, salb_shl_flat, levels=levs, model="SAM", region="SHL", 
-           var_name="",units="", cmap=cmap, ax=sax, colorbar_on=False)
+           var_name="",units="", cmap=cmap, ax=sax, colorbar_on=False, fs=fs)
 sax.plot([np.nanmean(solr_shl_flat)],[np.nanmean(salb_shl_flat)], 'r.', ms=ms)
 symean, _, _ = stats.binned_statistic(solr_shl_flat, salb_shl_flat, bins=xbins)
 # sax.plot(xbinmid, symean, c, lw=lw)
 print("10/15: made sam axis...")
 # annotate the figure labels (a-e)
-fs=20
-cax.annotate("(a)", xy=(0.01,1.02), xycoords="axes fraction", fontsize=fs-2)
-nax.annotate("(b)", xy=(0.01,1.02), xycoords="axes fraction", fontsize=fs-2)
-fax.annotate("(c)", xy=(0.01,1.02), xycoords="axes fraction", fontsize=fs-2)
-iax.annotate("(d)", xy=(0.01,1.02), xycoords="axes fraction", fontsize=fs-2)
-sax.annotate("(e)", xy=(0.01,1.02), xycoords="axes fraction", fontsize=fs-2)
+cax.tick_params(labelsize=fs-4)
+nax.tick_params(labelsize=fs-4)
+fax.tick_params(labelsize=fs-4)
+iax.tick_params(labelsize=fs-4)
+sax.tick_params(labelsize=fs-4)
+
+cax.annotate("(a)", xy=(0.42,1.25), xycoords="axes fraction", fontsize=fs+5, weight="bold")
+nax.annotate("(b)", xy=(0.42,1.25), xycoords="axes fraction", fontsize=fs+5, weight="bold")
+fax.annotate("(c)", xy=(0.42,1.25), xycoords="axes fraction", fontsize=fs+5, weight="bold")
+iax.annotate("(d)", xy=(0.42,1.25), xycoords="axes fraction", fontsize=fs+5, weight="bold")
+sax.annotate("(e)", xy=(0.42,1.25), xycoords="axes fraction", fontsize=fs+5, weight="bold")
 
 cax = fig.add_subplot(gs[2,:16])
 colr_nau = colr_nau[~np.isnan(calb_nau)]
 calb_nau = calb_nau[~np.isnan(calb_nau)]
 util.dennisplot("density", colr_nau, calb_nau, levels=levs, 
                 model="CERES CCCM (JAS, 2007-10)", region="NAU", 
-                var_name="",units="", cmap=cmap, ax=cax, colorbar_on=False)
+                var_name="",units="", cmap=cmap, ax=cax, colorbar_on=False, fs=fs)
 cax.plot([np.nanmean(colr_nau)],[np.nanmean(calb_nau)], 'r.', ms=ms)
 cymean, _, _ = stats.binned_statistic(colr_nau.values.flatten(), calb_nau.values.flatten(), bins=xbins)
 # cax.plot(xbinmid, cymean, c, lw=lw)
@@ -436,7 +447,7 @@ nax = fig.add_subplot(gs[2,16:16*2])
 nolr_nau_flat = nolr_nau_flat[~np.isnan(nalb_nau_flat)]
 nalb_nau_flat = nalb_nau_flat[~np.isnan(nalb_nau_flat)]
 util.dennisplot("density", nolr_nau_flat, nalb_nau_flat, levels=levs, model="NICAM", region="NAU", 
-           var_name="",units="", cmap=cmap, ax=nax, colorbar_on=False)
+           var_name="",units="", cmap=cmap, ax=nax, colorbar_on=False, fs=fs)
 nax.plot([np.nanmean(nolr_nau_flat)],[np.nanmean(nalb_nau_flat)], 'r.', ms=ms)
 nymean, _, _ = stats.binned_statistic(nolr_nau_flat, nalb_nau_flat, bins=xbins)
 # nax.plot(xbinmid, nymean, c, lw=lw)
@@ -445,7 +456,7 @@ fax = fig.add_subplot(gs[2,16*2:16*3])
 folr_nau_flat = folr_nau_flat[~np.isnan(falb_nau_flat)]
 falb_nau_flat = falb_nau_flat[~np.isnan(falb_nau_flat)]
 fax, cs = util.dennisplot("density", folr_nau_flat, falb_nau_flat, levels=levs, model="FV3", region="NAU", 
-           var_name="",units="", cmap=cmap, ax=fax, colorbar_on=False)
+           var_name="",units="", cmap=cmap, ax=fax, colorbar_on=False, fs=fs)
 fax.plot([np.nanmean(folr_nau_flat)],[np.nanmean(falb_nau_flat)], 'r.', ms=ms)
 fymean, _, _ = stats.binned_statistic(folr_nau_flat, falb_nau_flat, bins=xbins)
 # fax.plot(xbinmid, fymean, c, lw=lw)
@@ -454,7 +465,7 @@ iax = fig.add_subplot(gs[2,16*3:16*4])
 iolr_nau_flat = iolr_nau_flat[~np.isnan(ialb_nau_flat)]
 ialb_nau_flat = ialb_nau_flat[~np.isnan(ialb_nau_flat)]
 util.dennisplot("density", iolr_nau_flat, ialb_nau_flat, levels=levs, model="ICON", region="NAU", 
-           var_name="",units="", cmap=cmap, ax=iax, colorbar_on=False)
+           var_name="",units="", cmap=cmap, ax=iax, colorbar_on=False, fs=fs)
 iax.plot([np.nanmean(iolr_nau_flat)],[np.nanmean(ialb_nau_flat[~np.isnan(ialb_nau_flat)])], 'r.', ms=ms)
 iymean, _, _ = stats.binned_statistic(iolr_nau_flat, ialb_nau_flat, bins=xbins)
 # iax.plot(xbinmid, iymean, c, lw=lw)
@@ -463,11 +474,18 @@ sax = fig.add_subplot(gs[2,16*4:16*5])
 solr_nau_flat = solr_nau_flat[~np.isnan(salb_nau_flat)]
 salb_nau_flat = salb_nau_flat[~np.isnan(salb_nau_flat)]
 util.dennisplot("density", solr_nau_flat, salb_nau_flat, levels=levs, model="SAM", region="NAU", 
-           var_name="",units="", cmap=cmap, ax=sax, colorbar_on=False)
+           var_name="",units="", cmap=cmap, ax=sax, colorbar_on=False, fs=fs)
 sax.plot([np.nanmean(solr_nau_flat)],[np.nanmean(salb_nau_flat)], 'r.', ms=ms)
 symean, _, _ = stats.binned_statistic(solr_nau_flat, salb_nau_flat, bins=xbins)
 # sax.plot(xbinmid, symean, c, lw=lw)
 print("15/15: made sam axis...")
+
+cax.tick_params(labelsize=fs-4)
+nax.tick_params(labelsize=fs-4)
+fax.tick_params(labelsize=fs-4)
+iax.tick_params(labelsize=fs-4)
+sax.tick_params(labelsize=fs-4)
+
 
 #add obs and colorbar
 cbax0 = fig.add_subplot(gs[0,-1])
@@ -476,14 +494,15 @@ cbax2 = fig.add_subplot(gs[2,-1])
 cbar0 = plt.colorbar(cs, cax=cbax0)
 cbar1 = plt.colorbar(cs, cax=cbax1)
 cbar2 = plt.colorbar(cs, cax=cbax2)
-cbar0.set_label("log10(pdf)", fontsize=18)
-cbar1.set_label("log10(pdf)", fontsize=18)
-cbar2.set_label("log10(pdf)", fontsize=18)
-cbar0.ax.tick_params(labelsize=14)
-cbar1.ax.tick_params(labelsize=14)
-cbar2.ax.tick_params(labelsize=14)
+cbar0.set_label("log$_10$(pdf)", fontsize=fs-4)
+cbar1.set_label("log$_10$(pdf)", fontsize=fs-4)
+cbar2.set_label("log$_10$(pdf)", fontsize=fs-4)
+cbar0.ax.tick_params(labelsize=fs-4)
+cbar1.ax.tick_params(labelsize=fs-4)
+cbar2.ax.tick_params(labelsize=fs-4)
 print("... made colorbars ...")
-plt.savefig("../plots/fig10_lifecycle_proxy_all_regions.png", bbox_inches="tight")
+fig.suptitle(" ")
+plt.savefig("../plots/fig10_lifecycle_proxy_all_regions.png")
 print("... saved in ../plots/fig10_lifecycle_proxy_all_regions.png")
 plt.close()
 

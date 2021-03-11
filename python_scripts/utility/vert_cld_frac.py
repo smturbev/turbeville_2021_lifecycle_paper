@@ -16,7 +16,7 @@ from . import load, util
 from . import analysis_parameters as ap
 
 c = ap.COLORS
-THRES = 5e-7 #kg/m3 = 5e-4 g/m2
+THRES = 5e-7 #kg/m3 = 5e-4 g/m3
 TWP_CF = [13, 13, 0.4, 25, 27, 18]
 SHL_CF = [34, 25, 8,   30, 46, 29]
 NAU_CF = [19, 42, 2,   40, 42, 33]
@@ -129,7 +129,7 @@ def get_cld_frac(model, region, ice_only=True, q=None):
         return (model_frac, model_z)
     return
 
-def plot_vert_cld_frac(region, ax=None, ice_only=True, savename=None):
+def plot_vert_cld_frac(region, ax=None, ice_only=True, savename=None, fs=18):
     """Produces the figure of vertical cloud fraction for the region specified.
     Parameters:
         - region (str)   : TWP, NAU, or SHL
@@ -168,7 +168,7 @@ def plot_vert_cld_frac(region, ax=None, ice_only=True, savename=None):
     else:
         raise Exception("use region=twp, shl or nau")
     ax.plot(dd_frac[:ind0], dz[:ind0]/1000, color=c['OBS'], lw=5, label="DARDAR ({}%)".format(cf_list[0])) #cut-off DARDAR at 5km
-    ax.plot(cc_frac[:ind0], cc_frac.alt[:ind0], color=c['OBS'], lw=4, label="CloudSat-\nCALIPSO ({}%)".format(cf_list[1]), linestyle="dashed")
+    ax.plot(cc_frac[:ind0], cc_frac.alt[:ind0], color=c['OBS'], lw=4, label="CCCM ({}%)".format(cf_list[1]), linestyle="dashed")
     if not(ice_only):
         alpha=0.5
     else:
@@ -180,9 +180,9 @@ def plot_vert_cld_frac(region, ax=None, ice_only=True, savename=None):
     ax.fill_between([-0.03,0.83],14,18, color='black', alpha=0.2, label="TTL")
     ax.set_ylim([0,20])
     ax.set_xlim([-0.03,0.83]) #83
-    ax.legend(loc=4)
-    ax.set_ylabel("Height [km]")
-    ax.set_title('Cloud Occurrence, %s'%(region), fontsize=16)
+    ax.set_ylabel("Height (km)",fontsize=fs)
+    ax.set_title('Cloud Occurrence, %s'%(region), fontsize=fs)
+    ax.tick_params(labelsize=fs-2)
     ax.grid()
     if ax is None:
         if savename is None:
@@ -194,7 +194,7 @@ def plot_vert_cld_frac(region, ax=None, ice_only=True, savename=None):
         plt.close()
     return ax
 
-def plot_shl_twp_nau_cld_frac(fs=20, savename=None):
+def plot_shl_twp_nau_cld_frac(fs=22, savename=None):
     """Plots and saves regional comparison of vertical cloud occurrence. Used for Figure 9 in paper.
     Parameters: 
         - fs (int)      : fontsize for annotation of (a), (b), and (c) for subplot labels
@@ -202,13 +202,27 @@ def plot_shl_twp_nau_cld_frac(fs=20, savename=None):
     Returns:
         - None
     """
-    fig, [axs, axt, axn] = plt.subplots(1,3,constrained_layout=True,figsize=(15,6),sharey=True,sharex=True)
+    fig, [axs, axt, axn] = plt.subplots(1,3,figsize=(19,6),sharey=True,sharex=True)
     axs = plot_vert_cld_frac("SHL", ax=axs)
     axt = plot_vert_cld_frac("TWP", ax=axt)
     axn = plot_vert_cld_frac("NAU", ax=axn)
-    axs.annotate("(a)", xy=(0.72, 18.3), xycoords="data", fontsize=fs)
-    axt.annotate("(b)", xy=(0.72, 18.3), xycoords="data", fontsize=fs)
-    axn.annotate("(c)", xy=(0.72, 18.3), xycoords="data", fontsize=fs)
+    hs, ls = axs.get_legend_handles_labels()
+    ht, lt = axt.get_legend_handles_labels()
+    hn, ln = axn.get_legend_handles_labels()
+    axs.legend().remove()
+    axt.legend().remove()
+    axn.legend().remove()
+    new_label = [None]*len(ls)
+    fig.subplots_adjust(right=0.83)
+    for i,l in enumerate(ls):
+        new_label[i] = l.split(")")[0] + "," + lt[i].split("(")[-1][:-1] + "," + ln[i].split("(")[-1][:-1]+")"
+    new_label[-1]="TTL"
+    fig.legend(hs,new_label,loc="center right", fontsize=fs-10)
+    axt.set_ylabel("")
+    axn.set_ylabel("")
+    axs.annotate("(a)", xy=(0.7, 18.32), xycoords="data", fontsize=fs, weight="bold")
+    axt.annotate("(b)", xy=(0.7, 18.32), xycoords="data", fontsize=fs, weight="bold")
+    axn.annotate("(c)", xy=(0.7, 18.32), xycoords="data", fontsize=fs, weight="bold")
     if savename is None: 
         plt.savefig("../plots/fig09_vert_cld_frac.png", dpi=200)
         print("saved as ../plots/fig09_vert_cld_frac.png")
