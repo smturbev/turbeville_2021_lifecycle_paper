@@ -213,11 +213,11 @@ def plot_shl_twp_nau_cld_frac(fs=22, savename=None):
     axt.legend().remove()
     axn.legend().remove()
     new_label = [None]*len(ls)
-    fig.subplots_adjust(right=0.83)
+    fig.subplots_adjust(right=0.95)
     for i,l in enumerate(ls):
         new_label[i] = l.split(")")[0] + "," + lt[i].split("(")[-1][:-1] + "," + ln[i].split("(")[-1][:-1]+")"
     new_label[-1]="TTL"
-    fig.legend(hs,new_label,loc="center right", fontsize=fs-10)
+    fig.legend(hs,new_label,bbox_to_anchor=(1,0.5),fontsize=fs-10)
     axt.set_ylabel("")
     axn.set_ylabel("")
     axs.annotate("(a)", xy=(0.7, 18.32), xycoords="data", fontsize=fs, weight="bold")

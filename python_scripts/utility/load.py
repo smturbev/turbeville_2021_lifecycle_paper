@@ -1080,13 +1080,7 @@ def load_tot_hydro1x1(model, region, return_ind=False, iceliq_only=True):
         print("   time, lev, lat, lon = dims: ",(qi.dims))
         qi = qi[:,:,lat0:lat1,lon0:lon1]
         print("Getting all hydrometeors for FV3 TWP:")
-        if region.lower()=="twp":
-            ql = xr.open_dataset(ap.TWP_FV3_QL)['ql'].values[:,:,lat0:lat1,lon0:lon1]
-        elif region.lower()=="shl":
-            ql = xr.open_dataset(ap.SHL_FV3_QL)['ql'].values[:,:,lat0:lat1,lon0:lon1]
-        elif region.lower()=="nau":
-            ql = xr.open_dataset(ap.NAU_FV3_QL)['ql'].values[:,:,lat0:lat1,lon0:lon1]
-        else: raise Exception("Region not supported (try 'TWP', 'NAU', 'SHL')")
+        ql = load_liq(model, region, rain=False).values[:,:,lat0:lat1,lon0:lon1]
         print("... opened qi and ql (%s s elapsed)..."%(time.time()-st))
         q = qi.values + ql
         z = np.nanmean(get_levels(model, region), axis=0)

@@ -12,7 +12,7 @@ import pandas as pd
 from utility import util, analysis_parameters as ap
 
 c = ap.COLORS
-ttl = True
+ttl = False
 regions = ["SHL","TWP","NAU"]
 models = ["CCCM","NICAM","FV3","ICON","SAM"]
 net=False
@@ -132,10 +132,12 @@ if ttl:
             color=c["SAM"], linestyle='--', fillstyle='none')
     ax[0].plot(0,0,color='gray',marker='.',ms=ms,lw=lw,label='All-Sky')
     ax[0].plot(0,0,color='gray',marker='.',ms=ms+4,lw=lw-2,linestyle='--',fillstyle='none',label='TTL-Ci')
-h,l = ax[0].get_legend_handles_labels()
-leg1 = ax[0].legend(h[1:-2],l[1:-2], loc=1)
-leg2 = ax[0].legend([h[0]]+h[-2:],[l[0]]+l[-2:],loc=9)
-ax[0].add_artist(leg1)
+    h,l = ax[0].get_legend_handles_labels()
+    leg1 = ax[0].legend(h[1:-2],l[1:-2], loc=1)
+    leg2 = ax[0].legend([h[0]]+h[-2:],[l[0]]+l[-2:],loc=9)
+    ax[0].add_artist(leg1)
+else:
+    ax[0].legend()
 ax[0].grid(True)
 
 fs = 18
@@ -166,10 +168,12 @@ if ttl:
             color=c["SAM"], linestyle='--', fillstyle='none')
     ax[1].plot(0,0,color='gray',marker='.',ms=ms,lw=lw,label='All-Sky')
     ax[1].plot(0,0,color='gray',marker='.',ms=ms+4,lw=lw-2,linestyle='--',fillstyle='none',label='TTL-Ci')
-h,l = ax[1].get_legend_handles_labels()
-leg1 = ax[1].legend(h[1:-2],l[1:-2], loc=1)
-leg2 = ax[1].legend([h[0]]+h[-2:],[l[0]]+l[-2:],loc=9)
-ax[1].add_artist(leg1)
+    h,l = ax[1].get_legend_handles_labels()
+    leg1 = ax[1].legend(h[1:-2],l[1:-2], loc=1)
+    leg2 = ax[1].legend([h[0]]+h[-2:],[l[0]]+l[-2:],loc=9)
+    ax[1].add_artist(leg1)
+else:
+    ax[1].legend()
 ax[1].grid(True)
 
 util.dennisplot("density",np.array([]),np.array([]),\
@@ -193,10 +197,13 @@ if ttl:
             color=c["SAM"], linestyle='--', fillstyle='none')
     ax[2].plot(0,0,color='gray',marker='.',ms=ms,lw=lw,label='All-Sky')
     ax[2].plot(0,0,color='gray',marker='.',ms=ms+4,lw=lw-2,linestyle='--',fillstyle='none',label='TTL-Ci')
-h,l = ax[2].get_legend_handles_labels()
-leg1 = ax[2].legend(h[1:-2],l[1:-2], loc=1)
-leg2 = ax[2].legend([h[0]]+h[-2:],[l[0]]+l[-2:],loc=9)
-ax[2].add_artist(leg1)
+    h,l = ax[2].get_legend_handles_labels()
+    leg1 = ax[2].legend(h[1:-2],l[1:-2], loc=1)
+    leg2 = ax[2].legend([h[0]]+h[-2:],[l[0]]+l[-2:],loc=9)
+    ax[2].add_artist(leg1)
+else: 
+    ax[2].legend()
+
 ax[2].grid(True)
 
 fs = 18
@@ -215,81 +222,10 @@ ax[1].set_ylabel('Albedo', size=fs)
 ax[1].set_title('Category Median Albedo and OLR\nTWP', fontsize=fs)
 ax[1].tick_params(labelsize=fs-4)
 
-# ax[3].set_xticks([-0.3,0.7,1.7,2.7], minor=True)
-# ax[3].set_xticks([0.25,1.25,2.25])
-# ax[3].plot([-0.3,2.7],[0,0],'gray',lw=0.5)
-# models=["CCCM","NICAM","FV3","ICON","SAM"]
-
-# for i,r in enumerate(regions):
-#     print(i,r)
-#     if r=="TWP":
-#         olr_cs = np.array([ctwp.OLR.CS, ntwp.OLR.CS,
-#                            ftwp.OLR.CS, itwp.OLR.CS, stwp.OLR.CS])
-#         alb_cs = np.array([ctwp.ALB.CS, ntwp.ALB.CS,
-#                            ftwp.ALB.CS, itwp.ALB.CS, stwp.ALB.CS])
-#         olr_isottl = np.array([ctwp.OLR.ISO_TTL, ntwp.OLR.ISO_TTL,
-#                                ftwp.OLR.ISO_TTL, itwp.OLR.ISO_TTL, stwp.OLR.ISO_TTL])
-#         alb_isottl = np.array([ctwp.ALB.ISO_TTL, ntwp.ALB.ISO_TTL,
-#                                ftwp.ALB.ISO_TTL, itwp.ALB.ISO_TTL, stwp.ALB.ISO_TTL])
-#         const = 413.2335274
-#     elif r=="NAU":
-#         olr_cs = np.array([cnau.OLR.CS, nnau.OLR.CS,
-#                            fnau.OLR.CS, inau.OLR.CS, snau.OLR.CS])
-#         alb_cs = np.array([cnau.ALB.CS, nnau.ALB.CS,
-#                            fnau.ALB.CS, inau.ALB.CS, snau.ALB.CS])
-#         olr_isottl = np.array([cnau.OLR.ISO_TTL, nnau.OLR.ISO_TTL,
-#                                fnau.OLR.ISO_TTL, inau.OLR.ISO_TTL, snau.OLR.ISO_TTL])
-#         alb_isottl = np.array([cnau.ALB.ISO_TTL, nnau.ALB.ISO_TTL,
-#                                fnau.ALB.ISO_TTL, inau.ALB.ISO_TTL, snau.ALB.ISO_TTL])
-#         const = 413.2335274
-#     else:
-#         olr_cs = np.array([cshl.OLR.CS, nshl.OLR.CS,
-#                            fshl.OLR.CS, ishl.OLR.CS, sshl.OLR.CS])
-#         alb_cs = np.array([cshl.ALB.CS, nshl.ALB.CS,
-#                            fshl.ALB.CS, ishl.ALB.CS, sshl.ALB.CS])
-#         olr_isottl = np.array([cshl.OLR.ISO_TTL, nshl.OLR.ISO_TTL,
-#                                fshl.OLR.ISO_TTL, ishl.OLR.ISO_TTL, sshl.OLR.ISO_TTL])
-#         alb_isottl = np.array([cshl.ALB.ISO_TTL, nshl.ALB.ISO_TTL,
-#                                fshl.ALB.ISO_TTL, ishl.ALB.ISO_TTL, sshl.ALB.ISO_TTL])
-#         const = 435.2760211 # SHL
-#     lwcre = (olr_cs - olr_isottl)
-#     swcre = (alb_cs - alb_isottl)*const
-#     netcre = lwcre + swcre
-#     lwcre[0] = lwcre[0]/6
-#     swcre[0] = swcre[0]/6
-#     netcre[0] = netcre[0]/6
-#     for j,m in enumerate(models):
-#         if m=="CCCM":
-#             m = "OBS"
-#             print("OBS", lwcre[0], swcre[0], netcre[0])
-#         if (m=="OBS") & (r=="TWP"):
-#             lablw = "LW CRE"
-#             labsw = "SW CRE"
-#             labnet = "Net CRE"
-#         else:
-#             lablw, labsw, labnet = None, None, None
-#         ax[3].scatter([i+0.1*j],[lwcre[j]], c=c[m], 
-#                    marker='s', s=fs*4, label=lablw) #markerfacecolor='none'
-#         ax[3].scatter([i+0.1*j],[swcre[j]], edgecolor=c[m], label=labsw,
-#                    marker='s', c='none', s=fs*4)
-#         ax[3].scatter([i+0.1*j],[netcre[j]], c=c[m], 
-#                    marker='o', s=fs*4, label=labnet)
-# ax[3].set_xlim([-0.3,2.7])
-# ax[3].set_xticklabels(['SHL', 'TWP', 'NAU'])
-# ax[3].grid(which='minor')
-# if net:
-#     ax[3].set_title('Isolated TTL Cirrus Net CRE', fontsize=fs)
-# else:
-#     ax[3].set_title('Isolated TTL Cirrus CRE', fontsize=fs)
-# ax[3].set_ylabel('CRE [W/m$^2$]', fontsize=fs)
-# ax[3].legend(loc=3)
-# ax[3].tick_params(axis='y', labelsize=fs-4)
-# ax[3].tick_params(axis='x', labelsize=fs)
 
 ax[0].set_ylim([0.01,0.85])
 ax[1].set_ylim([0.01,0.85])
 ax[2].set_ylim([0.01,0.85])
-# ax[3].set_ylim([-30,30])
 
 ax[1].set_ylabel(None)
 ax[2].set_ylabel(None)
@@ -299,7 +235,6 @@ ax[2].set_yticklabels([])
 ax[0].annotate("(a)", xy=(0.01,0.94), xycoords="axes fraction", fontsize=fs+4, weight="bold")
 ax[1].annotate("(b)", xy=(0.01,0.94), xycoords="axes fraction", fontsize=fs+4, weight="bold")
 ax[2].annotate("(c)", xy=(0.01,0.94), xycoords="axes fraction", fontsize=fs+4, weight="bold")
-# ax[3].annotate("(d)", xy=(0.01,0.94), xycoords="axes fraction", fontsize=fs)
 
 plt.savefig('../plots/fig12_cat_lifestages_all_regions.png',
             dpi=150,bbox_inches='tight')

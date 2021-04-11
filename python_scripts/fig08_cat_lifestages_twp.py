@@ -13,7 +13,7 @@ import pandas as pd
 from utility import util, analysis_parameters as ap
 
 c = ap.COLORS
-ttl = True
+ttl = False
 
 ctwp = pd.read_csv("../tables/CCCM_TWP.csv", index_col=0)
 ntwp = pd.read_csv("../tables/NICAM_TWP.csv", index_col=0)
@@ -47,7 +47,7 @@ lw = 5
 ms = 20
 a = 1
 # Plot median
-fig, [ax, ax1] = plt.subplots(1,2,figsize=(11,5), constrained_layout=True)
+fig, ax = plt.subplots(1,1,figsize=(5,5), constrained_layout=True)
 util.dennisplot("density",np.array([]),np.array([]),\
                  model="Category Median Albedo & OLR\n",region="TWP",\
                  colorbar_on=False, ax=ax)
@@ -69,10 +69,12 @@ if ttl:
             color=c["SAM"], linestyle='--', fillstyle='none')
     ax.plot(0,0,color='gray',marker='.',ms=ms,lw=lw,label='All-Sky')
     ax.plot(0,0,color='gray',marker='.',ms=ms+4,lw=lw-2,linestyle='--',fillstyle='none',label='TTL-Ci')
-h,l = ax.get_legend_handles_labels()
-leg1 = ax.legend(h[1:-2],l[1:-2], loc=1)
-leg2 = ax.legend([h[0]]+h[-2:],[l[0]]+l[-2:],loc=9)
-ax.add_artist(leg1)
+    h,l = ax.get_legend_handles_labels()
+    leg1 = ax.legend(h[1:-2],l[1:-2], loc=1)
+    leg2 = ax.legend([h[0]]+h[-2:],[l[0]]+l[-2:],loc=9)
+    ax.add_artist(leg1)
+else:
+    ax.legend()
 ax.grid(True)
 
 fs = 18
@@ -83,51 +85,6 @@ ax.set_ylabel('Albedo', size=fs)
 ax.set_title('Category Median Albedo and OLR\nTWP', fontsize=fs)
 ax.tick_params(labelsize=fs-4)
 
-models=["CCCM","NICAM","FV3","ICON","SAM"]
-olr_cs = np.array([ctwp.OLR.CS, ntwp.OLR.CS,
-                   ftwp.OLR.CS, itwp.OLR.CS, stwp.OLR.CS])
-alb_cs = np.array([ctwp.ALB.CS, ntwp.ALB.CS,
-                   ftwp.ALB.CS, itwp.ALB.CS, stwp.ALB.CS])
-olr_isottl = np.array([ctwp.OLR.ISO_TTL, ntwp.OLR.ISO_TTL,
-                       ftwp.OLR.ISO_TTL, itwp.OLR.ISO_TTL, stwp.OLR.ISO_TTL])
-alb_isottl = np.array([ctwp.ALB.ISO_TTL, ntwp.ALB.ISO_TTL,
-                       ftwp.ALB.ISO_TTL, itwp.ALB.ISO_TTL, stwp.ALB.ISO_TTL])
-lwcre = (olr_cs - olr_isottl)
-swcre = (alb_cs - alb_isottl)*413.2335274
-isocre = lwcre + swcre
-for j,m in enumerate(models):
-        if m=="CCCM":
-            m = "OBS"
-            lab = "CCCM"
-            isocre[j] = isocre[j]/6
-            swcre[j] = swcre[j]/6
-            lwcre[j] = lwcre[j]/6
-        else:
-            lab = m
-        ax1.scatter([2.3+0.1*j],[isocre[j]], c=c[m], 
-                   marker='o', s=fs*4, label=lab) #markerfacecolor='none'
-        ax1.scatter([0.3+0.1*j],[lwcre[j]], c=c[m], 
-               marker='o', s=fs*4) #markerfacecolor='none'
-        ax1.scatter([1.3+0.1*j],[swcre[j]], c=c[m],
-               marker='o', s=fs*4)
-ax1.set_xlim([0,3])
-ax1.set_xticks([0,1,2,3], minor=True)
-ax1.set_xticks([0.5,1.5,2.5])
-ax1.set_xticklabels(['LW', 'SW', 'Net'])
-ax1.grid(which='minor')
-
-ax1.set_title('Isolated TTL Cirrus CRE\nTWP', fontsize=fs)
-ax1.set_ylabel('CRE [W/m$^2$]', fontsize=fs)
-ax1.tick_params(axis='y', labelsize=fs-4)
-ax1.tick_params(axis='x', labelsize=fs)
-ax1.set_ylim([-30,30])
-ax1.axhline(y=0, color='gray', alpha=0.6)
-ax1.legend()
-
-ax.annotate("(a)", xy=(0.001,0.95), xycoords="axes fraction", fontsize=fs-2)
-ax1.annotate("(b)", xy=(0.001,0.95), xycoords="axes fraction", fontsize=fs-2)
-
-plt.subplots_adjust(wspace=0.3)
 plt.savefig('../plots/fig08_cat_lifestages_twp.png',dpi=150,bbox_inches='tight')
 print('    saved to ../plots/fig08_cat_lifestages_twp.png')
 plt.close()
