@@ -85,7 +85,7 @@ def ax_ttl_cat_hist(ttliwp1, ttliwp2, ttliwp3, model, region, ax=None, fs=16):
            label="3 ({}%)".format(str(np.round(np.nansum(hist3[np.argmin(abs(xbins+1)):])/n*100,0)).split(".")[0]))
     ax.step(xedges[1:], (hist1+hist2+hist3)/n, color='k')
     ax.tick_params(labelsize=fs-3)
-    ax.set_xlabel('log$_{10}$(TTL IWP) [g/m$^2$]', fontsize=fs) 
+    ax.set_xlabel('log$_{10}$TTL IWP (g/m$^2$)', fontsize=fs) 
     loc=1
     fs_leg=fs-4
     ax.legend(fontsize=fs_leg, frameon=False, loc=loc)

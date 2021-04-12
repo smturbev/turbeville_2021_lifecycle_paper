@@ -352,7 +352,7 @@ cax.set_title("Frozen Water Path Histograms", size=17)
 # iax.set_title("ICON\n {:} profiles".format(ino), size=17)
 # sax.set_title("SAM \n {:} profiles".format(sno), size=17)
 
-sax.set_xlabel("log$_{10}$(FWP) [g/m$^2$]", fontsize=17)
+sax.set_xlabel("log$_{10}$FWP (g/m$^2$)", fontsize=17)
 
 cax.set_xticklabels([])
 iax.set_xticklabels([])

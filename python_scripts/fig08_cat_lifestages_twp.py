@@ -80,7 +80,7 @@ ax.grid(True)
 fs = 18
 ax.set_ylim([0.05,0.8])
 ax.set_xlim([80,310])
-ax.set_xlabel('OLR(W m$^{-2}$)', size=fs)
+ax.set_xlabel('OLR (W m$^{-2}$)', size=fs)
 ax.set_ylabel('Albedo', size=fs)
 ax.set_title('Category Median Albedo and OLR\nTWP', fontsize=fs)
 ax.tick_params(labelsize=fs-4)

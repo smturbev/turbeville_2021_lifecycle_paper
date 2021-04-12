@@ -285,7 +285,7 @@ def plot_vert_cld_frac_model(model, region, ax=None, ice_only=True, plot_ttl=Tru
     ax.set_ylim([0,20])
     ax.set_xlim([-0.03,0.83]) #83
     ax.legend(loc=4)
-    ax.set_ylabel("Height [km]")
+    ax.set_ylabel("Height (km)")
     ax.set_title('Cloud Occurrence, %s'%(region), fontsize=16)
     ax.grid()
     if ax is None:

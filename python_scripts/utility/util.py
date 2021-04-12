@@ -612,7 +612,7 @@ def dennisplot(stat, olr, alb, var=None, xbins=None, ybins=None,
     ax.set_xticks([100,150,200,250,300])
     ax.set_ylim([0.05,0.8])
     ax.set_xlim([80,310])
-    ax.set_xlabel('OLR(W m$^{-2}$)', size=fs)
+    ax.set_xlabel('OLR (W m$^{-2}$)', size=fs)
     ax.set_ylabel('Albedo', size=fs)
     if var!=None:
         ax.set_title('{m} {v} {n}\n{l} Total Profiles'.format(m=model, v=var_name, n=region, l=len(olr)), size=fs)
@@ -625,11 +625,11 @@ def dennisplot(stat, olr, alb, var=None, xbins=None, ybins=None,
         cb = plt.colorbar(csn, ax=ax, orientation='vertical')#, ticks=levtick)
         cb.ax.tick_params(labelsize=fs)
         if stat=="density":
-            cb.set_label('log10(pdf)', fontsize=fs)
+            cb.set_label('log$_10$PDF)', fontsize=fs)
         elif stat=="difference":
             cb.set_label('pdf % difference', fontsize=fs)
         else:
-            cb.set_label('log10(%s) (%s)'%(stat, units), fontsize=fs)
+            cb.set_label('log$_10$%s (%s)'%(stat.upper(), units), fontsize=fs)
     if save:
         plt.savefig('../plots/olr_alb/native_%s_%s_%s_%s.png'%(var_name.lower().replace(" ","_"), 
                                                                stat, model, region[:3]), bbox_inches="tight")

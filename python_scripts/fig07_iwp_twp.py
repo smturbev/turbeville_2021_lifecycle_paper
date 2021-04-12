@@ -175,7 +175,7 @@ def main(fs = 14):
     sax.annotate("CAT 2", xy=(1.7,0.062), xycoords="data", color="k", fontsize=fs-2)
     sax.annotate("CAT 3", xy=(-0.1,0.062), xycoords="data", color="k", fontsize=fs-2)
     sax.annotate("Cirrus-free", xy=(-2.4,0.062), xycoords="data", color="k", fontsize=fs-2)
-    sax.set_xlabel("log$_{10}$(FWP) [g/m$^2$]", fontsize=fs)
+    sax.set_xlabel("log$_{10}$FWP (g/m$^2$)", fontsize=fs)
     sax.set_ylabel("SAM\nFraction of profiles", fontsize=fs)
 
     nax.bar(xmid[:cs_bin_ind], nhist[:cs_bin_ind], color='lightgray', width=0.1)
