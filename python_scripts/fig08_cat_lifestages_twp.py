@@ -47,7 +47,7 @@ lw = 5
 ms = 20
 a = 1
 # Plot median
-fig, ax = plt.subplots(1,1,figsize=(5,5), constrained_layout=True)
+fig, ax = plt.subplots(1,1,figsize=(4.7,5), constrained_layout=True)
 util.dennisplot("density",np.array([]),np.array([]),\
                  model="Category Median Albedo & OLR\n",region="TWP",\
                  colorbar_on=False, ax=ax)

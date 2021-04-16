@@ -32,6 +32,7 @@ CERES_SYN1 = "/home/disk/eos15/smturbev/SAT_DATA/CERES/CERES_adj_toa_Terra-Aqua-
 ## Data for TWP 
 ### FV3
 FV3 = TWP_NAU_HOME + "FV3-3.25km/"
+SFV3 = SHL_HOME + "FV3/native/"
 TWP_FV3_QI = FV3 + "qi_allTime_C3072_12288x6144_TWP.nc"
 TWP_FV3_QL = FV3 + "ql_allTime_C3072_12288x6144_TWP.nc"
 TWP_FV3_QV = FV3 + "qv_allTime_C3072_12288x6144_TWP.nc"
@@ -39,7 +40,7 @@ TWP_FV3_T  = FV3 + "temp_allTime_TWP.nc"
 TWP_FV3_P  = FV3 + "pres_allTime_C3072_12288x6144_TWP.nc"
 TWP_FV3_W  = FV3 + "w_allTime_TWP.nc"
 TWP_FV3_H_PLEV = FV3 + "h_plev_allTime_TWP.nc"
-TWP_FV3_Z  = FV3 + "FV3_altitude_TWP.nc"
+TWP_FV3_Z  = SFV3 + "FV3_altitude_TWP.nc"
 TWP_FV3_AVG_QI = FV3 + "FV3_xyt_avg_qi_TWP.nc"
 TWP_FV3_AVG_QL = FV3 + "FV3_xyt_avg_ql_TWP.nc"
 TWP_FV3_AVG_QV = FV3 + "FV3_xyt_avg_qv_TWP.nc"

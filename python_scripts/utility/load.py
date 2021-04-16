@@ -1012,7 +1012,7 @@ def load_tot_hydro(model, region, ice_only=True):
         return qxr[ind0:]
     else: raise Exception("Model not supported at this time (try 'NICAM', 'FV3', 'GEOS'/'GEOS5', 'ICON', 'SAM')")
 
-def load_tot_hydro1x1(model, region, return_ind=False, iceliq_only=True):
+def load_tot_hydro1x1(model, region, return_ind=False, iceliq_only=True, exclude_shock=True):
     """ Returns xarray of the total hydrometeors IWP + LWP for the model and region.
     
         region = string of 'TWP' for Tropical Western Pacific - Manus and 
@@ -1020,10 +1020,10 @@ def load_tot_hydro1x1(model, region, return_ind=False, iceliq_only=True):
         model  = string of 'FV3', 'ICON', 'GEOS', 'SAM', or 'NICAM' (five of the DYAMOND models)
     """
     st = time.time()
-    if INCLUDE_SHOCK: 
-        ind0=0
-    else:
+    if exclude_shock: 
         ind0 = 8*2 # exclude first two days
+    else:
+        ind0 = 0 
     if region.lower()=="twp":
         lat0, lat1, lon0, lon1 = -1,0,147,148
     elif region.lower()=="nau":

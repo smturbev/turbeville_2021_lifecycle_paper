@@ -165,4 +165,4 @@ def plot_ttliwp(region="TWP", fs=14):
     return
 
 if __name__=="__main__":
-    plot_ttliwp(region="SHL")
+    plot_ttliwp(region="NAU")

@@ -202,7 +202,7 @@ def plot_shl_twp_nau_cld_frac(fs=22, savename=None):
     Returns:
         - None
     """
-    fig, [axs, axt, axn] = plt.subplots(1,3,figsize=(19,6),sharey=True,sharex=True)
+    fig, [axs, axt, axn] = plt.subplots(1,3,figsize=(20,6),sharey=True,sharex=True)
     axs = plot_vert_cld_frac("SHL", ax=axs)
     axt = plot_vert_cld_frac("TWP", ax=axt)
     axn = plot_vert_cld_frac("NAU", ax=axn)
@@ -215,9 +215,9 @@ def plot_shl_twp_nau_cld_frac(fs=22, savename=None):
     new_label = [None]*len(ls)
     fig.subplots_adjust(right=0.95)
     for i,l in enumerate(ls):
-        new_label[i] = l.split(")")[0] + "," + lt[i].split("(")[-1][:-1] + "," + ln[i].split("(")[-1][:-1]+")"
+        new_label[i] = l.split(")")[0][:-1] + ", " + lt[i].split("(")[-1][:-2] + ", " + ln[i].split("(")[-1][:-2]+")"
     new_label[-1]="TTL"
-    fig.legend(hs,new_label,bbox_to_anchor=(1,0.5),fontsize=fs-10)
+    fig.legend(hs,new_label,loc=7,bbox_to_anchor=(1.07,0.4),fontsize=fs-10)
     axt.set_ylabel("")
     axn.set_ylabel("")
     axs.annotate("(a)", xy=(0.7, 18.32), xycoords="data", fontsize=fs, weight="bold")
