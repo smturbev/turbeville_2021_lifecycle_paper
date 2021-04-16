@@ -2,7 +2,7 @@
     author: sami turbeville @smturbev
     date modified: 1 March 2021
     
-    Loads various variables from FV3, ICON, GEOS, SAM and NICAM for cleaner scripts.
+    Loads various variables from FV3, ICON, SAM and NICAM for cleaner scripts.
         - get_iwp(model, region, ice_only=True, sam_noise=True, is3d=True)
         - get_lwp(model, region, rain=False, sam_noise=True, is3d=True)
         - get_ttliwp(model, region)
@@ -105,8 +105,8 @@ def get_iwp(model, region, ice_only=True, sam_noise=True, is3d=True):
                     swp = xr.open_dataset(ap.TWP_SAM_SWP).SWP
                     gwp = xr.open_dataset(ap.TWP_SAM_GWP).GWP
                     fwp = iwp + swp + gwp
-                    return fwp[ind0//12:] # three hourly
                     print("fwp = iwp + swp + gwp")
+                    return fwp[ind0//12:] # three hourly
                 return iwp[ind0//12:]
         elif region.lower()=="shl":
             iwp = xr.open_dataset(ap.SHL_SAM_WP_NOISE).IWP if is3d else  xr.open_dataset(ap.SHL_SAM_IWP).IWP
@@ -120,8 +120,8 @@ def get_iwp(model, region, ice_only=True, sam_noise=True, is3d=True):
                     swp = xr.open_dataset(ap.SHL_SAM_SWP).SWP
                     gwp = xr.open_dataset(ap.SHL_SAM_GWP).GWP
                     fwp = iwp + swp + gwp
-                    return fwp[ind0//12:] # three hourly
                     print("fwp = iwp + swp + gwp")
+                    return fwp[ind0//12:] # three hourly
                 return iwp[ind0//12:]
         elif region.lower()=="nau":
             iwp = xr.open_dataset(ap.NAU_SAM_WP_NOISE).IWP if is3d else  xr.open_dataset(ap.NAU_SAM_IWP).IWP
@@ -135,8 +135,8 @@ def get_iwp(model, region, ice_only=True, sam_noise=True, is3d=True):
                     swp = xr.open_dataset(ap.NAU_SAM_SWP).SWP
                     gwp = xr.open_dataset(ap.NAU_SAM_GWP).GWP
                     fwp = iwp + swp + gwp
-                    return fwp[ind0//12:] # three hourly
                     print("fwp = iwp + swp + gwp")
+                    return fwp[ind0//12:] # three hourly
                 return iwp[ind0//12:]
         else:
             raise Exception("try valid region (SHL, NAU, TWP)")
@@ -452,7 +452,7 @@ def get_asr(model, region):
             asr = xr.open_dataset(ap.NAU_SAM_SWN)['SWNTA']
         elif region.lower()=="shl":
             asr = xr.open_dataset(ap.SHL_SAM_SWN)['SWNTA']
-        print(swn.shape, swd_n[:1920*2:2,0,:,:].shape)
+        print(asr.shape)
     else: raise Exception("Invalid Model %s; try NICAM, FV3, ICON, SAM.")
     return asr[ind0:]
 
@@ -507,7 +507,7 @@ def get_swu(model, region):
             swd = get_swd("SAM", "NAU")[5::6,:,:]
             swu = swd - swn
         else: raise Exception("Region not supported. Try 'TWP', 'NAU', 'SHL'.")
-    else: raise Exception("Model not supported at this time (try 'NICAM', 'FV3', 'GEOS'/'GEOS5', 'ICON', 'SAM')")
+    else: raise Exception("Model not supported at this time (try 'NICAM', 'FV3', 'ICON', 'SAM')")
     print("returned swu 3 hrly")
     return swu[ind0:]
 
@@ -611,8 +611,6 @@ def get_olr_alb(model, region):
             olr = reshape.reshape("ATHB_T", rad, dim=2)
             swu = reshape.reshape("ASOU_T", rad, dim=2)
             swn = reshape.reshape("ASOB_T", rad, dim=2)
-            dims = olr.dims
-            coords = olr.coords
             olr_un = util.undomean(olr, xy=False)
             swu_un = util.undomean(swu, xy=False)
             swn_un = util.undomean(swn, xy=False)
@@ -671,7 +669,7 @@ def get_olr_alb(model, region):
         print("... made sure alb values are valid...")
         print("... calculated mean", alb.mean().values, "...")
         print("... returning olr and albedo", olr.shape, alb.shape, "...")
-    else: raise Exception("Model not supported at this time (try 'NICAM', 'FV3', 'GEOS'/'GEOS5', 'ICON', 'SAM')")
+    else: raise Exception("Model not supported at this time (try 'NICAM', 'FV3', 'ICON', 'SAM')")
     return olr, alb
 
 ### ------ 3D ----- ###
@@ -723,7 +721,7 @@ def get_pres(model, region):
     
         model = string of 'TWP', 'SHL' or 'NAU' for Tropical Western Pacific - Manus,
             Sahel - Niamey or Nauru
-        region = string of 'FV3', 'ICON', 'GEOS', 'SAM', or 'NICAM' (five of the DYAMOND models
+        region = string of 'FV3', 'ICON', 'SAM', or 'NICAM' (five of the DYAMOND models
     """
     if INCLUDE_SHOCK: 
         ind0=0
@@ -770,7 +768,7 @@ def get_temp(model, region):
     
         model = string of 'TWP', 'SHL' or 'NAU' for Tropical Western Pacific - Manus,
             Sahel - Niamey or Nauru
-        region = string of 'FV3', 'ICON', 'GEOS', 'SAM', or 'NICAM' (five of the DYAMOND models
+        region = string of 'FV3', 'ICON',  'SAM', or 'NICAM' (five of the DYAMOND models
     """
     if INCLUDE_SHOCK: 
         ind0=0
@@ -819,7 +817,7 @@ def get_qv(model, region):
     
         model = string of 'TWP', 'SHL' or 'NAU' for Tropical Western Pacific - Manus,
             Sahel - Niamey or Nauru
-        region = string of 'FV3', 'ICON', 'GEOS', 'SAM', or 'NICAM' (five of the DYAMOND models)
+        region = string of 'FV3', 'ICON', 'SAM', or 'NICAM' (five of the DYAMOND models)
     """
     if INCLUDE_SHOCK: 
         ind0=0
@@ -868,7 +866,7 @@ def get_twc(model, region):
     
         model = string of 'TWP', 'SHL' or 'NAU' for Tropical Western Pacific - Manus,
             Sahel - Niamey or Nauru
-        region = string of 'FV3', 'ICON', 'GEOS', 'SAM', or 'NICAM' (five of the DYAMOND models)
+        region = string of 'FV3', 'ICON', 'SAM', or 'NICAM' (five of the DYAMOND models)
     """
     if INCLUDE_SHOCK: 
         ind0=0
@@ -879,13 +877,11 @@ def get_twc(model, region):
             q = xr.open_dataset(ap.TWP_ICON_TWC)["iwc"] #kg/kg
         elif model.lower()=="fv3" or model.lower()=="fv3-3.35km":
             q = xr.open_dataset(ap.TWP_FV3_TWC)["iwc"] #kg/kg
-        elif model.lower()=="geos" or model.lower()=="geos-3km":
-            q = xr.open_dataset(ap.TWP_GEOS_TWC)["twc"] #kg/kg
         elif model.lower()=="sam" or model.lower()=="sam-4km":
             q = xr.open_dataset(ap.TWP_SAM_TWC)["iwc"]/1000 #g/kg to kg/kg
         elif model.lower()=="nicam" or model.lower()=="nicam-3.5km":
             q = xr.open_dataset(ap.TWP_NICAM_TWC)["twc"]
-        else: raise Exception("Model ("+model+") is invalid. Try NICAM, FV3, GEOS, ICON or SAM for model")
+        else: raise Exception("Model ("+model+") is invalid. Try NICAM, FV3, ICON or SAM for model")
     else: raise Exception("Region ("+region+") is invalid. Try TWP for region.")
     print("Returned total water content (kg/m3) for "+model+" in "+region+" with shape", q.shape)
     return q[ind0:]
@@ -897,7 +893,7 @@ def load_tot_hydro(model, region, ice_only=True):
     
         model = string of 'TWP', 'SHL' or 'NAU' for Tropical Western Pacific - Manus,
             Sahel - Niamey or Nauru
-        region = string of 'FV3', 'ICON', 'GEOS', 'SAM', or 'NICAM' (five of the DYAMOND models)
+        region = string of 'FV3', 'ICON', 'SAM', or 'NICAM' (five of the DYAMOND models)
     """
     st = time.time()
     if INCLUDE_SHOCK: 
@@ -1010,14 +1006,14 @@ def load_tot_hydro(model, region, ice_only=True):
                            attrs={'units':'kg/kg'})
         print("... returned qi + ql as xarray with units of kg/kg")
         return qxr[ind0:]
-    else: raise Exception("Model not supported at this time (try 'NICAM', 'FV3', 'GEOS'/'GEOS5', 'ICON', 'SAM')")
+    else: raise Exception("Model not supported at this time (try 'NICAM', 'FV3', 'ICON', 'SAM')")
 
 def load_tot_hydro1x1(model, region, return_ind=False, iceliq_only=True, exclude_shock=True):
     """ Returns xarray of the total hydrometeors IWP + LWP for the model and region.
     
         region = string of 'TWP' for Tropical Western Pacific - Manus and 
                  returns data for 1x1 deg region over ARM site.
-        model  = string of 'FV3', 'ICON', 'GEOS', 'SAM', or 'NICAM' (five of the DYAMOND models)
+        model  = string of 'FV3', 'ICON', SAM', or 'NICAM' (five of the DYAMOND models)
     """
     st = time.time()
     if exclude_shock: 
@@ -1130,7 +1126,7 @@ def load_tot_hydro1x1(model, region, return_ind=False, iceliq_only=True, exclude
         elif region.lower()=="shl":
             q_da = xr.open_dataset(ap.SHL_ICON_QL)['NEW']
         qnew = np.zeros((q_da.shape[0], q_da.shape[1], q_da.cell[ind].shape[0]))
-        n=0
+        n=int(0)
         for i in range(len(q_da.cell)):
             if ind[i]:
                 qnew[:,:,n] = q[:,:,i]
@@ -1171,7 +1167,7 @@ def load_tot_hydro1x1(model, region, return_ind=False, iceliq_only=True, exclude
             return qxr[ind0:], (lat0,lat1,lon0,lon1)
         else:
             return qxr[ind0:]
-    else: raise Exception("Model not supported at this time (try 'NICAM', 'FV3', 'GEOS'/'GEOS5', 'ICON', 'SAM')")
+    else: raise Exception("Model not supported at this time (try 'NICAM', 'FV3', 'ICON', 'SAM')")
 
 
 def load_frozen(model, region, ice_only=True):
@@ -1179,7 +1175,7 @@ def load_frozen(model, region, ice_only=True):
     
         model = string of 'TWP', 'SHL' or 'NAU' for Tropical Western Pacific - Manus,
             Sahel - Niamey or Nauru
-        region = string of 'FV3', 'ICON', 'GEOS', 'SAM', or 'NICAM' (five of the DYAMOND models)
+        region = string of 'FV3', 'ICON', 'SAM', or 'NICAM' (five of the DYAMOND models)
     """
     st= time.time()
     if INCLUDE_SHOCK: 
@@ -1234,9 +1230,9 @@ def load_frozen(model, region, ice_only=True):
         if ice_only:
             return qi[ind0:]
         else:
-            qi_tot = ice_to_total("FV3", region, qi)
-            print("Warning: returned ESTIMATED total frozen hydrometeors")
-            return qi_tot[ind0:]
+            # qi_tot = ice_to_total("FV3", region, qi)
+            print("cannot return estimated total frozen hydrometeors, returned qi only")
+            return qi[ind0:]
     elif model.lower()=="icon":
         if region.lower()=="twp":
             print("Getting frozen hydrometeors for ICON TWP:")
@@ -1250,9 +1246,9 @@ def load_frozen(model, region, ice_only=True):
         else: 
             raise Exception("Region not supported (try 'TWP', 'NAU', 'SHL')")
         if not(ice_only):
-            qi_tot = ice_to_total(model, region, qi)
-            print("returned estimated total frozen hydrometeors")
-            return qi_tot[ind0:]
+            # qi_tot = ice_to_total(model, region, qi)
+            print("cannot return estimated total frozen hydrometeors, returned qi only")
+            return qi[ind0:]
         else:
             return qi[ind0:]
     elif model.lower()=="sam":
@@ -1270,10 +1266,10 @@ def load_frozen(model, region, ice_only=True):
         if ice_only:
             return qi[ind0:]
         else:
-            qi_tot = ice_to_total(model, region, qi)
-            print("returned estimated total frozen hydrometeors")
-            return qi_tot[ind0:]
-    else: raise Exception("Model not supported at this time (try 'NICAM', 'FV3', 'GEOS'/'GEOS5', 'ICON', 'SAM')")
+            # qi_tot = ice_to_total(model, region, qi)
+            print("cannot return estimated total frozen hydrometeors, returned qi only")
+            return qi[ind0:]
+    else: raise Exception("Model not supported at this time (try 'NICAM', 'FV3', 'ICON', 'SAM')")
     return
 
 
@@ -1282,9 +1278,8 @@ def load_liq(model, region, rain=False):
     
         model = string of 'TWP', 'SHL' or 'NAU' for Tropical Western Pacific - Manus,
             Sahel - Niamey or Nauru
-        region = string of 'FV3', 'ICON', 'GEOS', 'SAM', or 'NICAM' (five of the DYAMOND models)
+        region = string of 'FV3', 'ICON', 'SAM', or 'NICAM' (five of the DYAMOND models)
     """
-    st = time.time()
     if INCLUDE_SHOCK: 
         ind0=0
     else:
@@ -1352,5 +1347,5 @@ def load_liq(model, region, rain=False):
         elif region.lower()=="shl":
             return(xr.open_dataset(ap.SHL_SAM_QL)['QC'][ind0:])
         else: raise Exception("Region not supported (try 'TWP', 'NAU', 'SHL')")
-    else: raise Exception("Model not supported at this time (try 'NICAM', 'FV3', 'GEOS'/'GEOS5', 'ICON', 'SAM')")
+    else: raise Exception("Model not supported at this time (try 'NICAM', 'FV3',  'ICON', 'SAM')")
     return

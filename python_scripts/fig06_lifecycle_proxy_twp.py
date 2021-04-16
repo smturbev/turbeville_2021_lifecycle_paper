@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env dyamond
 """ fig06_lifecycle_proxy_twp.py
     Author: Sami Turbeville
     Updated: 05 Aug 2020

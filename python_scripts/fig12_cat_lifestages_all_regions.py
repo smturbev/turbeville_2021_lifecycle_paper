@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env dyamond
 """ med_cat_on_joint_histogram.py
     Author: Sami Turbeville
     Updated: 16 Aug 2020

@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env dyamond
 """ fig03_schematic_joint_histogram.py
     author: Sami Turbeville
     date modified: 21 Dec 2020

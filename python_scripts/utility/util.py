@@ -2,7 +2,7 @@
     Sami Turbeville
     11/7/2019
     
-    module for useful functions to keep code in python notebooks clean
+    module for useful functions to keep code in python_scripts clean
 """
 from datetime import datetime
 import numpy as np
@@ -13,7 +13,6 @@ import sys
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpat
 import matplotlib.transforms as trans
-from matplotlib import cm
 from . import analysis_parameters as ap
 from . import load
 np.warnings.filterwarnings("ignore")
@@ -34,15 +33,12 @@ def ttl_iwp_wrt_pres(q, p, model, region):
         ind0, ind1 = (min([np.argmin(abs(z-14000)), np.argmin(abs(z-18000))]), \
                       max([np.argmin(abs(z-14000)), np.argmin(abs(z-18000))])+1)
         xy=False
-    elif model.lower()=="geos":
-        ind0, ind1 = (min([np.argmin(abs(z-14000)), np.argmin(abs(z-18000))]), \
-                      max([np.argmin(abs(z-14000)), np.argmin(abs(z-18000))])+1)
     elif model.lower()=="sam":
         ind0, ind1 = (min([np.argmin(abs(z-14000)), np.argmin(abs(z-18000))]), \
                       max([np.argmin(abs(z-14000)), np.argmin(abs(z-18000))])+1)
         p_tz = True
     else:
-        raise Exception("Model or region not defined. Try FV3, ICON, GEOS, SAM, NICAM in the TWP, SHL, or NAU.")
+        raise Exception("Model or region not defined. Try FV3, ICON, SAM, NICAM in the TWP, SHL, or NAU.")
     print(ind0,ind1, z[ind0], z[ind1])
     if ((xy) & (~p_tz)):
         vint = iwp(q[:,ind0:ind1,:,:],p[:,ind0:ind1,:,:],model,region)
@@ -59,52 +55,39 @@ def iwp(q, p, model, region):
     if model.lower()=="nicam":
         vint = int_wrt_pres(p,q,xy=True,const_p=False)
     elif model.lower()=="fv3":
-        vint = int_wrt_pres_fg(p,q)
+        vint = int_wrt_pres_f(p,q)
     elif model.lower()=="icon":
         vint = int_wrt_pres(p,q,xy=False,td=True,const_p=False)
-    elif model.lower()=="geos":
-        vint = int_wrt_pres_fg(p,q)
     elif model.lower()=="sam":
         vint = int_wrt_pres(p,q,xy=True,td=False,const_p=True)
     else:
-        raise Exception("Model or region not defined. Try FV3, ICON, GEOS, SAM, NICAM in the TWP, SHL, or NAU.")
+        raise Exception("Model or region not defined. Try FV3, ICON, SAM, NICAM in the TWP, SHL, or NAU.")
     return vint
 
-def iwp_wrt_pres(model, region, hydro_type="ice", geos_graupel=True):
-    if ((region=="TWP")&(model=="GEOS")) or ((region=="TWP")&(model=="ICON")):
-        if (model=="GEOS"):
-            if geos_graupel:
-                print("returning geos iwp including ice, snow and graupel")
-                iwp = xr.open_dataset(ap.TWP_GEOS_IWP)["iwp"].values
-            else:
-                print("returning geos iwp not including graupel")
-                iwp = xr.open_dataset(ap.TWP_GEOS_SIWP)["iwp"].values
-            return iwp
-        elif (model=="ICON"):
-            iwp = xr.open_dataset(ap.TWP_ICON_IWP)["iwp"].values
-            return iwp
+def iwp_wrt_pres(model, region, hydro_type="ice"):
+    if ((region=="TWP")&(model=="ICON")):
+        iwp = xr.open_dataset(ap.TWP_ICON_IWP)["iwp"].values
+        return iwp
     else:
         p = load.get_pres(model,region)
         if hydro_type=="ice":
-            q = load.load_frozen(model, region, ice_only=True, geos_graupel=geos_graupel).values
+            q = load.load_frozen(model, region, ice_only=True).values
         elif hydro_type=="frozen":
-            q = load.load_frozen(model, region, ice_only=False, geos_graupel=geos_graupel).values
+            q = load.load_frozen(model, region, ice_only=False).values
         else:
-            q = load.load_tot_hydro(model, region, geos_graupel=geos_graupel).values
+            q = load.load_tot_hydro(model, region).values
         p = np.where(np.isnan(p),0,p)
         q = np.where(np.isnan(q),0,q)
         if model.lower()=="nicam":
             vint = int_wrt_pres(p,q,xy=True,const_p=False)
         elif model.lower()=="fv3":
-            vint = int_wrt_pres_fg(p,q)
+            vint = int_wrt_pres_f(p,q)
         elif model.lower()=="icon":
             vint = int_wrt_pres(p,q,xy=False,td=True,const_p=False)
-        elif model.lower()=="geos":
-            vint = int_wrt_pres_fg(p,q)
         elif model.lower()=="sam":
             vint = int_wrt_pres(p,q,xy=True,td=False,const_p=True)
         else:
-            raise Exception("Model or region not defined. Try FV3, ICON, GEOS, SAM, NICAM in the TWP, SHL, or NAU.")
+            raise Exception("Model or region not defined. Try FV3, ICON, SAM, NICAM in the TWP, SHL, or NAU.")
         return vint
     
 def int_wrt_pres(p, q, xy=True, td=False, const_p=False):
@@ -159,10 +142,9 @@ def int_wrt_pres(p, q, xy=True, td=False, const_p=False):
     
     return vint
 
-def int_wrt_pres_fg(p, q):
+def int_wrt_pres_f(p, q):
     """
-    Integrate wrt pressure for FV3 and 
-    GEOS - where variables
+    Integrate wrt pressure for FV3 - where variables
     have 2 horizontal coords (x, y), order is top-down, and
     pressure varies in time. Assumes p and q are saved on the
     same vertical level.
@@ -212,7 +194,7 @@ def int_wrt_alt(iwc, z):
     vint = np.nansum(calc, axis=1)
     return vint
 
-def q_to_iwc(q, model, region, geos_twc=False):
+def q_to_iwc(q, model, region):
     """Converts mixing ratio of q (kg/kg) to ice water content (kg/m3)
         input = model name (string) and q = mixing ratio as xarray or numpyarray.
         Only works for time and space averaged data (aka data has one dimension-height)
@@ -278,7 +260,7 @@ def iwc(q, t, qv, p, model):
               (287*(1 + 0.61*(qv))*(t))
         iwc = q.values * rho
     else:
-        if model.lower() == "geos" or model.lower() == "icon":
+        if model.lower() == "icon":
             t = t.astype('float32')
             p = p.astype('float32')
             qv = qv.astype('float16')
@@ -316,11 +298,11 @@ def q_loop(model, region, q, p, levels=(1,None)):
     """ Returns array for vertical integration. """
     base, top = levels      
     if top==None:
-        print("Total column integration:", end=" ")
+        print("Total column integration:")
         top = q.shape[1]-1
         print(top, "levels")
     print("Starting Loop for IWP...")
-    if model.lower()=="nicam" or model.lower()=="sam" or model.lower()=="geos":
+    if model.lower()=="nicam" or model.lower()=="sam":
         cur = nsg_q_loop(q.values,p,base,top)
     elif model.lower()=="fv3":
         # on the pressure level 
@@ -330,7 +312,7 @@ def q_loop(model, region, q, p, levels=(1,None)):
         print("    icon")
         cur = q.values[:,base:top+1,:]*abs(p[:,base:,:]-p[:,:top,:])/2
     else:
-        raise Exception("Model ({}) not supported. Try ICON, NICAM, FV3, GEOS, or SAM.".format(model))
+        raise Exception("Model ({}) not supported. Try ICON, NICAM, FV3, or SAM.".format(model))
     print("Looping done...")
     return cur
 
@@ -366,12 +348,11 @@ def llavg(data, model="FV3", var="qi", dim=3, region="TWP", save=False):
         new_lon = [None]*31
         attrs = data.attrs
         n=11
-        v = "pfull"; 
+        v = "pfull"
         if dim==3:
             z = data.pfull
     elif model=="ICON" or model=="icon":
         ntime = len(data.t)
-        ncell  = len(data.cell)
         if dim==3:
             nz = len(data.lev)
             data_llavg = np.zeros((ntime, nz, 31, 31))
@@ -381,7 +362,7 @@ def llavg(data, model="FV3", var="qi", dim=3, region="TWP", save=False):
         new_lon = [None]*31
         attrs = data.attrs
         n=11
-        v = "lev"; 
+        v = "lev"
         if dim==3:
             z = data.lev
     elif model=="NICAM" or model=="nicam":
@@ -400,7 +381,7 @@ def llavg(data, model="FV3", var="qi", dim=3, region="TWP", save=False):
         new_lat = [None]*(nlat//n)
         new_lon = [None]*(nlon//n)
         attrs = data.attrs
-        v = "lev"; 
+        v = "lev"
         if dim==3:
             z = data.lev
     else: 
@@ -467,7 +448,7 @@ def undomean(meanarray, xy=True):
         # loop forward through the rest of the indices in array to "undo" the "mean from model start"
         for i in np.arange(2,np.shape(meanarray)[0]):
             data[i,:,:] = (i+1)*meanarray[i,:,:] - i*meanarray[i-1,:,:]
-        ds = xr.DataArray(data, dims=('time', 'lon', 'lat'), 
+        data = xr.DataArray(data, dims=('time', 'lon', 'lat'), 
                       coords={'time': meanarray.time,
                               'lat':meanarray.lat,
                               'lon':meanarray.lon})
@@ -514,7 +495,7 @@ def precip(data, dt=900, returnPr=False, returnAcc=False):
 
 def dennisplot(stat, olr, alb, var=None, xbins=None, ybins=None, 
                levels=None, model="model", region="TWP", var_name="var_name",units="units", 
-               cmap=cm.ocean_r, ax=None, save=False, colorbar_on=True, fs=20):
+               cmap=plt.get_cmap("ocean_r"), ax=None, save=False, colorbar_on=True, fs=20):
     ''' Returns axis with contourf of olr and albedo.
     
     Parameters:
@@ -592,7 +573,7 @@ def dennisplot(stat, olr, alb, var=None, xbins=None, ybins=None,
             print(nan_len)
         else: 
             var = var[~np.isnan(olr)]
-            binned_stat, xedges, yedges, nbins = stats.binned_statistic_2d(olr, alb, var, 
+            binned_stat, xedges, yedges, _ = stats.binned_statistic_2d(olr, alb, var, 
                                                                           bins=(xbins,ybins), statistic=stat)
     xbins2, ybins2 = (xedges[:-1]+xedges[1:])/2, (yedges[:-1]+yedges[1:])/2
     if ax is None:
@@ -601,7 +582,7 @@ def dennisplot(stat, olr, alb, var=None, xbins=None, ybins=None,
         csn = ax.contourf(xbins2, ybins2, binned_stat.T*100, levels, cmap=cmap, extend='both')
     else:
         csn = ax.contourf(xbins2, ybins2, np.log10(binned_stat.T), levels, cmap=cmap, extend='both')
-        co = ax.contour(csn, colors='k', linestyles='solid', linewidths=1)
+        ax.contour(csn, colors='k', linestyles='solid', linewidths=1)
     if region=="NAU":
         ax.plot([80,317],[0.57,0.],label="Neutral CRE", color='black') # calculated in line_neutral_cre.ipynb
     elif region=="TWP":
@@ -695,7 +676,7 @@ def diurnal_lt(time, data, model, region, bi_diurnal=False):
     
     time = numpy array of hour in day
     data = numpy array of same shape as time
-    model = 'nicam', 'sam', 'fv3', 'geos' or 'icon'
+    model = 'nicam', 'sam', 'fv3', or 'icon'
     region = 'twp', 'nau', 'shl'
     """
     if bi_diurnal:
@@ -711,10 +692,6 @@ def diurnal_lt(time, data, model, region, bi_diurnal=False):
         lt = 1
     # local times
     is_ltime = (np.arange(3,24.1*d,3)+lt)%(24*d)
-    if model=="SAM":
-        is_prlt = (np.arange(0.25,24.1*d,0.5)+lt)%(24*d)
-    else:
-        is_prlt = (np.arange(0.25,24.1*d,0.25)+lt)%(24*d)
     ltime = [i for i,j in sorted(zip(is_ltime,data))]
     ldata = [j for i,j in sorted(zip(is_ltime,data))]
     print("Returned time array and data in local time starting at midnight for %s %s"%(region, model))
@@ -737,7 +714,7 @@ def tdatetime(t_ind):
         mo = 9
         day = day-31
 #     print(mo, day)
-    hrs = t%24 #hours
+    # hrs = t%24 #hours
     timeh = int(t%24) # hour hand
     if timeh<10:
         timeh="0"+str(timeh)
@@ -760,7 +737,7 @@ def tstring(t_ind):
     t = t_ind
     mo_yr = " August 2016 "
     day = int(t//24)+1
-    hrs = t%24 #hours
+    # hrs = t%24 #hours
     timeh = int(t%24) # hour hand
     if timeh<10:
         timeh="0"+str(timeh)

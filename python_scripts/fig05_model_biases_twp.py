@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env dyamond
 """ Author: Sami Turbeville
     Created: Aug 12, 2020
     

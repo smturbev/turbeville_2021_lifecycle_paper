@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env dyamond
 """ fig07_iwp_twp.py
     Author: Sami Turbeville
     Updated: 04 Aug 2020

@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env dyamond
 """ fig11_iwp_all_regions.py
     Author: Sami Turbeville
     Updated: 18 Feb 2021
