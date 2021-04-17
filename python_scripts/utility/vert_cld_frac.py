@@ -1,4 +1,5 @@
-#!/usr/bin/env python
+#!/usr/bin/env dyamond
+#%%
 """ vert_cld_frac.py
     Author: Sami Turbeville
     Updated: 16 Oct 2020
@@ -207,8 +208,8 @@ def plot_shl_twp_nau_cld_frac(fs=22, savename=None):
     axt = plot_vert_cld_frac("TWP", ax=axt)
     axn = plot_vert_cld_frac("NAU", ax=axn)
     hs, ls = axs.get_legend_handles_labels()
-    ht, lt = axt.get_legend_handles_labels()
-    hn, ln = axn.get_legend_handles_labels()
+    _, lt = axt.get_legend_handles_labels()
+    _, ln = axn.get_legend_handles_labels()
     axs.legend().remove()
     axt.legend().remove()
     axn.legend().remove()
@@ -231,7 +232,7 @@ def plot_shl_twp_nau_cld_frac(fs=22, savename=None):
         print("saved as %s"%(savename))
     plt.close()
 
-def plot_vert_cld_frac_model(model, region, ax=None, ice_only=True, plot_ttl=True):
+def plot_vert_cld_frac_model(model, region, ax=None, ice_only=True, plot_ttl=True, savename=None):
     """Produces the figure of vertical cloud fraction for the region and model specified.
     Parameters:
         - region (str)   : TWP, NAU, or SHL

@@ -1,3 +1,4 @@
+#%%
 """ load01dege.py
     author: sami turbeville @smturbev
     date created: 22 July 2020
@@ -64,13 +65,6 @@ def get_asr(model, region):
             asr = xr.open_dataset(ap.ALL_NAU_SAM_SWN)['SWNTA'][ind0//2:]
         elif region.lower()=="shl":
             asr = xr.open_dataset(ap.ALL_SHL_SAM_SWN)['SWNTA'][ind0//2:]
-    elif model.lower()=="geos":
-        if region.lower()=="twp":
-            asr = xr.open_dataset(ap.ALL_TWP_GEOS_SWN_T)['SWTNET'][ind0:]
-        elif region.lower()=="nau":
-            asr = xr.open_dataset(ap.ALL_NAU_GEOS_SWN_T)['SWTNET'][ind0:]
-        elif region.lower()=="shl":
-            asr = xr.open_dataset(ap.ALL_SHL_GEOS_SWN_T)['SWTNET'][ind0:]
     elif model.lower()=="mpas":
         if region.lower()=="twp":
             cur = xr.open_dataset(ap.ALL_TWP_MPAS_SWN)['acswnett'][:]
@@ -158,20 +152,6 @@ def get_swu(model, region):
         swu = swu.where(swd>0,0)
         swu = swu.where(swu>0,0)
         swu = swu[ind0//2:]
-    elif model.lower()=="geos":
-        if region.lower()=="twp":
-            swnt = xr.open_dataset(ap.ALL_TWP_GEOS_SWN_T)['SWTNET'][:]
-            swd = xr.open_dataset(ap.ALL_TWP_NICAM_SWD)['ss_swd_toa'][:3925,0,:,:].values
-        elif region.lower()=="nau":
-            swnt = xr.open_dataset(ap.ALL_NAU_GEOS_SWN_T)['SWTNET'][:]
-            swd = xr.open_dataset(ap.ALL_NAU_NICAM_SWD)['ss_swd_toa'][:3925,0,:,:].values
-        elif region.lower()=="shl":
-            swnt = xr.open_dataset(ap.ALL_SHL_GEOS_SWN_T)['SWTNET'][:]
-            swd = xr.open_dataset(ap.ALL_SHL_NICAM_SWD)['ss_swd_toa'][:3925,0,:,:].values
-        swu = swd - swnt
-        swu = swu.where(swd>0,0)
-        swu = swu.where(swu>0,0)
-        swu = swu[ind0:]
     elif model.lower()=="mpas":
         if region.lower()=="twp":
             cur = xr.open_dataset(ap.ALL_TWP_MPAS_SWN)['acswnett'][:3840]
@@ -336,7 +316,7 @@ def get_olr(model, region):
             olr = xr.open_dataset(ap.ALL_NAU_ICON_OLR)['ATHB_T'][:]
         elif region.lower()=="shl":
             olr = xr.open_dataset(ap.ALL_SHL_ICON_OLR)['ATHB_T'][:]
-        olr_undone = -util.undomean(olr)
+        olr_undone = -1*(util.undomean(olr))
         olr_undone[0,:,:] = np.nan
         olr_undone[193,:,:] = np.nan
         olr = xr.DataArray(olr_undone, dims=olr.dims, coords=olr.coords, attrs={'name':'OLR_mean_undone_%s'%region})

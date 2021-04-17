@@ -1,3 +1,4 @@
+#%%
 """ util.py
     Sami Turbeville
     11/7/2019
