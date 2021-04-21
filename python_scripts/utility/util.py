@@ -15,14 +15,13 @@ import matplotlib.pyplot as plt
 import matplotlib.patches as mpat
 import matplotlib.transforms as trans
 from . import analysis_parameters as ap
-from . import load
 np.warnings.filterwarnings("ignore")
 #################### Hydrometeors ###############################
 
 def ttl_iwp_wrt_pres(q, p, model, region):
     p_tz = False
     xy = True
-    z = load.get_levels(model, region)
+    z = get_levels(model, region)
     if model.lower()=="nicam":
         ind0, ind1 = np.argmin(abs(z-14000)), np.argmin(abs(z-18000))+1
     elif model.lower()=="fv3":
@@ -42,106 +41,13 @@ def ttl_iwp_wrt_pres(q, p, model, region):
         raise Exception("Model or region not defined. Try FV3, ICON, SAM, NICAM in the TWP, SHL, or NAU.")
     print(ind0,ind1, z[ind0], z[ind1])
     if ((xy) & (~p_tz)):
-        vint = iwp(q[:,ind0:ind1,:,:],p[:,ind0:ind1,:,:],model,region)
+        vint = calc_iwp(q[:,ind0:ind1,:,:],p[:,ind0:ind1,:,:],model,region)
     elif not(p_tz): #xy=False = ICON
-        vint = iwp(q[:,ind0:ind1,:],p[:,ind0:ind1,:],model,region)
+        vint = calc_iwp(q[:,ind0:ind1,:],p[:,ind0:ind1,:],model,region)
     else: #xy=True and p_tz=True = SAM
-        vint = iwp(q[:,ind0:ind1,:,:],p[:,ind0:ind1,np.newaxis,np.newaxis],model,region)
+        vint = calc_iwp(q[:,ind0:ind1,:,:],p[:,ind0:ind1,np.newaxis,np.newaxis],model,region)
     return vint
 
-def iwp(q, p, model, region):
-    """ Inputs must be in kg/kg and Pa. """
-    p = np.where(np.isnan(p),0,p)
-    q = np.where(np.isnan(q),0,q)
-    if model.lower()=="nicam":
-        vint = int_wrt_pres(p,q,xy=True,const_p=False)
-    elif model.lower()=="fv3":
-        vint = int_wrt_pres_f(p,q)
-    elif model.lower()=="icon":
-        vint = int_wrt_pres(p,q,xy=False,td=True,const_p=False)
-    elif model.lower()=="sam":
-        vint = int_wrt_pres(p,q,xy=True,td=False,const_p=True)
-    else:
-        raise Exception("Model or region not defined. Try FV3, ICON, SAM, NICAM in the TWP, SHL, or NAU.")
-    return vint
-
-def iwp_wrt_pres(model, region, hydro_type="ice"):
-    if ((region=="TWP")&(model=="ICON")):
-        iwp = xr.open_dataset(ap.TWP_ICON_IWP)["iwp"].values
-        return iwp
-    else:
-        p = load.get_pres(model,region)
-        if hydro_type=="ice":
-            q = load.load_frozen(model, region, ice_only=True).values
-        elif hydro_type=="frozen":
-            q = load.load_frozen(model, region, ice_only=False).values
-        else:
-            q = load.load_tot_hydro(model, region).values
-        p = np.where(np.isnan(p),0,p)
-        q = np.where(np.isnan(q),0,q)
-        if model.lower()=="nicam":
-            vint = int_wrt_pres(p,q,xy=True,const_p=False)
-        elif model.lower()=="fv3":
-            vint = int_wrt_pres_f(p,q)
-        elif model.lower()=="icon":
-            vint = int_wrt_pres(p,q,xy=False,td=True,const_p=False)
-        elif model.lower()=="sam":
-            vint = int_wrt_pres(p,q,xy=True,td=False,const_p=True)
-        else:
-            raise Exception("Model or region not defined. Try FV3, ICON, SAM, NICAM in the TWP, SHL, or NAU.")
-        return vint
-    
-def int_wrt_pres(p, q, xy=True, td=False, const_p=False):
-    """
-    Integrate wrt pressure, where pressure varies in time.
-    Assumes p and q are saved on the same vertical level.
-    
-    Args:
-        p (numpy array): pressures in Pa
-        q (numpy array): hydrometeor mixing ratio in kg/kg
-        xy (boolean): true if horizontal dimension has 2 coordinates
-        const_p (boolean): true if pressure data only varies in time
-    Returns:
-        vint (numpy array): vertically integrated hydrometor
-                            in kg/m^2
-    """
-    if xy:
-        nt, nh, nx, ny = q.shape
-        vint = np.empty((nt, nx, ny))
-        g = 9.8 #m/s^2
-        for t in range(nt):
-            vsum = np.zeros((nx, ny))
-            for n in range(1, nh-1):
-                if not const_p:
-                    dp = 0.5*(p[t,n+1,:,:]-p[t,n-1,:,:])
-                else:
-                    dp = 0.5*(p[t,n+1]-p[t,n-1])
-                if td:
-                    calc = (q[t,n,:,:]*dp)/g
-                else:
-                    calc = -1*(q[t,n,:,:]*dp)/g 
-                vsum = calc + vsum 
-            vint[t, :, :] = vsum
-    
-    else: # ICON
-        nt, nh, nc = q.shape
-        vint = np.empty((nt, nc))
-        g = 9.8 #m/s^2
-        for t in range(nt):
-            vsum = np.zeros(nc)
-            for n in range(1, nh-1):
-                if not const_p:
-                    dp = 0.5*(p[t,n+1,:]-p[t,n-1,:])
-                else:
-                    dp = 0.5*(p[t,n+1]-p[t,n-1])
-                if td:
-                    calc = (q[t,n,:]*dp)/g
-                else:
-                    calc = -1*(q[t,n,:]*dp)/g
-                vsum = calc + vsum 
-            vint[t, :] = vsum
-    
-    return vint
 
 def int_wrt_pres_f(p, q):
     """
@@ -195,54 +101,48 @@ def int_wrt_alt(iwc, z):
     vint = np.nansum(calc, axis=1)
     return vint
 
-def q_to_iwc(q, model, region):
-    """Converts mixing ratio of q (kg/kg) to ice water content (kg/m3)
-        input = model name (string) and q = mixing ratio as xarray or numpyarray.
-        Only works for time and space averaged data (aka data has one dimension-height)
-        
-        returns xarray or numpy array with iwc as kg/m3
-    """
-    if model.lower() == "fv3":
-        t = load.get_temp(model, region)
-        qv = load.get_qv(model, region)
-        p = load.get_pres(model, region)
-        rho = p / \
-              (287*(1 + 0.61*(qv))*(np.nanmean(t, axis=(2))[:,:,np.newaxis,np.newaxis]))
-        iwc = q.values * rho
-        print("Warning: FV3 uses the spatially averaged density b/c \
-        specific humidity and temperature are on different grids")
-    elif model.lower() =="sam":
-        t = load.get_temp(model, region).values
-        qv = load.get_qv(model, region).values
-        p = load.get_pres(model, region).values
-        rho = p[:,:,np.newaxis,np.newaxis] / \
-              (287*(1 + 0.61*qv)*t)
-        iwc = q.values * rho
+def get_levels(model, region, include_shock=False):
+    """Returns numpy array of vertical levels for given model and region."""
+    if include_shock: 
+        ind0=0
     else:
-        if model.lower() == "icon":
-            t = load.get_temp(model, region).values.astype('float32')
-            qv = load.get_qv(model, region).values.astype('float16')
-            Tv = (1 + 0.61*qv)*t
-            print("... Tv ...")
-            del qv, t
-            p = load.get_pres(model, region).values.astype('float32')
+        ind0 = 8*2 # exclude first two days
+    if model.lower()=="nicam":
+        print("... returning frozen water path for NICAM.")
+        if region.lower()=="twp":
+            z = xr.open_dataset(ap.TWP_NICAM_QI).lev.values 
+        elif region.lower()=="shl":
+            z = xr.open_dataset(ap.SHL_NICAM_QI).lev.values 
+        elif region.lower()=="nau":
+            z = xr.open_dataset(ap.NAU_NICAM_QI).lev.values 
+    elif model.lower()=="fv3":
+        if region.lower()=="twp":
+            z = xr.open_dataset(ap.TWP_FV3_Z).altitude.values
+        elif region.lower()=="shl":
+            z = xr.open_dataset(ap.SHL_FV3_Z).altitude.values
+        elif region.lower()=="nau":
+            z = xr.open_dataset(ap.NAU_FV3_Z).altitude.values
+    elif model.lower()=="icon":
+        if region.lower()=="twp":
+            z = xr.open_dataset(ap.SHL_ICON_Z).HHL.values[0]
+        elif region.lower()=="shl":
+            z = xr.open_dataset(ap.SHL_ICON_Z).HHL.values[0]
+        elif region.lower()=="nau":
+            z = xr.open_dataset(ap.SHL_ICON_Z).HHL.values[0]
+        else: assert Exception("region not valid, try SHL, NAU, or TWP")
+        print(z.shape, ind0>0, "shape of z, if true removed first day of model output")
+    elif model.lower()=="sam":
+        if region.lower()=="twp":
+            z = xr.open_dataset(ap.TWP_SAM_QI).z.values
+        elif region.lower()=="shl":
+            z = xr.open_dataset(ap.TWP_SAM_QI).z.values
+        elif region.lower()=="nau":
+            z = xr.open_dataset(ap.TWP_SAM_QI).z.values
         else:
-            t = load.get_temp(model, region).values
-            qv = load.get_qv(model, region).values
-            p = load.get_pres(model, region).values
-            Tv = (1 + 0.61*qv)*t
-            print("... Tv ...")
-            del qv, t
-        rho = p / (287*Tv) 
-        print("... rho ...")
-        del p, Tv
-        iwc = q * rho  # kg/m2
-        print("... iwc ...")
-        del rho
-    print("Returning ice water content (kg/m3) for %s as %s xarray\n\n"%(model, iwc.shape))
-    iwcxr = xr.DataArray(iwc, dims=list(q.dims), coords=q.coords, 
-                     attrs={'standard_name':'iwc','long_name':'ice_water_content','units':'kg/m3'})
-    return iwcxr
+            raise Exception("try valid region (SHL, NAU, TWP)")
+    else: raise Exception("invalide model: model = SAM, ICON, FV3, NICAM")
+    print("\t returned height with shape", z.shape)
+    return z
 
 def iwc(q, t, qv, p, model):
     """Converts mixing ratio of q (kg/kg) to ice water content (kg/m3)
@@ -274,26 +174,6 @@ def iwc(q, t, qv, p, model):
     iwcxr = xr.DataArray(iwc, dims=list(q.dims), coords=q.coords, 
                      attrs={'standard_name':'iwc','long_name':'ice_water_content','units':'kg/m3'})
     return iwcxr
-
-def iwv(model, region):
-    """ Returns the total column integrated water vapor for model and region.
-    
-        
-        iwv = -1/g * integral(qv * dp)
-        
-        model = string of which dyamond model to use
-        region = string of "TWP", "SHL" or "NAU"
-    """
-    p = load.get_pres(model, region)
-    qv = load.get_qv(model, region)
-    print("shape of p and qv:",p.shape, qv.shape)
-    cur = q_loop(model, region, qv, p)
-    del qv, p
-    print("water vapor content done...\n... Summing columns...")
-    iwv = 1/9.8 * np.nansum(cur,axis=1) / 10 # g/cm2 (conversion: 10 kg/m2 = 1 g/cm2)
-    del cur
-    print("Returned IWV (g/cm2) for {} in {} with shape".format("nicam","twp"),iwv.shape)
-    return iwv
 
 def q_loop(model, region, q, p, levels=(1,None)):
     """ Returns array for vertical integration. """
@@ -632,40 +512,45 @@ def proxy_schematic(ax=None, arrow=True, fs=24):
         arrow (boolean) = Draws an arrow from deep convection 
                 to thin cirrus if true
     """
-    c = ['C0', 'teal', 'skyblue', 'darkslategray']
+    c = ['C0', 'teal', 'skyblue', 'darkslategray', 'darkgoldenrod']
     c0 = c[0]
     c1 = c[1]
     c2 = c[2]
     c3 = c[3]
-    if ax==None:
+    c4 = c[4]
+    if ax is None:
         fig = plt.figure(figsize=(8,7.7))
         ax = fig.add_subplot(111, aspect='auto')
+    util.dennisplot("density", np.zeros(0), np.zeros(0), colorbar_on=False, ax=ax)
     dc = mpat.Ellipse((110,0.6),85,0.3, alpha=0.9, color=c0)
-    ci = mpat.Ellipse((112,0.42), 180, 0.25,alpha=0.9, color=c1)
+    an = mpat.Ellipse((112,0.42), 180, 0.25,alpha=0.9, color=c1)
     cu = mpat.Ellipse((240,0.5),90,0.42,alpha=0.9, color=c2)
-    cs = mpat.Ellipse((260,0.2),80,0.3, alpha=0.9, color=c3)
-    dennisplot("density",np.array([0]),np.array([0]),ax=ax, colorbar_on=False, region="TWP")
-    
-    ax.annotate("    Deep\nConvection", xy=(82,0.57),xycoords='data', fontsize=fs-2, color='w')
-    ax.annotate("   Anvils\n       &\nThick Cirrus", xy=(145,0.19),xycoords='data', fontsize=fs, color='w')
-    ax.annotate("  Low\nClouds", xy=(220,0.45),xycoords='data', fontsize=fs, color='w')
-    ax.annotate(" Thin\nCirrus", xy=(242,0.16),xycoords='data',fontsize=fs, color='w')
+    ci = mpat.Ellipse((260,0.2),80,0.3, alpha=0.9, color=c3)
+    cs = mpat.Ellipse((270,0.1),33,0.1, alpha=0.6, ec=c4, fc=c4, fill=True, lw=3)
+    cs_outline = mpat.Ellipse((270,0.1),33,0.1, alpha=0.9, ec=c4, fc=None, fill=False, lw=3)
+
+    plt.annotate("    Deep\nConvection", xy=(82,0.57),xycoords='data', fontsize=fs-2, color='w')
+    plt.annotate("   Anvils\n       &\nThick Cirrus", xy=(145,0.19),xycoords='data', fontsize=fs, color='w')
+    plt.annotate("  Low\nClouds", xy=(220,0.45),xycoords='data', fontsize=fs, color='w')
+    plt.annotate(" Thin\nCirrus", xy=(242,0.18),xycoords='data',fontsize=fs, color='w')
+    plt.annotate("Clear\n  Sky", xy=(257,0.067),xycoords='data',fontsize=fs-5, color='w')
 
     t_start = ax.transData
     t = trans.Affine2D().rotate_deg(-30)
     t_end = t_start + t
 
-    ci.set_transform(t_end)
+    an.set_transform(t_end)
 
-    arc = mpat.FancyArrowPatch((110, 0.56), (280, 0.1), connectionstyle="arc3,rad=.2", 
-                               arrowstyle = '->', alpha=0.9, lw=6, linestyle='solid', color='k')#(0.9,(2,2)))
+    arc = mpat.FancyArrowPatch((110, 0.56), (257, 0.12), connectionstyle="arc3,rad=.21", 
+                            arrowstyle = '->', alpha=0.9, lw=6, linestyle='solid', color='k')#(0.9,(2,2)))
     arc.set_arrowstyle('->', head_length=15, head_width=12)
-    ax.add_patch(ci)
+    ax.add_patch(an)
     ax.add_patch(dc)
     ax.add_patch(cu)
+    ax.add_patch(ci)
+    ax.add_patch(arc)
     ax.add_patch(cs)
-    if arrow:
-        ax.add_patch(arc)
+    ax.add_patch(cs_outline)
     ax.set_axisbelow(True)
     ax.set_title("Schematic of Cloud Types\n", fontsize=fs)
     return ax
