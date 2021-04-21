@@ -21,6 +21,16 @@ from . import util
 
 INCLUDE_SHOCK = False # True uses full time period, False cuts out the first two days
 
+def get_cccm(region):
+    """Returns CCCM dataset as xarray for specified region."""
+    if region.lower()=="twp":
+        return xr.open_dataset(ap.CERES_TWP)
+    elif region.lower()=="shl":
+        return xr.open_dataset(ap.CERES_SHL)
+    else:
+        return xr.open_dataset(ap.CERES_NAU)
+    return
+
 def get_asr(model, region):
     """ Return swd for models in region.
     

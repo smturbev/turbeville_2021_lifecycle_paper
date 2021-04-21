@@ -275,6 +275,149 @@ def get_ttliwp(model, region):
     else: raise Exception("invalide model: model = SAM, ICON, FV3, NICAM")
     return
 
+def iwp_wrt_pres(model, region, hydro_type="ice"):
+    if ((region=="TWP")&(model=="ICON")):
+        iwp = xr.open_dataset(ap.TWP_ICON_IWP)["iwp"].values
+        return iwp
+    else:
+        p = get_pres(model,region)
+        if hydro_type=="ice":
+            q = load_frozen(model, region, ice_only=True).values
+        elif hydro_type=="frozen":
+            q = load_frozen(model, region, ice_only=False).values
+        else:
+            q = load_tot_hydro(model, region).values
+        p = np.where(np.isnan(p),0,p)
+        q = np.where(np.isnan(q),0,q)
+        if model.lower()=="nicam":
+            vint = int_wrt_pres(p,q,xy=True,const_p=False)
+        elif model.lower()=="fv3":
+            vint = int_wrt_pres_f(p,q)
+        elif model.lower()=="icon":
+            vint = int_wrt_pres(p,q,xy=False,td=True,const_p=False)
+        elif model.lower()=="sam":
+            vint = int_wrt_pres(p,q,xy=True,td=False,const_p=True)
+        else:
+            raise Exception("Model or region not defined. Try FV3, ICON, SAM, NICAM in the TWP, SHL, or NAU.")
+        return vint
+
+def q_to_iwc(q, model, region):
+    """Converts mixing ratio of q (kg/kg) to ice water content (kg/m3)
+        input = model name (string) and q = mixing ratio as xarray or numpyarray.
+        Only works for time and space averaged data (aka data has one dimension-height)
+        
+        returns xarray or numpy array with iwc as kg/m3
+    """
+    if model.lower() == "fv3":
+        t = get_temp(model, region)
+        qv = get_qv(model, region)
+        p = get_pres(model, region)
+        rho = p / \
+              (287*(1 + 0.61*(qv))*(np.nanmean(t, axis=(2))[:,:,np.newaxis,np.newaxis]))
+        iwc = q.values * rho
+        print("Warning: FV3 uses the spatially averaged density b/c \
+        specific humidity and temperature are on different grids")
+    elif model.lower() =="sam":
+        t = get_temp(model, region).values
+        qv = get_qv(model, region).values
+        p = get_pres(model, region).values
+        rho = p[:,:,np.newaxis,np.newaxis] / \
+              (287*(1 + 0.61*qv)*t)
+        iwc = q.values * rho
+    else:
+        if model.lower() == "icon":
+            t = get_temp(model, region).values.astype('float32')
+            qv = get_qv(model, region).values.astype('float16')
+            Tv = (1 + 0.61*qv)*t
+            print("... Tv ...")
+            del qv, t
+            p = get_pres(model, region).values.astype('float32')
+        else:
+            t = get_temp(model, region).values
+            qv = get_qv(model, region).values
+            p = get_pres(model, region).values
+            Tv = (1 + 0.61*qv)*t
+            print("... Tv ...")
+            del qv, t
+        rho = p / (287*Tv) 
+        print("... rho ...")
+        del p, Tv
+        iwc = q * rho  # kg/m2
+        print("... iwc ...")
+        del rho
+    print("Returning ice water content (kg/m3) for %s as %s xarray\n\n"%(model, iwc.shape))
+    iwcxr = xr.DataArray(iwc, dims=list(q.dims), coords=q.coords, 
+                     attrs={'standard_name':'iwc','long_name':'ice_water_content','units':'kg/m3'})
+    return iwcxr
+
+def int_wrt_pres(p, q, xy=True, td=False, const_p=False):
+    """
+    Integrate wrt pressure, where pressure varies in time.
+    Assumes p and q are saved on the same vertical level.
+    
+    Args:
+        p (numpy array): pressures in Pa
+        q (numpy array): hydrometeor mixing ratio in kg/kg
+        xy (boolean): true if horizontal dimension has 2 coordinates
+        const_p (boolean): true if pressure data only varies in time
+    Returns:
+        vint (numpy array): vertically integrated hydrometor
+                            in kg/m^2
+    """
+    if xy:
+        nt, nh, nx, ny = q.shape
+        vint = np.empty((nt, nx, ny))
+        g = 9.8 #m/s^2
+        for t in range(nt):
+            vsum = np.zeros((nx, ny))
+            for n in range(1, nh-1):
+                if not const_p:
+                    dp = 0.5*(p[t,n+1,:,:]-p[t,n-1,:,:])
+                else:
+                    dp = 0.5*(p[t,n+1]-p[t,n-1])
+                if td:
+                    calc = (q[t,n,:,:]*dp)/g
+                else:
+                    calc = -1*(q[t,n,:,:]*dp)/g 
+                vsum = calc + vsum 
+            vint[t, :, :] = vsum
+    
+    else: # ICON
+        nt, nh, nc = q.shape
+        vint = np.empty((nt, nc))
+        g = 9.8 #m/s^2
+        for t in range(nt):
+            vsum = np.zeros(nc)
+            for n in range(1, nh-1):
+                if not const_p:
+                    dp = 0.5*(p[t,n+1,:]-p[t,n-1,:])
+                else:
+                    dp = 0.5*(p[t,n+1]-p[t,n-1])
+                if td:
+                    calc = (q[t,n,:]*dp)/g
+                else:
+                    calc = -1*(q[t,n,:]*dp)/g
+                vsum = calc + vsum 
+            vint[t, :] = vsum
+    
+    return vint
+
+def calc_iwp(q, p, model, region):
+    """ Inputs must be in kg/kg and Pa. """
+    p = np.where(np.isnan(p),0,p)
+    q = np.where(np.isnan(q),0,q)
+    if model.lower()=="nicam":
+        vint = int_wrt_pres(p,q,xy=True,const_p=False)
+    elif model.lower()=="fv3":
+        vint = int_wrt_pres_f(p,q)
+    elif model.lower()=="icon":
+        vint = int_wrt_pres(p,q,xy=False,td=True,const_p=False)
+    elif model.lower()=="sam":
+        vint = int_wrt_pres(p,q,xy=True,td=False,const_p=True)
+    else:
+        raise Exception("Model or region not defined. Try FV3, ICON, SAM, NICAM in the TWP, SHL, or NAU.")
+    return vint
+
 
 def get_pr(model, region):
     """ Returns preciptiation rate in mm/s for given model and region
@@ -716,6 +859,26 @@ def get_levels(model, region):
     else: raise Exception("invalide model: model = SAM, ICON, FV3, NICAM")
     print("\t returned height with shape", z.shape)
     return z
+
+def get_iwv(model, region):
+    """ Returns the total column integrated water vapor for model and region.
+    
+        
+        iwv = -1/g * integral(qv * dp)
+        
+        model = string of which dyamond model to use
+        region = string of "TWP", "SHL" or "NAU"
+    """
+    p = get_pres(model, region)
+    qv = get_qv(model, region)
+    print("shape of p and qv:",p.shape, qv.shape)
+    cur = q_loop(model, region, qv, p)
+    del qv, p
+    print("water vapor content done...\n... Summing columns...")
+    iwv = 1/9.8 * np.nansum(cur,axis=1) / 10 # g/cm2 (conversion: 10 kg/m2 = 1 g/cm2)
+    del cur
+    print("Returned IWV (g/cm2) for {} in {} with shape".format("nicam","twp"),iwv.shape)
+    return iwv
 
 def get_pres(model, region):
     """Returns pressure in Pascals for model and region given.
