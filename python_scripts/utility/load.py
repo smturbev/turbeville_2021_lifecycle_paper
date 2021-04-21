@@ -290,13 +290,13 @@ def iwp_wrt_pres(model, region, hydro_type="ice"):
         p = np.where(np.isnan(p),0,p)
         q = np.where(np.isnan(q),0,q)
         if model.lower()=="nicam":
-            vint = int_wrt_pres(p,q,xy=True,const_p=False)
+            vint = util.int_wrt_pres(p,q,xy=True,const_p=False)
         elif model.lower()=="fv3":
-            vint = int_wrt_pres_f(p,q)
+            vint = util.int_wrt_pres_f(p,q)
         elif model.lower()=="icon":
-            vint = int_wrt_pres(p,q,xy=False,td=True,const_p=False)
+            vint = util.int_wrt_pres(p,q,xy=False,td=True,const_p=False)
         elif model.lower()=="sam":
-            vint = int_wrt_pres(p,q,xy=True,td=False,const_p=True)
+            vint = util.int_wrt_pres(p,q,xy=True,td=False,const_p=True)
         else:
             raise Exception("Model or region not defined. Try FV3, ICON, SAM, NICAM in the TWP, SHL, or NAU.")
         return vint
@@ -349,75 +349,6 @@ def q_to_iwc(q, model, region):
     iwcxr = xr.DataArray(iwc, dims=list(q.dims), coords=q.coords, 
                      attrs={'standard_name':'iwc','long_name':'ice_water_content','units':'kg/m3'})
     return iwcxr
-
-def int_wrt_pres(p, q, xy=True, td=False, const_p=False):
-    """
-    Integrate wrt pressure, where pressure varies in time.
-    Assumes p and q are saved on the same vertical level.
-    
-    Args:
-        p (numpy array): pressures in Pa
-        q (numpy array): hydrometeor mixing ratio in kg/kg
-        xy (boolean): true if horizontal dimension has 2 coordinates
-        const_p (boolean): true if pressure data only varies in time
-    Returns:
-        vint (numpy array): vertically integrated hydrometor
-                            in kg/m^2
-    """
-    if xy:
-        nt, nh, nx, ny = q.shape
-        vint = np.empty((nt, nx, ny))
-        g = 9.8 #m/s^2
-        for t in range(nt):
-            vsum = np.zeros((nx, ny))
-            for n in range(1, nh-1):
-                if not const_p:
-                    dp = 0.5*(p[t,n+1,:,:]-p[t,n-1,:,:])
-                else:
-                    dp = 0.5*(p[t,n+1]-p[t,n-1])
-                if td:
-                    calc = (q[t,n,:,:]*dp)/g
-                else:
-                    calc = -1*(q[t,n,:,:]*dp)/g 
-                vsum = calc + vsum 
-            vint[t, :, :] = vsum
-    
-    else: # ICON
-        nt, nh, nc = q.shape
-        vint = np.empty((nt, nc))
-        g = 9.8 #m/s^2
-        for t in range(nt):
-            vsum = np.zeros(nc)
-            for n in range(1, nh-1):
-                if not const_p:
-                    dp = 0.5*(p[t,n+1,:]-p[t,n-1,:])
-                else:
-                    dp = 0.5*(p[t,n+1]-p[t,n-1])
-                if td:
-                    calc = (q[t,n,:]*dp)/g
-                else:
-                    calc = -1*(q[t,n,:]*dp)/g
-                vsum = calc + vsum 
-            vint[t, :] = vsum
-    
-    return vint
-
-def calc_iwp(q, p, model, region):
-    """ Inputs must be in kg/kg and Pa. """
-    p = np.where(np.isnan(p),0,p)
-    q = np.where(np.isnan(q),0,q)
-    if model.lower()=="nicam":
-        vint = int_wrt_pres(p,q,xy=True,const_p=False)
-    elif model.lower()=="fv3":
-        vint = int_wrt_pres_f(p,q)
-    elif model.lower()=="icon":
-        vint = int_wrt_pres(p,q,xy=False,td=True,const_p=False)
-    elif model.lower()=="sam":
-        vint = int_wrt_pres(p,q,xy=True,td=False,const_p=True)
-    else:
-        raise Exception("Model or region not defined. Try FV3, ICON, SAM, NICAM in the TWP, SHL, or NAU.")
-    return vint
-
 
 def get_pr(model, region):
     """ Returns preciptiation rate in mm/s for given model and region
@@ -872,7 +803,7 @@ def get_iwv(model, region):
     p = get_pres(model, region)
     qv = get_qv(model, region)
     print("shape of p and qv:",p.shape, qv.shape)
-    cur = q_loop(model, region, qv, p)
+    cur = util.q_loop(model, region, qv, p)
     del qv, p
     print("water vapor content done...\n... Summing columns...")
     iwv = 1/9.8 * np.nansum(cur,axis=1) / 10 # g/cm2 (conversion: 10 kg/m2 = 1 g/cm2)

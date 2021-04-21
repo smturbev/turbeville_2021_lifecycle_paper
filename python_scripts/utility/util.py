@@ -48,6 +48,21 @@ def ttl_iwp_wrt_pres(q, p, model, region):
         vint = calc_iwp(q[:,ind0:ind1,:,:],p[:,ind0:ind1,np.newaxis,np.newaxis],model,region)
     return vint
 
+def calc_iwp(q, p, model, region):
+    """ Inputs must be in kg/kg and Pa. """
+    p = np.where(np.isnan(p),0,p)
+    q = np.where(np.isnan(q),0,q)
+    if model.lower()=="nicam":
+        vint = int_wrt_pres(p,q,xy=True,const_p=False)
+    elif model.lower()=="fv3":
+        vint = int_wrt_pres_f(p,q)
+    elif model.lower()=="icon":
+        vint = int_wrt_pres(p,q,xy=False,td=True,const_p=False)
+    elif model.lower()=="sam":
+        vint = int_wrt_pres(p,q,xy=True,td=False,const_p=True)
+    else:
+        raise Exception("Model or region not defined. Try FV3, ICON, SAM, NICAM in the TWP, SHL, or NAU.")
+    return vint
 
 def int_wrt_pres_f(p, q):
     """
@@ -99,6 +114,58 @@ def int_wrt_alt(iwc, z):
         dz = abs(z[i-1]-z[i+1])
         calc[:,i] = ((iwc[:,i])*dz)/9.81
     vint = np.nansum(calc, axis=1)
+    return vint
+
+def int_wrt_pres(p, q, xy=True, td=False, const_p=False):
+    """
+    Integrate wrt pressure, where pressure varies in time.
+    Assumes p and q are saved on the same vertical level.
+    
+    Args:
+        p (numpy array): pressures in Pa
+        q (numpy array): hydrometeor mixing ratio in kg/kg
+        xy (boolean): true if horizontal dimension has 2 coordinates
+        const_p (boolean): true if pressure data only varies in time
+    Returns:
+        vint (numpy array): vertically integrated hydrometor
+                            in kg/m^2
+    """
+    if xy:
+        nt, nh, nx, ny = q.shape
+        vint = np.empty((nt, nx, ny))
+        g = 9.8 #m/s^2
+        for t in range(nt):
+            vsum = np.zeros((nx, ny))
+            for n in range(1, nh-1):
+                if not const_p:
+                    dp = 0.5*(p[t,n+1,:,:]-p[t,n-1,:,:])
+                else:
+                    dp = 0.5*(p[t,n+1]-p[t,n-1])
+                if td:
+                    calc = (q[t,n,:,:]*dp)/g
+                else:
+                    calc = -1*(q[t,n,:,:]*dp)/g 
+                vsum = calc + vsum 
+            vint[t, :, :] = vsum
+    
+    else: # ICON
+        nt, nh, nc = q.shape
+        vint = np.empty((nt, nc))
+        g = 9.8 #m/s^2
+        for t in range(nt):
+            vsum = np.zeros(nc)
+            for n in range(1, nh-1):
+                if not const_p:
+                    dp = 0.5*(p[t,n+1,:]-p[t,n-1,:])
+                else:
+                    dp = 0.5*(p[t,n+1]-p[t,n-1])
+                if td:
+                    calc = (q[t,n,:]*dp)/g
+                else:
+                    calc = -1*(q[t,n,:]*dp)/g
+                vsum = calc + vsum 
+            vint[t, :] = vsum
+    
     return vint
 
 def get_levels(model, region, include_shock=False):
@@ -521,14 +588,13 @@ def proxy_schematic(ax=None, arrow=True, fs=24):
     if ax is None:
         fig = plt.figure(figsize=(8,7.7))
         ax = fig.add_subplot(111, aspect='auto')
-    util.dennisplot("density", np.zeros(0), np.zeros(0), colorbar_on=False, ax=ax)
+    dennisplot("density", np.zeros(0), np.zeros(0), colorbar_on=False, ax=ax)
     dc = mpat.Ellipse((110,0.6),85,0.3, alpha=0.9, color=c0)
     an = mpat.Ellipse((112,0.42), 180, 0.25,alpha=0.9, color=c1)
     cu = mpat.Ellipse((240,0.5),90,0.42,alpha=0.9, color=c2)
     ci = mpat.Ellipse((260,0.2),80,0.3, alpha=0.9, color=c3)
     cs = mpat.Ellipse((270,0.1),33,0.1, alpha=0.6, ec=c4, fc=c4, fill=True, lw=3)
     cs_outline = mpat.Ellipse((270,0.1),33,0.1, alpha=0.9, ec=c4, fc=None, fill=False, lw=3)
-
     plt.annotate("    Deep\nConvection", xy=(82,0.57),xycoords='data', fontsize=fs-2, color='w')
     plt.annotate("   Anvils\n       &\nThick Cirrus", xy=(145,0.19),xycoords='data', fontsize=fs, color='w')
     plt.annotate("  Low\nClouds", xy=(220,0.45),xycoords='data', fontsize=fs, color='w')
