@@ -1,4 +1,4 @@
-#!/usr/bin/env dyamond
+#!/usr/bin/env python
 """ fig11_iwp_all_regions.py
     Author: Sami Turbeville
     Updated: 18 Feb 2021
@@ -62,10 +62,12 @@ siwp_nau = siwp_nau * 1000
 print("    done... get obs")
 
 # get observational data
-# ciwp = xr.open_dataset(ap.CERES_TWP)["iwp MODIS"]
-ciwp_twp = xr.open_dataset(ap.DARDAR_TWP)["iwp"]
-ciwp_shl = xr.open_dataset(ap.DARDAR_SHL)["iwp"]
-ciwp_nau = xr.open_dataset(ap.DARDAR_NAU)["iwp"]
+ciwp_twp = xr.open_dataset(ap.CERES_TWP)["iwp MODIS"]
+ciwp_shl = xr.open_dataset(ap.CERES_SHL)["iwp MODIS"]
+ciwp_nau = xr.open_dataset(ap.CERES_NAU)["iwp MODIS"]
+# ciwp_twp = xr.open_dataset(ap.DARDAR_TWP)["iwp"]
+# ciwp_shl = xr.open_dataset(ap.DARDAR_SHL)["iwp"]
+# ciwp_nau = xr.open_dataset(ap.DARDAR_NAU)["iwp"]
 print("    done... bin by iwp")
 
 # calculate histograms
@@ -155,15 +157,15 @@ nhist_nau = nhist_nau/nno_nau
 
 print("creating figure...")
 # plot it
-fig = plt.figure(figsize=(5.5,14), constrained_layout=True)
-gs = fig.add_gridspec(5,1,hspace=0.05)
+fig = plt.figure(figsize=(20,8), constrained_layout=True)
+gs = fig.add_gridspec(2,3,hspace=0.05)
 xmid = (xedges[1:]+xedges[:-1])/2
 
 cax = fig.add_subplot(gs[0,0])
-nax = fig.add_subplot(gs[1,0])
-fax = fig.add_subplot(gs[2,0])
-iax = fig.add_subplot(gs[3,0])
-sax = fig.add_subplot(gs[4,0])
+nax = fig.add_subplot(gs[0,1])
+fax = fig.add_subplot(gs[0,2])
+iax = fig.add_subplot(gs[1,1])
+sax = fig.add_subplot(gs[1,2])
 
 s = 'm'
 n = 'b'
@@ -345,7 +347,7 @@ fno = int(np.nanmean([fno_twp, fno_shl, fno_nau]))
 ino = int(np.nanmean([ino_twp, ino_shl, ino_nau]))
 sno = int(np.nanmean([sno_twp, sno_shl, sno_nau]))
 
-cax.set_title("Frozen Water Path Histograms", size=17)
+fig.suptitle("Frozen Water Path Histograms", size=17)
 # cax.set_title("DARDAR \n {:} profiles".format(cno), size=17)
 # nax.set_title("NICAM \n {:} profiles".format(nno), size=17)
 # fax.set_title("FV3 \n {:} profiles".format(fno), size=17)
@@ -353,9 +355,11 @@ cax.set_title("Frozen Water Path Histograms", size=17)
 # sax.set_title("SAM \n {:} profiles".format(sno), size=17)
 
 sax.set_xlabel("log$_{10}$FWP (g/m$^2$)", fontsize=17)
+cax.set_xlabel("log$_{10}$FWP (g/m$^2$)", fontsize=17)
+iax.set_xlabel("log$_{10}$FWP (g/m$^2$)", fontsize=17)
 
-cax.set_xticklabels([])
-iax.set_xticklabels([])
+# cax.set_xticklabels([])
+# iax.set_xticklabels([])
 fax.set_xticklabels([])
 nax.set_xticklabels([])
 sax.set_ylabel("SAM\nFraction of profiles", fontsize=17)
@@ -378,8 +382,8 @@ fax.set_xticks(ticks)
 iax.set_xticks(ticks)
 sax.set_xticks(ticks)
 
-plt.savefig("../plots/fig11_iwp_hist_cat_nfis_allRegions.png", dpi=160)
-print("saved to ../plots/fig11_iwp_hist_cat_nfis_allRegions.png")
+plt.savefig("../plots/fig11_iwp_hist_cat_nfis_allRegions_3x2.png", dpi=160)
+print("saved to ../plots/fig11_iwp_hist_cat_nfis_allRegions_3x2.png")
 plt.close()
 
 print("Done!")
