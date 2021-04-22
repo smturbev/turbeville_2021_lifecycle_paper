@@ -102,6 +102,8 @@ def get_iwp(model, region, ice_only=True, sam_noise=True, is3d=True):
                     swp = xr.open_dataset(ap.TWP_SAM_WP_NOISE).SWP
                     gwp = xr.open_dataset(ap.TWP_SAM_WP_NOISE).GWP
                     fwp = iwp + swp + gwp
+                    print(swp.shape, "returning fwp as type",type(fwp))
+                    return fwp
                 else:
                     swp = xr.open_dataset(ap.TWP_SAM_SWP).SWP
                     gwp = xr.open_dataset(ap.TWP_SAM_GWP).GWP
@@ -117,6 +119,7 @@ def get_iwp(model, region, ice_only=True, sam_noise=True, is3d=True):
                     swp = xr.open_dataset(ap.SHL_SAM_WP_NOISE).SWP
                     gwp = xr.open_dataset(ap.SHL_SAM_WP_NOISE).GWP
                     fwp = iwp + swp + gwp
+                    return fwp
                 else:
                     swp = xr.open_dataset(ap.SHL_SAM_SWP).SWP
                     gwp = xr.open_dataset(ap.SHL_SAM_GWP).GWP
@@ -132,6 +135,7 @@ def get_iwp(model, region, ice_only=True, sam_noise=True, is3d=True):
                     swp = xr.open_dataset(ap.NAU_SAM_WP_NOISE).SWP
                     gwp = xr.open_dataset(ap.NAU_SAM_WP_NOISE).GWP
                     fwp = iwp + swp + gwp
+                    return fwp
                 else:
                     swp = xr.open_dataset(ap.NAU_SAM_SWP).SWP
                     gwp = xr.open_dataset(ap.NAU_SAM_GWP).GWP
