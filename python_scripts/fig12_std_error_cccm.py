@@ -1,4 +1,4 @@
-#! usr/bin/env/python
+#! usr/bin/env python
 import numpy as np
 import utility.load01deg as load
 

@@ -1,4 +1,4 @@
-#!/usr/bin/env/python
+#!/usr/bin/env python
 """ fig07_iwp_twp.py
     Author: Sami Turbeville
     Updated: 04 Aug 2020
