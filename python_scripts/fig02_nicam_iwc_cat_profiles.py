@@ -1,4 +1,4 @@
-#!/usr/bin/env dyamond
+#!/usr/bin/env/python
 """ fig_nicam_iwc_cat_profiles.py
     author: sami turbeville
     date modified: 21 Dec 2020

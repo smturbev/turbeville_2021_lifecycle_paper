@@ -1,4 +1,4 @@
-#!/usr/bin/env dyamond
+#!/usr/bin/env/python
 """ fig10_lifecycle_proxy_all_regions.py
     Author: Sami Turbeville
     Updated: 08 Nov 2020

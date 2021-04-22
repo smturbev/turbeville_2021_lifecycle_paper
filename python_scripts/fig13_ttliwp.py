@@ -1,4 +1,4 @@
-#!/usr/bin/env dyamond
+#!/usr/bin/env/python
 """ fig07_iwp_twp.py
     Author: Sami Turbeville
     Updated: 04 Aug 2020
@@ -58,7 +58,7 @@ def ax_ttl_cat_hist(ttliwp1, ttliwp2, ttliwp3, model, region, ax=None, fs=16):
     """Returns axis with subplot for model and region specified 
         using ttliwp (kg/m2) for each category"""
     if ax==None:
-        fig, ax = plt.subplots(1,1)
+        _, ax = plt.subplots(1,1)
     if model=="DARDAR":
         hist1, xedges = np.histogram(np.log10((ttliwp1).flatten()), bins=np.arange(-3,4,0.1))
         hist2, _ = np.histogram(np.log10((ttliwp2).flatten()), bins=np.arange(-3,4,0.1))

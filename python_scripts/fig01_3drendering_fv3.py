@@ -1,4 +1,4 @@
-#!/usr/bin/env dyamond
+#!/usr/bin/env/python
 """
     fig01_3drendering_fv3.py
     author: Sami Turbeville

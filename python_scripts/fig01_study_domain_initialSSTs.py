@@ -1,4 +1,4 @@
-#!/usr/bin/env dyamond
+#!/usr/bin/env/python
 """ fig01_study_domain_initialSSTs.py
     author: Sami Turbeville
     date modified: 16 Feb 2021

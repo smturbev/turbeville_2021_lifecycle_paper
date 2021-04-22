@@ -1,4 +1,4 @@
-#!/usr/bin/env dyamond
+#!/usr/bin/env/python
 """ fig08_lifestages_twp.py
     Author: Sami Turbeville
     Updated: 16 Aug 2020
