@@ -10,13 +10,15 @@
 
 import numpy as np
 import xarray as xr
-from utility import load, util
 import pandas as pd
-import utility.analysis_parameters as ap
 import matplotlib.pyplot as plt
+
+import utility.analysis_parameters as ap
+from utility import load, util
 
 # load all iwp 
 hydro_type = "frozen"
+obs = "CCCM"
 
 print("Getting %s for hydrometeors"%(hydro_type))
 # giwp = util.iwp_wrt_pres("GEOS", REGION, hydro_type=hydro_type, geos_graupel=True)
@@ -62,12 +64,20 @@ siwp_nau = siwp_nau * 1000
 print("    done... get obs")
 
 # get observational data
-ciwp_twp = xr.open_dataset(ap.CERES_TWP)["iwp MODIS"]
-ciwp_shl = xr.open_dataset(ap.CERES_SHL)["iwp MODIS"]
-ciwp_nau = xr.open_dataset(ap.CERES_NAU)["iwp MODIS"]
-# ciwp_twp = xr.open_dataset(ap.DARDAR_TWP)["iwp"]
-# ciwp_shl = xr.open_dataset(ap.DARDAR_SHL)["iwp"]
-# ciwp_nau = xr.open_dataset(ap.DARDAR_NAU)["iwp"]
+if obs=="CCCM":
+    ciwp_twp = xr.open_dataset(ap.CERES_TWP)["iwp MODIS"]
+    ciwp_shl = xr.open_dataset(ap.CERES_SHL)["iwp MODIS"]
+    ciwp_nau = xr.open_dataset(ap.CERES_NAU)["iwp MODIS"]
+    c1t, c2t, c3t, c4t = 2, 48, 37, 13
+    c1s, c2s, c3s, c4s = 1, 36, 38, 25
+    c1n, c2n, c3n, c4n = 1, 29, 29, 41
+else:
+    ciwp_twp = xr.open_dataset(ap.DARDAR_TWP)["iwp"]
+    ciwp_shl = xr.open_dataset(ap.DARDAR_SHL)["iwp"]
+    ciwp_nau = xr.open_dataset(ap.DARDAR_NAU)["iwp"]
+    c1t, c2t, c3t, c4t = 11, 48, 25, 15
+    c1s, c2s, c3s, c4s = 4, 28, 31, 38
+    c1n, c2n, c3n, c4n = 9, 42, 27, 22
 print("    done... bin by iwp")
 
 # calculate histograms
@@ -277,10 +287,10 @@ sax.annotate("CS", xy=(-1.8,0.068), xycoords="data", fontsize=17, color=color0)
 
 color0, color1, color2, color3 = "k","k","k","k"
 
-cax.annotate("11", xy=(3.1,0.053), xycoords="data", fontsize=17, color=color1)
-cax.annotate("48", xy=(1.7,0.053), xycoords="data", fontsize=17, color=color2)
-cax.annotate("25", xy=(-0.1,0.053), xycoords="data", fontsize=17, color=color3)
-cax.annotate("15", xy=(-1.8,0.053), xycoords="data", fontsize=17, color=color0)
+cax.annotate(str(c1t), xy=(3.1,0.053), xycoords="data", fontsize=17, color=color1)
+cax.annotate(str(c2t), xy=(1.7,0.053), xycoords="data", fontsize=17, color=color2)
+cax.annotate(str(c3t), xy=(-0.1,0.053), xycoords="data", fontsize=17, color=color3)
+cax.annotate(str(c4t), xy=(-1.8,0.053), xycoords="data", fontsize=17, color=color0)
 nax.annotate(str(np.around(ntwp.freq.CAT1)).split(".")[0], xy=(3.1,0.053), xycoords="data", fontsize=17, color=color1)
 nax.annotate(str(np.around(ntwp.freq.CAT2)).split(".")[0], xy=(1.7,0.053), xycoords="data", fontsize=17, color=color2)
 nax.annotate(str(np.around(ntwp.freq.CAT3)).split(".")[0], xy=(-0.1,0.053), xycoords="data", fontsize=17, color=color3)
@@ -298,10 +308,10 @@ sax.annotate(str(np.around(stwp.freq.CAT2)).split(".")[0], xy=(1.7,0.053), xycoo
 sax.annotate(str(np.around(stwp.freq.CAT3)).split(".")[0], xy=(-0.1,0.053), xycoords="data", fontsize=17, color=color3)
 sax.annotate(str(np.around(stwp.freq.CS)).split(".")[0], xy=(-1.8,0.053), xycoords="data", fontsize=17, color=color0)
 
-cax.annotate("4", xy=(3.1,0.061), xycoords="data", fontsize=17, color=color1)
-cax.annotate("28", xy=(1.7,0.061), xycoords="data", fontsize=17, color=color2)
-cax.annotate("31", xy=(-0.1,0.061), xycoords="data", fontsize=17, color=color3)
-cax.annotate("38", xy=(-1.8,0.061), xycoords="data", fontsize=17, color=color0)
+cax.annotate(c1s, xy=(3.1,0.061), xycoords="data", fontsize=17, color=color1)
+cax.annotate(c2s, xy=(1.7,0.061), xycoords="data", fontsize=17, color=color2)
+cax.annotate(c3s, xy=(-0.1,0.061), xycoords="data", fontsize=17, color=color3)
+cax.annotate(c4s, xy=(-1.8,0.061), xycoords="data", fontsize=17, color=color0)
 nax.annotate(str(np.around(nshl.freq.CAT1)).split(".")[0], xy=(3.1,0.061), xycoords="data", fontsize=17, color=color1)
 nax.annotate(str(np.around(nshl.freq.CAT2)).split(".")[0], xy=(1.7,0.061), xycoords="data", fontsize=17, color=color2)
 nax.annotate(str(np.around(nshl.freq.CAT3)).split(".")[0], xy=(-0.1,0.061), xycoords="data", fontsize=17, color=color3)
@@ -320,10 +330,10 @@ sax.annotate(str(np.around(sshl.freq.CAT3)).split(".")[0], xy=(-0.1,0.061), xyco
 sax.annotate(str(np.around(sshl.freq.CS)).split(".")[0], xy=(-1.8,0.061), xycoords="data", fontsize=17, color=color0)
              
              
-cax.annotate("9", xy=(3.1,0.045), xycoords="data", fontsize=17, color=color1)
-cax.annotate("42", xy=(1.7,0.045), xycoords="data", fontsize=17, color=color2)
-cax.annotate("27", xy=(-0.1,0.045), xycoords="data", fontsize=17, color=color3)
-cax.annotate("22", xy=(-1.8,0.045), xycoords="data", fontsize=17, color=color0)
+cax.annotate(c1n, xy=(3.1,0.045), xycoords="data", fontsize=17, color=color1)
+cax.annotate(c2n, xy=(1.7,0.045), xycoords="data", fontsize=17, color=color2)
+cax.annotate(c3n, xy=(-0.1,0.045), xycoords="data", fontsize=17, color=color3)
+cax.annotate(c4n, xy=(-1.8,0.045), xycoords="data", fontsize=17, color=color0)
 nax.annotate(str(np.around(nnau.freq.CAT1)).split(".")[0], xy=(3.1,0.045), xycoords="data", fontsize=17, color=color1)
 nax.annotate(str(np.around(nnau.freq.CAT2)).split(".")[0], xy=(1.7,0.045), xycoords="data", fontsize=17, color=color2)
 nax.annotate(str(np.around(nnau.freq.CAT3)).split(".")[0], xy=(-0.1,0.045), xycoords="data", fontsize=17, color=color3)
@@ -366,7 +376,7 @@ sax.set_ylabel("SAM\nFraction of profiles", fontsize=17)
 nax.set_ylabel("NICAM\nFraction of profiles", fontsize=17)
 fax.set_ylabel("FV3\nFraction of profiles", fontsize=17)
 iax.set_ylabel("ICON\nFraction of profiles", fontsize=17)
-cax.set_ylabel("DARDAR\nFraction of profiles", fontsize=17)
+cax.set_ylabel("{}\nFraction of profiles".format(obs), fontsize=17)
 
 cax.annotate("(a)", xy=(0.03,0.1), xycoords="axes fraction", fontsize=17, weight="bold")
 nax.annotate("(b)", xy=(0.03,0.1), xycoords="axes fraction", fontsize=17, weight="bold")

@@ -42,7 +42,6 @@ def get_iwp(model, region, ice_only=True, sam_noise=True, is3d=True):
     else:
         ind0 = 96*2 # exclude first two days
     if model.lower()=="nicam":
-        print("... returning frozen water path for NICAM.")
         if region.lower()=="twp":
             return(xr.open_dataset(ap.TWP_NICAM_IWP).sa_cldi[ind0:])
         elif region.lower()=="shl":
@@ -103,14 +102,14 @@ def get_iwp(model, region, ice_only=True, sam_noise=True, is3d=True):
                     gwp = xr.open_dataset(ap.TWP_SAM_WP_NOISE).GWP
                     fwp = iwp + swp + gwp
                     print(swp.shape, "returning fwp as type",type(fwp))
-                    return fwp
+                    return fwp[16:]
                 else:
                     swp = xr.open_dataset(ap.TWP_SAM_SWP).SWP
                     gwp = xr.open_dataset(ap.TWP_SAM_GWP).GWP
                     fwp = iwp + swp + gwp
                     print("fwp = iwp + swp + gwp")
                     return fwp[ind0//12:] # three hourly
-                return iwp[ind0//12:]
+            else: return iwp[ind0//12:]
         elif region.lower()=="shl":
             iwp = xr.open_dataset(ap.SHL_SAM_WP_NOISE).IWP if is3d else  xr.open_dataset(ap.SHL_SAM_IWP).IWP
             print("SAM,", iwp.shape)
@@ -119,14 +118,14 @@ def get_iwp(model, region, ice_only=True, sam_noise=True, is3d=True):
                     swp = xr.open_dataset(ap.SHL_SAM_WP_NOISE).SWP
                     gwp = xr.open_dataset(ap.SHL_SAM_WP_NOISE).GWP
                     fwp = iwp + swp + gwp
-                    return fwp
+                    return fwp[16:]
                 else:
                     swp = xr.open_dataset(ap.SHL_SAM_SWP).SWP
                     gwp = xr.open_dataset(ap.SHL_SAM_GWP).GWP
                     fwp = iwp + swp + gwp
                     print("fwp = iwp + swp + gwp")
                     return fwp[ind0//12:] # three hourly
-                return iwp[ind0//12:]
+            else: return iwp[ind0//12:]
         elif region.lower()=="nau":
             iwp = xr.open_dataset(ap.NAU_SAM_WP_NOISE).IWP if is3d else  xr.open_dataset(ap.NAU_SAM_IWP).IWP
             print("SAM,", iwp.shape)
@@ -135,14 +134,14 @@ def get_iwp(model, region, ice_only=True, sam_noise=True, is3d=True):
                     swp = xr.open_dataset(ap.NAU_SAM_WP_NOISE).SWP
                     gwp = xr.open_dataset(ap.NAU_SAM_WP_NOISE).GWP
                     fwp = iwp + swp + gwp
-                    return fwp
+                    return fwp[16:]
                 else:
                     swp = xr.open_dataset(ap.NAU_SAM_SWP).SWP
                     gwp = xr.open_dataset(ap.NAU_SAM_GWP).GWP
                     fwp = iwp + swp + gwp
                     print("fwp = iwp + swp + gwp")
                     return fwp[ind0//12:] # three hourly
-                return iwp[ind0//12:]
+            else: return iwp[ind0//12:]
         else:
             raise Exception("try valid region (SHL, NAU, TWP)")
     else: raise Exception("invalide model: model = SAM, ICON, FV3, NICAM")
@@ -207,7 +206,7 @@ def get_lwp(model, region, rain=False, sam_noise=True, is3d=True):
                 if rain:
                     rwp = xr.open_dataset(ap.TWP_SAM_RWP).RWP
                     return (lwp + rwp)[ind0:]
-            return
+            return lwp[ind0//12:]
         elif region.lower()=="shl":
             if is3d:
                 lwp = xr.open_dataset(ap.SHL_SAM_LWP_NOISE).CWP
@@ -219,7 +218,7 @@ def get_lwp(model, region, rain=False, sam_noise=True, is3d=True):
                 if rain:
                     rwp = xr.open_dataset(ap.SHL_SAM_RWP).RWP
                     return (lwp + rwp)[ind0:]
-            return
+            return lwp[ind0//12:]
         elif region.lower()=="nau":
             if is3d:
                 lwp = xr.open_dataset(ap.NAU_SAM_LWP_NOISE).CWP
@@ -231,7 +230,7 @@ def get_lwp(model, region, rain=False, sam_noise=True, is3d=True):
                 if rain:
                     rwp = xr.open_dataset(ap.NAU_SAM_RWP).RWP
                     return (lwp + rwp)[ind0:]
-            return
+            return lwp[ind0//12:]
         else:
             raise Exception("try valid region (SHL, NAU, TWP)")
     else: raise Exception("invalide model: model = SAM, ICON, FV3, NICAM")
@@ -278,6 +277,32 @@ def get_ttliwp(model, region):
             raise Exception("try valid region (SHL, NAU, TWP)")
     else: raise Exception("invalide model: model = SAM, ICON, FV3, NICAM")
     return
+
+def get_iwv(model, region):
+    """ Returns the total column integrated water vapor for model and region.
+    
+        
+        iwv = -1/g * integral(qv * dp)
+        
+        model = string of which dyamond model to use
+        region = string of "TWP", "SHL" or "NAU"
+    """
+    if INCLUDE_SHOCK: 
+        ind0=0
+    else:
+        ind0 = 8*2 # exclude first two days
+    p = get_pres(model, region)
+    qv = get_qv(model, region)
+    print(p.shape, qv.shape)
+    if model.lower()=="sam":
+        print("    newaxes added")
+        p = p.values[:,:,np.newaxis,np.newaxis]
+    cur = util.q_loop(model, region, qv, p)
+    del qv, p
+    iwv = 1/9.8 * np.nansum(cur,axis=1) / 10 # g/cm2 (conversion: 10 kg/m2 = 1 g/cm2)
+    del cur
+    print("Returned IWV (g/cm2) for {} in {} with shape".format(model,region),iwv.shape)
+    return iwv
 
 def iwp_wrt_pres(model, region, hydro_type="ice"):
     if ((region=="TWP")&(model=="ICON")):
@@ -794,26 +819,6 @@ def get_levels(model, region):
     else: raise Exception("invalide model: model = SAM, ICON, FV3, NICAM")
     print("\t returned height with shape", z.shape)
     return z
-
-def get_iwv(model, region):
-    """ Returns the total column integrated water vapor for model and region.
-    
-        
-        iwv = -1/g * integral(qv * dp)
-        
-        model = string of which dyamond model to use
-        region = string of "TWP", "SHL" or "NAU"
-    """
-    p = get_pres(model, region)
-    qv = get_qv(model, region)
-    print("shape of p and qv:",p.shape, qv.shape)
-    cur = util.q_loop(model, region, qv, p)
-    del qv, p
-    print("water vapor content done...\n... Summing columns...")
-    iwv = 1/9.8 * np.nansum(cur,axis=1) / 10 # g/cm2 (conversion: 10 kg/m2 = 1 g/cm2)
-    del cur
-    print("Returned IWV (g/cm2) for {} in {} with shape".format("nicam","twp"),iwv.shape)
-    return iwv
 
 def get_pres(model, region):
     """Returns pressure in Pascals for model and region given.

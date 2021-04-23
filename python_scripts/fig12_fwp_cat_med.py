@@ -18,19 +18,53 @@ cat1 = 1000
 cat2 = 10
 cat3 = 0.1
 print("cccm...")
-c1t = np.nanmedian(np.where(ciwpt>=cat1, ciwpt, np.nan))
-c2t = np.nanmedian(np.where((ciwpt>=cat2)&(ciwpt<cat1), ciwpt, np.nan))
-c3t = np.nanmedian(np.where((ciwpt>=cat3)&(ciwpt<cat2), ciwpt, np.nan))
-c4t = np.nanmedian(np.where((ciwpt<cat3), ciwpt, np.nan))
-c1s = np.nanmedian(np.where(ciwps>=cat1, ciwps, np.nan))
-c2s = np.nanmedian(np.where((ciwps>=cat2)&(ciwps<cat1), ciwps, np.nan))
-c3s = np.nanmedian(np.where((ciwps>=cat3)&(ciwps<cat2), ciwps, np.nan))
-c4s = np.nanmedian(np.where((ciwps<cat3), ciwps, np.nan))
-c1n = np.nanmedian(np.where(ciwpn>=cat1, ciwpn, np.nan))
-c2n = np.nanmedian(np.where((ciwpn>=cat2)&(ciwpn<cat1), ciwpn, np.nan))
-c3n = np.nanmedian(np.where((ciwpn>=cat3)&(ciwpn<cat2), ciwpn, np.nan))
-c4n = np.nanmedian(np.where((ciwpn<cat3), ciwpn, np.nan))
+c1t = (np.where(ciwpt>=cat1, ciwpt, np.nan))
+c2t = (np.where((ciwpt>=cat2)&(ciwpt<cat1), ciwpt, np.nan))
+c3t = (np.where((ciwpt>=cat3)&(ciwpt<cat2), ciwpt, np.nan))
+c4t = (np.where((ciwpt<cat3), ciwpt, np.nan))
+c1s = (np.where(ciwps>=cat1, ciwps, np.nan))
+c2s = (np.where((ciwps>=cat2)&(ciwps<cat1), ciwps, np.nan))
+c3s = (np.where((ciwps>=cat3)&(ciwps<cat2), ciwps, np.nan))
+c4s = (np.where((ciwps<cat3), ciwps, np.nan))
+c1n = (np.where(ciwpn>=cat1, ciwpn, np.nan))
+c2n = (np.where((ciwpn>=cat2)&(ciwpn<cat1), ciwpn, np.nan))
+c3n = (np.where((ciwpn>=cat3)&(ciwpn<cat2), ciwpn, np.nan))
+c4n = (np.where((ciwpn<cat3), ciwpn, np.nan))
 del ciwpt, ciwps, ciwpn
+print("\tCCCM TWP ({})\n\t1: {} {}%\n\t2: {} {}%\n\t3: {} {}\n\t4: {} {}".format(
+    len(c1t),
+    np.sum(~np.isnan(c1t)), np.sum(~np.isnan(c1t))*100/len(c1t),
+    np.sum(~np.isnan(c2t)), np.sum(~np.isnan(c2t))*100/len(c2t),
+    np.sum(~np.isnan(c3t)), np.sum(~np.isnan(c3t))*100/len(c3t),
+    np.sum(~np.isnan(c4t)), np.sum(~np.isnan(c4t))*100/len(c4t)
+))
+print("\tCCCM SHL ({})\n\t1: {} {}%\n\t2: {} {}%\n\t3: {} {}\n\t4: {} {}".format(
+    len(c1s),
+    np.sum(~np.isnan(c1s)), np.sum(~np.isnan(c1s))*100/len(c1s),
+    np.sum(~np.isnan(c2s)), np.sum(~np.isnan(c2s))*100/len(c2s),
+    np.sum(~np.isnan(c3s)), np.sum(~np.isnan(c3s))*100/len(c3s),
+    np.sum(~np.isnan(c4s)), np.sum(~np.isnan(c4s))*100/len(c4s)
+))
+print("\tCCCM NAU ({})\n\t1: {} {}%\n\t2: {} {}%\n\t3: {} {}\n\t4: {} {}".format(
+    len(c1n),
+    np.sum(~np.isnan(c1n)), np.sum(~np.isnan(c1n))*100/len(c1n),
+    np.sum(~np.isnan(c2n)), np.sum(~np.isnan(c2n))*100/len(c2n),
+    np.sum(~np.isnan(c3n)), np.sum(~np.isnan(c3n))*100/len(c3n),
+    np.sum(~np.isnan(c4n)), np.sum(~np.isnan(c4n))*100/len(c4n)
+))
+c1t = np.nanmedian(c1t)
+c2t = np.nanmedian(c2t)
+c3t = np.nanmedian(c3t)
+c4t = np.nanmedian(c4t)
+c1s = np.nanmedian(c1s)
+c2s = np.nanmedian(c2s)
+c3s = np.nanmedian(c3s)
+c4s = np.nanmedian(c4s)
+c1n = np.nanmedian(c1n)
+c2n = np.nanmedian(c2n)
+c3n = np.nanmedian(c3n)
+c4n = np.nanmedian(c4n)
+
 print("... done")
 # %%
 # load sam

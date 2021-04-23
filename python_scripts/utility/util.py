@@ -246,34 +246,38 @@ def q_loop(model, region, q, p, levels=(1,None)):
     """ Returns array for vertical integration. """
     base, top = levels      
     if top==None:
-        print("Total column integration:")
         top = q.shape[1]-1
-        print(top, "levels")
-    print("Starting Loop for IWP...")
-    if model.lower()=="nicam" or model.lower()=="sam":
-        cur = nsg_q_loop(q.values,p,base,top)
+    if model.lower()=="nicam":
+        cur = n_q_loop(q.values, p,base, top)
+    elif model.lower()=="sam":
+        cur = s_q_loop(q.values, p,base, top)
     elif model.lower()=="fv3":
         # on the pressure level 
-        print("    ", np.nanmean(q.pfull[-1]), "hPa of lowest level")
-        cur = f_q_loop(q.values,q.pfull.values,base,top)
+        cur = f_q_loop(q.values, q.pfull.values, base, top)
     elif model.lower()=="icon":
-        print("    icon")
-        cur = q.values[:,base:top+1,:]*abs(p[:,base:,:]-p[:,:top,:])/2
+        cur = i_q_loop(q.values, p, base, top)
     else:
         raise Exception("Model ({}) not supported. Try ICON, NICAM, FV3, or SAM.".format(model))
-    print("Looping done...")
     return cur
 
-def nsg_q_loop(q, p, base, top):
+def n_q_loop(q, p, base, top):
+    print("\tnsg", q[0,base:top+1,0,0].shape,(p[0,base:]-p[0,:top+1]).shape)
+    cur = q[:,base:top+1,:,:]*abs((p[:,base:,:,:]-p[:,:top+1,:,:])/2)
+    return cur
+
+def s_q_loop(q, p, base, top):
+    print("\tnsg", q[0,base:top+1,0,0].shape,(p[0,base:]-p[0,:top]).shape)
     cur = q[:,base:top+1,:,:]*abs((p[:,base:,:,:]-p[:,:top,:,:])/2)
     return cur
 
 def f_q_loop(q,p,base,top):
+    print("\tf")
     cur = q[:,base:top+1,:,:]*abs((p[base:]-p[:top])*100/2)[np.newaxis,:,np.newaxis,np.newaxis]
     return cur
 
-def i_q_loop(cur,q,p,base,top):
-    cur = q[:,base:top+1,:]*abs(p[:,base:,:]-p[:,:top,:])/2
+def i_q_loop(q,p,base,top):
+    print("\ti")
+    cur = q[:,base:top+1,:]*abs(p[:,base:,:]-p[:,:top+1,:])/2
     return cur
 ######################## Data Manipulation ###############################
 def llavg(data, model="FV3", var="qi", dim=3, region="TWP", save=False):
