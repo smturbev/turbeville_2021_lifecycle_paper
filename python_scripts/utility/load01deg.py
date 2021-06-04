@@ -29,7 +29,15 @@ def get_cccm(region):
         return xr.open_dataset(ap.CERES_SHL)
     else:
         return xr.open_dataset(ap.CERES_NAU)
-    return
+
+def get_dardar(region):
+    """Returns xarray dataset for specified region of DARDAR"""
+    if region.lower()=="twp":
+        return xr.open_dataset(ap.DARDAR_TWP)
+    elif region.lower()=="shl":
+        return xr.open_dataset(ap.DARDAR_SHL)
+    else:
+        return xr.open_dataset(ap.DARDAR_NAU)
 
 def get_asr(model, region):
     """ Return swd for models in region.
@@ -218,6 +226,8 @@ def get_swu(model, region):
         swu = swu.where(swd>0,0)
         swu = swu.where(swu>0,0)
         swu = swu[ind0//4:]
+    else: 
+        raise Exception("region ({}) or model ({}) input error".format(region, model))
     print("Returned SWU for "+model+" ("+region+") with shape:", swu.shape)
     return swu
 

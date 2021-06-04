@@ -16,6 +16,7 @@ import matplotlib.patches as mpat
 import matplotlib.transforms as trans
 from . import analysis_parameters as ap
 np.warnings.filterwarnings("ignore")
+
 #################### Hydrometeors ###############################
 
 def ttl_iwp_wrt_pres(q, p, model, region):
@@ -258,27 +259,31 @@ def q_loop(model, region, q, p, levels=(1,None)):
         cur = i_q_loop(q.values, p, base, top)
     else:
         raise Exception("Model ({}) not supported. Try ICON, NICAM, FV3, or SAM.".format(model))
+    print(cur.mean())
     return cur
 
 def n_q_loop(q, p, base, top):
-    print("\tnsg", q[0,base:top+1,0,0].shape,(p[0,base:]-p[0,:top+1]).shape)
-    cur = q[:,base:top+1,:,:]*abs((p[:,base:,:,:]-p[:,:top+1,:,:])/2)
+    print("\tn", q[0,base:top+1,0,0].shape,p[0,base:,0,0].shape,p[0,:top,0,0].shape)
+    cur = q[:,base:top+1,:,:]*abs((p[:,base:,:,:]-p[:,:top,:,:])/2)
+    print(cur.shape, cur.mean(), cur[0,0,0], q.mean(), p[100,base:top,10,50])
     return cur
 
 def s_q_loop(q, p, base, top):
-    print("\tnsg", q[0,base:top+1,0,0].shape,(p[0,base:]-p[0,:top]).shape)
+    print("\ts", q[0,base:top+1,0,0].shape,(p[0,base:]-p[0,:top]).shape)
     cur = q[:,base:top+1,:,:]*abs((p[:,base:,:,:]-p[:,:top,:,:])/2)
     return cur
 
 def f_q_loop(q,p,base,top):
-    print("\tf")
+    print("\tf", base, top)
     cur = q[:,base:top+1,:,:]*abs((p[base:]-p[:top])*100/2)[np.newaxis,:,np.newaxis,np.newaxis]
     return cur
 
 def i_q_loop(q,p,base,top):
-    print("\ti")
-    cur = q[:,base:top+1,:]*abs(p[:,base:,:]-p[:,:top+1,:])/2
+    print("\ti",base,top,q[:,base:top+1,:].shape, p[:,:top,:].shape)
+    cur = q[:,base:top+1,:]*abs(p[:,base:,:]-p[:,:top,:])/2
     return cur
+
+
 ######################## Data Manipulation ###############################
 def llavg(data, model="FV3", var="qi", dim=3, region="TWP", save=False):
     ''' input data as xarray.DataArray, model name, variable name,
@@ -526,7 +531,7 @@ def dennisplot(stat, olr, alb, var=None, xbins=None, ybins=None,
         else: 
             var = var[~np.isnan(olr)]
             binned_stat, xedges, yedges, _ = stats.binned_statistic_2d(olr, alb, var, 
-                                                                          bins=(xbins,ybins), statistic=stat)
+                                                                       bins=(xbins,ybins), statistic=stat)
     xbins2, ybins2 = (xedges[:-1]+xedges[1:])/2, (yedges[:-1]+yedges[1:])/2
     if ax is None:
         ax = plt.gca()
@@ -592,18 +597,18 @@ def proxy_schematic(ax=None, arrow=True, fs=24):
     if ax is None:
         fig = plt.figure(figsize=(8,7.7))
         ax = fig.add_subplot(111, aspect='auto')
-    dennisplot("density", np.zeros(0), np.zeros(0), colorbar_on=False, ax=ax)
+    dennisplot("density", np.zeros(0), np.zeros(0), colorbar_on=False, ax=ax, fs=fs)
     dc = mpat.Ellipse((110,0.6),85,0.3, alpha=0.9, color=c0)
     an = mpat.Ellipse((112,0.42), 180, 0.25,alpha=0.9, color=c1)
     cu = mpat.Ellipse((240,0.5),90,0.42,alpha=0.9, color=c2)
     ci = mpat.Ellipse((260,0.2),80,0.3, alpha=0.9, color=c3)
     cs = mpat.Ellipse((270,0.1),33,0.1, alpha=0.6, ec=c4, fc=c4, fill=True, lw=3)
     cs_outline = mpat.Ellipse((270,0.1),33,0.1, alpha=0.9, ec=c4, fc=None, fill=False, lw=3)
-    plt.annotate("    Deep\nConvection", xy=(82,0.57),xycoords='data', fontsize=fs-2, color='w')
-    plt.annotate("   Anvils\n       &\nThick Cirrus", xy=(145,0.19),xycoords='data', fontsize=fs, color='w')
-    plt.annotate("  Low\nClouds", xy=(220,0.45),xycoords='data', fontsize=fs, color='w')
-    plt.annotate(" Thin\nCirrus", xy=(242,0.18),xycoords='data',fontsize=fs, color='w')
-    plt.annotate("Clear\n  Sky", xy=(257,0.067),xycoords='data',fontsize=fs-5, color='w')
+    plt.annotate("    Deep\nConvection", xy=(82,0.57),xycoords='data', fontsize=fs-3, color='w')
+    plt.annotate("   Anvils\n       &\nThick Cirrus", xy=(142,0.19),xycoords='data', fontsize=fs-3, color='w')
+    plt.annotate("  Low\nClouds", xy=(220,0.45),xycoords='data', fontsize=fs-3, color='w')
+    plt.annotate(" Thin\nCirrus", xy=(242,0.18),xycoords='data',fontsize=fs-3, color='w')
+    plt.annotate("Clear\n  Sky", xy=(257,0.067),xycoords='data',fontsize=fs-6, color='w')
 
     t_start = ax.transData
     t = trans.Affine2D().rotate_deg(-30)
@@ -622,7 +627,7 @@ def proxy_schematic(ax=None, arrow=True, fs=24):
     ax.add_patch(cs)
     ax.add_patch(cs_outline)
     ax.set_axisbelow(True)
-    ax.set_title("Schematic of Cloud Types\n", fontsize=fs)
+    ax.set_title("Schematic of Cloud Types", fontsize=fs)
     return ax
 
 def diurnal_lt(time, data, model, region, bi_diurnal=False):

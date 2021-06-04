@@ -47,7 +47,7 @@ lw = 5
 ms = 20
 a = 1
 # Plot median
-fig, ax = plt.subplots(1,1,figsize=(4.7,5), constrained_layout=True)
+fig, ax = plt.subplots(1,1,figsize=(4.9,5), constrained_layout=True)
 util.dennisplot("density",np.array([]),np.array([]),\
                  model="Category Median Albedo & OLR\n",region="TWP",\
                  colorbar_on=False, ax=ax)
@@ -82,7 +82,7 @@ ax.set_ylim([0.05,0.8])
 ax.set_xlim([80,310])
 ax.set_xlabel('OLR (W m$^{-2}$)', size=fs)
 ax.set_ylabel('Albedo', size=fs)
-ax.set_title('Category Median Albedo and OLR\nTWP', fontsize=fs)
+ax.set_title("") # 'Category Median Albedo and OLR\nTWP', fontsize=fs)
 ax.tick_params(labelsize=fs-4)
 
 plt.savefig('../plots/fig08_cat_lifestages_twp.png',dpi=150,bbox_inches='tight')

@@ -42,7 +42,7 @@ def get_ilwc(model, region):
     qil = (qi + ql).astype('float16')
     del qi, ql
     print('... added qi + ql ...\n... del qi, ql...')
-    ilwc = util.q_to_iwc(qil, model, region)
+    ilwc = load.q_to_iwc(qil, model, region)
     del qil
     return ilwc
 
@@ -61,7 +61,7 @@ def get_fwc(model, region):
             q = xr.open_dataarray("/home/disk/eos15/smturbev/dyamond/temp_%s_tot_q_%s.nc"%(model,region))
         else:
             q = xr.open_dataarray("../../dyamond/temp_%s_tot_q_%s.nc"%(model,region))
-        iwc = util.q_to_iwc(q,model,region)
+        iwc = load.q_to_iwc(q,model,region)
         del q
     else:
         iwc = load.get_twc(model, region)
@@ -100,7 +100,7 @@ def get_cld_frac(model, region, ice_only=True, q=None):
     else:
         if q is not None:
             print("\tq is not None")
-            iwc = util.q_to_iwc(q, model, region)
+            iwc = load.q_to_iwc(q, model, region)
         else:
             if ice_only:
                 print("\tusing qi and ql only")
@@ -121,11 +121,6 @@ def get_cld_frac(model, region, ice_only=True, q=None):
             model_frac = np.nansum(model_frac,axis=(0,2,3))/model_no
         del model_no
         model_z = load.get_levels(model, region)
-        if model=="FV3":
-            model_z = np.nanmean(model_z, axis=0)
-        if model=="ICON":
-            model_z = np.nanmean(model_z, axis=(1))[14:]
-            print("ICON z", model_z.shape, model_z)
         print("\treturning model cld frac and z for",model, region)
         return (model_frac, model_z)
     return
@@ -182,7 +177,7 @@ def plot_vert_cld_frac(region, ax=None, ice_only=True, savename=None, fs=18):
     ax.set_ylim([0,20])
     ax.set_xlim([-0.03,0.83]) #83
     ax.set_ylabel("Height (km)",fontsize=fs)
-    ax.set_title('Cloud Occurrence, %s'%(region), fontsize=fs)
+    ax.set_title(region, fontsize=fs)
     ax.tick_params(labelsize=fs-2)
     ax.grid()
     if ax is None:

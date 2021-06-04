@@ -172,11 +172,11 @@ for i in range(20):
     print(2000+i, sw_cmeans[i])
 
 # scatter plot of mean vs std
-fig = plt.figure(figsize=(12,6), constrained_layout=True)
+fig = plt.figure(figsize=(15,11))
 fs=12
-gs = fig.add_gridspec(2,3,width_ratios=[6,6,0.4])
+gs = fig.add_gridspec(2,2)
 
-ax0 = fig.add_subplot(gs[0,1])
+ax0 = fig.add_subplot(gs[1,1])
 ms = 100
 ax0.scatter(cmeans, cstdev, label="CERES SYN1 Yearly", s=ms*2/3, color='gray', marker="s", alpha=0.6)
 ax0.scatter(np.nanmean(cmeans), np.nanmean(cstdev), label="CERES SYN1 Avg", s=ms*2/3, color='k', marker="s", alpha=1)
@@ -191,14 +191,14 @@ ax0.scatter(emean, estdev, color=c["IFS"], label="IFS", s=ms, marker="^")
 ax0.scatter(mmean, mstdev, color=c["MPAS"], label="MPAS", s=ms, marker="^")
 ax0.scatter(umean, ustdev, color=c["UM"], label="UM", s=ms, marker="^")
 ax0.tick_params(labelsize=fs)
-ax0.set_xticklabels([])
+# ax0.set_xticklabels([])
 ax0.set_ylabel("Standard Deviation\n(W/m2)",fontsize=fs)
 #ax0.set_xlabel("Mean OLR (W/m2)", fontsize=fs)
 #ax0.set_title("Mean OLR vs Std Dev, "+REGION, fontsize=fs)
 ax0.grid()
 
-ax1 = fig.add_subplot(gs[1,1])
-ax1.scatter(cmeans, sw_cmeans, label="CERES SYN1 Yearly", s=ms*2/3, color='gray', marker="s", alpha=1)
+ax1 = fig.add_subplot(gs[0,1])
+ax1.scatter(cmeans, sw_cmeans, label="CERES SYN1 Yearly", s=ms*2/3, color='gray', marker="s", alpha=0.6)
 ax1.scatter(cmeans[16], sw_cmeans[16], label="CERES SYN1 2016", s=ms*2/3, color='tab:red', marker="s", alpha=1.)
 ax1.scatter(cccmmean, sw_cccmmean, label="CCCM Avg", s=ms*2/3, color='mediumblue', marker="s", alpha=1)
 ax1.scatter(np.nanmean(cmeans), np.nanmean(sw_cmeans), label="CERES SYN1 Avg", s=ms*2/3, color='k', marker="s", alpha=1)
@@ -211,23 +211,25 @@ ax1.scatter(emean, sw_emean, color=c["IFS"], label="IFS", s=ms, marker="^")
 ax1.scatter(mmean, sw_mmean, color=c["MPAS"], label="MPAS", s=ms, marker="^")
 ax1.scatter(umean, sw_umean, color=c["UM"], label="UM", s=ms, marker="^")
 ax1.tick_params(labelsize=fs)
+ax1.set_xticklabels([])
 ax1.set_ylabel("Mean Reflected SW\n(W/m2)",fontsize=fs)
-ax1.set_xlabel("Mean OLR (W/m2)", fontsize=fs)
+ax0.set_xlabel("Mean OLR (W/m2)", fontsize=fs)
 #ax1.set_title("Mean OLR vs Mean Reflected SW, "+REGION, fontsize=28)
 ax1.grid()
 
-axc = fig.add_subplot(gs[:,2])
-h, l = ax0.get_legend_handles_labels()
-axc.legend(h, l, loc="center", fontsize=fs)
-axc.axis("off")
-
 axz = fig.add_subplot(gs[:,0])
 axz = vert_cld_frac.plot_vert_cld_frac(REGION, ax=axz)
+axz.set_title("")
+
+h, l = ax0.get_legend_handles_labels()
+fig.legend(h,l, loc="upper center", bbox_to_anchor=(0.5, 0.1),
+           ncol=3)
 
 axz.annotate("(a)", xy=(0.71, 19), xycoords="data", fontsize=14)
-ax0.annotate("(b)", xy=(256, 53), xycoords="data", fontsize=14)
-ax1.annotate("(c)", xy=(256, 122), xycoords="data", fontsize=14)
+ax1.annotate("(b)", xy=(256, 53), xycoords="data", fontsize=14)
+ax0.annotate("(c)", xy=(256, 122), xycoords="data", fontsize=14)
 
-plt.savefig("../plots/fig05_%s_model_biases.png"%REGION,dpi=150,bbox_inches="tight")
+plt.savefig("../plots/fig05_%s_model_biases.png"%REGION,dpi=150,
+            bbox_inches="tight", pad_inches=2)
 print("... saved to ../plots/fig05_%s_model_biases.png"%REGION)
 plt.close()

@@ -9,9 +9,11 @@ import json
 
 # Color scheme from JNUG
 COLOR_JSON = "/home/disk/eos15/jnug/dyamond_colors.json"
+
 def js_r(filename):
     with open(filename) as f_in:
         return(json.load(f_in))
+
 COLORS = js_r(COLOR_JSON)
 
 # Set up Home Directory as root of where all dyamond data is stored

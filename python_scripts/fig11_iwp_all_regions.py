@@ -23,21 +23,21 @@ obs = "CCCM"
 print("Getting %s for hydrometeors"%(hydro_type))
 # giwp = util.iwp_wrt_pres("GEOS", REGION, hydro_type=hydro_type, geos_graupel=True)
 print("geos zeros until we get new data")
-iiwp_twp = load.get_iwp("ICON", "TWP", ice_only=False).values
-iiwp_shl = load.get_iwp("ICON", "SHL", ice_only=False).values
-iiwp_nau = load.get_iwp("ICON", "NAU", ice_only=False).values
+iiwp_twp = load.get_iwp("ICON", "TWP", ice_only=True).values
+iiwp_shl = load.get_iwp("ICON", "SHL", ice_only=True).values
+iiwp_nau = load.get_iwp("ICON", "NAU", ice_only=True).values
 print("loaded icon")
-fiwp_twp = load.get_iwp("FV3", "TWP", ice_only=False).values
-fiwp_shl = load.get_iwp("FV3", "SHL", ice_only=False).values
-fiwp_nau = load.get_iwp("FV3", "NAU", ice_only=False).values
+fiwp_twp = load.get_iwp("FV3", "TWP", ice_only=True).values
+fiwp_shl = load.get_iwp("FV3", "SHL", ice_only=True).values
+fiwp_nau = load.get_iwp("FV3", "NAU", ice_only=True).values
 print("loaded fv3")
 niwp_twp = load.get_iwp("NICAM", "TWP", ice_only=False).values
 niwp_shl = load.get_iwp("NICAM", "SHL", ice_only=False).values
 niwp_nau = load.get_iwp("NICAM", "NAU", ice_only=False).values
 print("loaded nicam")
-siwp_twp = load.get_iwp("SAM", "TWP", ice_only=False)
-siwp_shl = load.get_iwp("SAM", "SHL", ice_only=False)
-siwp_nau = load.get_iwp("SAM", "NAU", ice_only=False)
+siwp_twp = load.get_iwp("SAM", "TWP", ice_only=True)
+siwp_shl = load.get_iwp("SAM", "SHL", ice_only=True)
+siwp_nau = load.get_iwp("SAM", "NAU", ice_only=True)
 sno_twp = siwp_twp.count().values
 sno_shl = siwp_shl.count().values
 sno_nau = siwp_nau.count().values
@@ -177,8 +177,9 @@ fax = fig.add_subplot(gs[0,2])
 iax = fig.add_subplot(gs[1,1])
 sax = fig.add_subplot(gs[1,2])
 
-s = 'm'
-n = 'b'
+s = 'tab:orange'
+n = 'tab:purple'
+t = 'tab:green'
 a = 0.9
 
 cax.axvline(3, color="k", alpha=0.4, linestyle="dashed")
@@ -197,26 +198,25 @@ sax.axvline(3, color="k", alpha=0.4, linestyle="dashed")
 sax.axvline(1, color="k", alpha=0.4, linestyle="dashed")
 sax.axvline(-1, color="k", alpha=0.4, linestyle="dashed")
 
-cax.step(xedges[1:], chist_twp, 'k', label='TWP')
+cax.step(xedges[1:], chist_twp, t, label='TWP')
 cax.step(xedges[1:], chist_shl, s, label='SHL')
 cax.step(xedges[1:], chist_nau, n, label='NAU')
-cax.legend(loc=6)
 
-fax.step(xedges[1:], fhist_twp, color='k')
-fax.step(xedges[1:], fhist_shl, s)
-fax.step(xedges[1:], fhist_nau, n)
+fax.step(xedges[1:], fhist_twp, color=t)
+fax.step(xedges[1:], fhist_shl, color=s)
+fax.step(xedges[1:], fhist_nau, color=n)
 
-iax.step(xedges[1:], ihist_twp, color='k')
-iax.step(xedges[1:], ihist_shl, s)
-iax.step(xedges[1:], ihist_nau, n)
+iax.step(xedges[1:], ihist_twp, color=t)
+iax.step(xedges[1:], ihist_shl, color=s)
+iax.step(xedges[1:], ihist_nau, color=n)
 
-sax.step(xedges[1:], shist_twp, color='k')
-sax.step(xedges[1:], shist_shl, s)
-sax.step(xedges[1:], shist_nau, n)
+sax.step(xedges[1:], shist_twp, color=t)
+sax.step(xedges[1:], shist_shl, color=s)
+sax.step(xedges[1:], shist_nau, color=n)
 
-nax.step(xedges[1:], nhist_twp, color='k')
-nax.step(xedges[1:], nhist_shl, s)
-nax.step(xedges[1:], nhist_nau, n)
+nax.step(xedges[1:], nhist_twp, color=t)
+nax.step(xedges[1:], nhist_shl, color=s)
+nax.step(xedges[1:], nhist_nau, color=n)
 
 cax.set_ylim([0,0.076])
 nax.set_ylim([0,0.076])
@@ -328,8 +328,8 @@ sax.annotate(str(np.around(sshl.freq.CAT1)).split(".")[0], xy=(3.1,0.061), xycoo
 sax.annotate(str(np.around(sshl.freq.CAT2)).split(".")[0], xy=(1.7,0.061), xycoords="data", fontsize=17, color=color2)
 sax.annotate(str(np.around(sshl.freq.CAT3)).split(".")[0], xy=(-0.1,0.061), xycoords="data", fontsize=17, color=color3)
 sax.annotate(str(np.around(sshl.freq.CS)).split(".")[0], xy=(-1.8,0.061), xycoords="data", fontsize=17, color=color0)
-             
-             
+
+
 cax.annotate(c1n, xy=(3.1,0.045), xycoords="data", fontsize=17, color=color1)
 cax.annotate(c2n, xy=(1.7,0.045), xycoords="data", fontsize=17, color=color2)
 cax.annotate(c3n, xy=(-0.1,0.045), xycoords="data", fontsize=17, color=color3)
@@ -384,6 +384,8 @@ fax.annotate("(c)", xy=(0.03,0.1), xycoords="axes fraction", fontsize=17, weight
 iax.annotate("(d)", xy=(0.03,0.1), xycoords="axes fraction", fontsize=17, weight="bold")
 sax.annotate("(e)", xy=(0.03,0.1), xycoords="axes fraction", fontsize=17, weight="bold")
 
+h,l = cax.get_legend_handles_labels()
+fig.legend(h,l,bbox_to_anchor=(0.2,0.4), fontsize=15, title="Regions", title_fontsize=16)
 
 ticks = np.arange(-3,4,1)
 cax.set_xticks(ticks)

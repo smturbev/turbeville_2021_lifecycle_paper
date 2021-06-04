@@ -7,6 +7,7 @@ from utility import util, analysis_parameters as ap
 
 c = ap.COLORS
 
+#%%
 ctwp = pd.read_csv("../tables/CCCM_TWP.csv", index_col=0)
 ntwp = pd.read_csv("../tables/NICAM_TWP.csv", index_col=0)
 ftwp = pd.read_csv("../tables/FV3_TWP.csv", index_col=0)
@@ -66,161 +67,162 @@ a = 1
 fs = 18
 #%%
 # Plot median
-fig, ax = plt.subplots(1,4,figsize=(18,4), constrained_layout=True)
+fig, ax = plt.subplots(2,2,figsize=(9,9), constrained_layout=True)
 util.dennisplot("density",np.array([]),np.array([]),\
                  model="Category Median Albedo & OLR\n",region="TWP",\
-                 colorbar_on=False, ax=ax[0])
+                 colorbar_on=False, ax=ax[0,0])
 util.dennisplot("density",np.array([]),np.array([]),\
                  model="Category Median Albedo & OLR\n",region="TWP",\
-                 colorbar_on=False, ax=ax[1])
+                 colorbar_on=False, ax=ax[0,1])
 util.dennisplot("density",np.array([]),np.array([]),\
                  model="Category Median Albedo & OLR\n",region="TWP",\
-                 colorbar_on=False, ax=ax[2])
+                 colorbar_on=False, ax=ax[1,0])
 util.dennisplot("density",np.array([]),np.array([]),\
                  model="Category Median Albedo & OLR\n",region="TWP",\
-                 colorbar_on=False, ax=ax[3])
+                 colorbar_on=False, ax=ax[1,1])
 
-ax[0].plot([sc_med_olr[0],tc_med_olr[0],nc_med_olr[0]], 
+ax[0,0].plot([sc_med_olr[0],tc_med_olr[0],nc_med_olr[0]], 
            [sc_med_alb[0],tc_med_alb[0],nc_med_alb[0]],
            lw=lw, ms=ms, label="CCCM", alpha=a,  color=c["OBS"])
-ax[0].plot([sn_med_olr[0],tn_med_olr[0],nn_med_olr[0]], 
+ax[0,0].plot([sn_med_olr[0],tn_med_olr[0],nn_med_olr[0]], 
            [sn_med_alb[0],tn_med_alb[0],nn_med_alb[0]], 
            lw=lw, ms=ms, label="NICAM", alpha=a,  color=c["NICAM"])
-ax[0].plot([sf_med_olr[0],tf_med_olr[0],nf_med_olr[0]], 
+ax[0,0].plot([sf_med_olr[0],tf_med_olr[0],nf_med_olr[0]], 
            [sf_med_alb[0],tf_med_alb[0],nf_med_alb[0]], 
            lw=lw, ms=ms, label="FV3", alpha=a,  color=c["FV3"])
-ax[0].plot([si_med_olr[0],ti_med_olr[0],ni_med_olr[0]], 
+ax[0,0].plot([si_med_olr[0],ti_med_olr[0],ni_med_olr[0]], 
            [si_med_alb[0],ti_med_alb[0],ni_med_alb[0]], 
            lw=lw, ms=ms, label="ICON", alpha=a,  color=c["ICON"])
-ax[0].plot([ss_med_olr[0],ts_med_olr[0],ns_med_olr[0]], 
+ax[0,0].plot([ss_med_olr[0],ts_med_olr[0],ns_med_olr[0]], 
            [ss_med_alb[0],ts_med_alb[0],ns_med_alb[0]], 
            lw=lw, ms=ms, label="SAM", alpha=a,  color=c["SAM"])
 
-ax[1].plot([sc_med_olr[1],tc_med_olr[1],nc_med_olr[1]], 
+ax[0,1].plot([sc_med_olr[1],tc_med_olr[1],nc_med_olr[1]], 
            [sc_med_alb[1],tc_med_alb[1],nc_med_alb[1]], 
            lw=lw, ms=ms, label="CCCM", alpha=a,  color=c["OBS"])
-ax[1].plot([sn_med_olr[1],tn_med_olr[1],nn_med_olr[1]], 
+ax[0,1].plot([sn_med_olr[1],tn_med_olr[1],nn_med_olr[1]], 
            [sn_med_alb[1],tn_med_alb[1],nn_med_alb[1]], 
            lw=lw, ms=ms, label="NICAM", alpha=a,  color=c["NICAM"])
-ax[1].plot([sf_med_olr[1],tf_med_olr[1],nf_med_olr[1]], 
+ax[0,1].plot([sf_med_olr[1],tf_med_olr[1],nf_med_olr[1]], 
            [sf_med_alb[1],tf_med_alb[1],nf_med_alb[1]], 
            lw=lw, ms=ms, label="FV3", alpha=a,  color=c["FV3"])
-ax[1].plot([si_med_olr[1],ti_med_olr[1],ni_med_olr[1]], 
+ax[0,1].plot([si_med_olr[1],ti_med_olr[1],ni_med_olr[1]], 
            [si_med_alb[1],ti_med_alb[1],ni_med_alb[1]], 
            lw=lw, ms=ms, label="ICON", alpha=a,  color=c["ICON"])
-ax[1].plot([ss_med_olr[1],ts_med_olr[1],ns_med_olr[1]], 
+ax[0,1].plot([ss_med_olr[1],ts_med_olr[1],ns_med_olr[1]], 
            [ss_med_alb[1],ts_med_alb[1],ns_med_alb[1]], 
            lw=lw, ms=ms, label="SAM", alpha=a,  color=c["SAM"])
 
-ax[2].plot([sc_med_olr[2],tc_med_olr[2],nc_med_olr[2]], 
+ax[1,0].plot([sc_med_olr[2],tc_med_olr[2],nc_med_olr[2]], 
            [sc_med_alb[2],tc_med_alb[2],nc_med_alb[2]], 
            lw=lw, ms=ms, label="CCCM", alpha=a,  color=c["OBS"])
-ax[2].plot([sn_med_olr[2],tn_med_olr[2],nn_med_olr[2]], 
+ax[1,0].plot([sn_med_olr[2],tn_med_olr[2],nn_med_olr[2]], 
            [sn_med_alb[2],tn_med_alb[2],nn_med_alb[2]], 
            lw=lw, ms=ms, label="NICAM", alpha=a,  color=c["NICAM"])
-ax[2].plot([sf_med_olr[2],tf_med_olr[2],nf_med_olr[2]], 
+ax[1,0].plot([sf_med_olr[2],tf_med_olr[2],nf_med_olr[2]], 
            [sf_med_alb[2],tf_med_alb[2],nf_med_alb[2]], 
            lw=lw, ms=ms, label="FV3", alpha=a,  color=c["FV3"])
-ax[2].plot([si_med_olr[2],ti_med_olr[2],ni_med_olr[2]], 
+ax[1,0].plot([si_med_olr[2],ti_med_olr[2],ni_med_olr[2]], 
            [si_med_alb[2],ti_med_alb[2],ni_med_alb[2]], 
            lw=lw, ms=ms, label="ICON", alpha=a,  color=c["ICON"])
-ax[2].plot([ss_med_olr[2],ts_med_olr[2],ns_med_olr[2]], 
+ax[1,0].plot([ss_med_olr[2],ts_med_olr[2],ns_med_olr[2]], 
            [ss_med_alb[2],ts_med_alb[2],ns_med_alb[2]], 
            lw=lw, ms=ms, label="SAM", alpha=a,  color=c["SAM"])
 
-ax[3].plot([sc_med_olr[3],tc_med_olr[3],nc_med_olr[3]], 
+ax[1,1].plot([sc_med_olr[3],tc_med_olr[3],nc_med_olr[3]], 
            [sc_med_alb[3],tc_med_alb[3],nc_med_alb[3]], 
            lw=lw, ms=ms, label="CCCM", alpha=a,  color=c["OBS"])
-ax[3].plot([sn_med_olr[3],tn_med_olr[3],nn_med_olr[3]], 
+ax[1,1].plot([sn_med_olr[3],tn_med_olr[3],nn_med_olr[3]], 
            [sn_med_alb[3],tn_med_alb[3],nn_med_alb[3]], 
            lw=lw, ms=ms, label="NICAM", alpha=a,  color=c["NICAM"])
-ax[3].plot([sf_med_olr[3],tf_med_olr[3],nf_med_olr[3]], 
+ax[1,1].plot([sf_med_olr[3],tf_med_olr[3],nf_med_olr[3]], 
            [sf_med_alb[3],tf_med_alb[3],nf_med_alb[3]], 
            lw=lw, ms=ms, label="FV3", alpha=a,  color=c["FV3"])
-ax[3].plot([si_med_olr[3],ti_med_olr[3],ni_med_olr[3]], 
+ax[1,1].plot([si_med_olr[3],ti_med_olr[3],ni_med_olr[3]], 
            [si_med_alb[3],ti_med_alb[3],ni_med_alb[3]], 
            lw=lw, ms=ms, label="ICON", alpha=a,  color=c["ICON"])
-ax[3].plot([ss_med_olr[3],ts_med_olr[3],ns_med_olr[3]], 
+ax[1,1].plot([ss_med_olr[3],ts_med_olr[3],ns_med_olr[3]], 
            [ss_med_alb[3],ts_med_alb[3],ns_med_alb[3]], 
            lw=lw, ms=ms, label="SAM", alpha=a,  color=c["SAM"])
 
 ms = 80
-ax[0].scatter([sc_med_olr[0],sn_med_olr[0],sf_med_olr[0],si_med_olr[0],ss_med_olr[0]],
+ax[0,0].scatter([sc_med_olr[0],sn_med_olr[0],sf_med_olr[0],si_med_olr[0],ss_med_olr[0]],
               [sc_med_alb[0],sn_med_alb[0],sf_med_alb[0],si_med_alb[0],ss_med_alb[0]],
              marker="s",s=ms, edgecolors="k",label="SHL", c="none", zorder=2.5) # , c="none"list(c.values())[:5])
-ax[1].scatter([sc_med_olr[1],sn_med_olr[1],sf_med_olr[1],si_med_olr[1],ss_med_olr[1]],
+ax[0,1].scatter([sc_med_olr[1],sn_med_olr[1],sf_med_olr[1],si_med_olr[1],ss_med_olr[1]],
               [sc_med_alb[1],sn_med_alb[1],sf_med_alb[1],si_med_alb[1],ss_med_alb[1]],
              marker="s",s=ms, edgecolors="k",label="SHL", c="none", zorder=2.5) # , c="none"list(c.values())[:5])
-ax[2].scatter([sc_med_olr[2],sn_med_olr[2],sf_med_olr[2],si_med_olr[2],ss_med_olr[2]],
+ax[1,0].scatter([sc_med_olr[2],sn_med_olr[2],sf_med_olr[2],si_med_olr[2],ss_med_olr[2]],
               [sc_med_alb[2],sn_med_alb[2],sf_med_alb[2],si_med_alb[2],ss_med_alb[2]],
              marker="s",s=ms, edgecolors="k",label="SHL", c="none", zorder=2.5) # , c="none"list(c.values())[:5])
-ax[3].scatter([sc_med_olr[3],sn_med_olr[3],sf_med_olr[3],si_med_olr[3],ss_med_olr[3]],
+ax[1,1].scatter([sc_med_olr[3],sn_med_olr[3],sf_med_olr[3],si_med_olr[3],ss_med_olr[3]],
               [sc_med_alb[3],sn_med_alb[3],sf_med_alb[3],si_med_alb[3],ss_med_alb[3]],
              marker="s",s=ms, edgecolors="k",label="SHL", c="none", zorder=2.5) # , c="none"list(c.values())[:5])
 ms = 170
-ax[0].scatter([tc_med_olr[0],tn_med_olr[0],tf_med_olr[0],ti_med_olr[0],ts_med_olr[0]],
+ax[0,0].scatter([tc_med_olr[0],tn_med_olr[0],tf_med_olr[0],ti_med_olr[0],ts_med_olr[0]],
               [tc_med_alb[0],tn_med_alb[0],tf_med_alb[0],ti_med_alb[0],ts_med_alb[0]],
              marker=".",s=ms, edgecolors="k",label="TWP", c="none", zorder=2.5) # , c="none"list(c.values())[:5])
-ax[1].scatter([tc_med_olr[1],tn_med_olr[1],tf_med_olr[1],ti_med_olr[1],ts_med_olr[1]],
+ax[0,1].scatter([tc_med_olr[1],tn_med_olr[1],tf_med_olr[1],ti_med_olr[1],ts_med_olr[1]],
               [tc_med_alb[1],tn_med_alb[1],tf_med_alb[1],ti_med_alb[1],ts_med_alb[1]],
              marker=".",s=ms, edgecolors="k",label="TWP", c="none", zorder=2.5) # , c="none"list(c.values())[:5])
-ax[2].scatter([tc_med_olr[2],tn_med_olr[2],tf_med_olr[2],ti_med_olr[2],ts_med_olr[2]],
+ax[1,0].scatter([tc_med_olr[2],tn_med_olr[2],tf_med_olr[2],ti_med_olr[2],ts_med_olr[2]],
               [tc_med_alb[2],tn_med_alb[2],tf_med_alb[2],ti_med_alb[2],ts_med_alb[2]],
              marker=".",s=ms, edgecolors="k",label="TWP", c="none", zorder=2.5) # , c="none"list(c.values())[:5])
-ax[3].scatter([tc_med_olr[3],tn_med_olr[3],tf_med_olr[3],ti_med_olr[3],ts_med_olr[3]],
+ax[1,1].scatter([tc_med_olr[3],tn_med_olr[3],tf_med_olr[3],ti_med_olr[3],ts_med_olr[3]],
               [tc_med_alb[3],tn_med_alb[3],tf_med_alb[3],ti_med_alb[3],ts_med_alb[3]],
              marker=".",s=ms, edgecolors="k",label="TWP", c="none", zorder=2.5) # , c="none"list(c.values())[:5])
 ms = 200
-ax[0].scatter([nc_med_olr[0],nn_med_olr[0],nf_med_olr[0],ni_med_olr[0],ns_med_olr[0]],
+ax[0,0].scatter([nc_med_olr[0],nn_med_olr[0],nf_med_olr[0],ni_med_olr[0],ns_med_olr[0]],
               [nc_med_alb[0],nn_med_alb[0],nf_med_alb[0],ni_med_alb[0],ns_med_alb[0]],
              marker="*",s=ms, edgecolors="k",label="NAU", c="none", zorder=2.5) # , c="none"list(c.values())[:5])
-ax[1].scatter([nc_med_olr[1],nn_med_olr[1],nf_med_olr[1],ni_med_olr[1],ns_med_olr[1]],
+ax[0,1].scatter([nc_med_olr[1],nn_med_olr[1],nf_med_olr[1],ni_med_olr[1],ns_med_olr[1]],
               [nc_med_alb[1],nn_med_alb[1],nf_med_alb[1],ni_med_alb[1],ns_med_alb[1]],
              marker="*",s=ms, edgecolors="k",label="NAU", c="none", zorder=2.5) # , c="none"list(c.values())[:5])
-ax[2].scatter([nc_med_olr[2],nn_med_olr[2],nf_med_olr[2],ni_med_olr[2],ns_med_olr[2]],
+ax[1,0].scatter([nc_med_olr[2],nn_med_olr[2],nf_med_olr[2],ni_med_olr[2],ns_med_olr[2]],
               [nc_med_alb[2],nn_med_alb[2],nf_med_alb[2],ni_med_alb[2],ns_med_alb[2]],
              marker="*",s=ms, edgecolors="k",label="NAU", c="none", zorder=2.5) # , c="none"list(c.values())[:5])
-ax[3].scatter([nc_med_olr[3],nn_med_olr[3],nf_med_olr[3],ni_med_olr[3],ns_med_olr[3]],
+ax[1,1].scatter([nc_med_olr[3],nn_med_olr[3],nf_med_olr[3],ni_med_olr[3],ns_med_olr[3]],
               [nc_med_alb[3],nn_med_alb[3],nf_med_alb[3],ni_med_alb[3],ns_med_alb[3]],
              marker="*",s=ms, edgecolors="k",label="NAU", c="none", zorder=2.5) # , c="none"list(c.values())[:5])
 
-ax[0].set_ylim([0.3,0.8])
-ax[0].set_xlim([95,150])
-ax[0].set_xlabel('OLR (W m$^{-2}$)', size=fs)
-ax[0].set_ylabel('Albedo', size=fs)
-ax[0].set_title('CAT 1 Median', fontsize=fs)
-ax[0].set_xticks(np.arange(95,155,10))
-ax[0].tick_params(labelsize=fs-4)
+ax[0,0].set_ylim([0.3,0.8])
+ax[0,0].set_xlim([95,150])
+ax[0,0].set_xlabel('OLR (W m$^{-2}$)', size=fs)
+ax[0,0].set_ylabel('Albedo', size=fs)
+ax[0,0].set_title('CAT 1 Median', fontsize=fs)
+ax[0,0].set_xticks(np.arange(95,155,10))
+ax[0,0].tick_params(labelsize=fs-4)
 
-ax[1].set_ylim([0.05,0.5])
-ax[1].set_xlim([100,250])
-ax[1].set_xlabel('OLR (W m$^{-2}$)', size=fs)
-ax[1].set_ylabel('Albedo', size=fs)
-ax[1].set_title('CAT 2 Median', fontsize=fs)
-ax[1].set_xticks(np.arange(100,255,25))
-ax[1].tick_params(labelsize=fs-4)
+ax[0,1].set_ylim([0.05,0.5])
+ax[0,1].set_xlim([100,250])
+ax[0,1].set_xlabel('OLR (W m$^{-2}$)', size=fs)
+ax[0,1].set_ylabel('Albedo', size=fs)
+ax[0,1].set_title('CAT 2 Median', fontsize=fs)
+ax[0,1].set_xticks(np.arange(100,255,25))
+ax[0,1].tick_params(labelsize=fs-4)
 
-ax[2].set_ylim([0.05,0.3])
-ax[2].set_xlim([250,300])
-ax[2].set_xlabel('OLR (W m$^{-2}$)', size=fs)
-ax[2].set_ylabel('Albedo', size=fs)
-ax[2].set_title('CAT 3 Median', fontsize=fs)
-ax[2].set_xticks(np.arange(250,305,10))
-ax[2].tick_params(labelsize=fs-4)
+ax[1,0].set_ylim([0.05,0.3])
+ax[1,0].set_xlim([250,300])
+ax[1,0].set_xlabel('OLR (W m$^{-2}$)', size=fs)
+ax[1,0].set_ylabel('Albedo', size=fs)
+ax[1,0].set_title('CAT 3 Median', fontsize=fs)
+ax[1,0].set_xticks(np.arange(250,305,10))
+ax[1,0].tick_params(labelsize=fs-4)
 
-ax[3].set_ylim([0.0,0.3])
-ax[3].set_xlim([265,315])
-ax[3].set_xlabel('OLR (W m$^{-2}$)', size=fs)
-ax[3].set_ylabel('Albedo', size=fs)
-ax[3].set_title('Clear Sky Median', fontsize=fs)
-ax[3].set_xticks(np.arange(270,315,10))
-ax[3].tick_params(labelsize=fs-4)
-ax[3].grid(True)
+ax[1,1].set_ylim([0.0,0.3])
+ax[1,1].set_xlim([265,315])
+ax[1,1].set_xlabel('OLR (W m$^{-2}$)', size=fs)
+ax[1,1].set_ylabel('Albedo', size=fs)
+ax[1,1].set_title('Clear Sky Median', fontsize=fs)
+ax[1,1].set_xticks(np.arange(270,315,10))
+ax[1,1].tick_params(labelsize=fs-4)
+ax[1,1].grid(True)
 
-ax[3].legend(loc="none",bbox_to_anchor=(1.55,0.8))
+h, l = ax[0,0].get_legend_handles_labels()
+fig.legend(h,l,loc="none",bbox_to_anchor=(1.2,0.7), fontsize=fs-4)
 
-
-plt.savefig('../plots/fig12_cat_lifecycle_stn.png',dpi=150,bbox_inches='tight', pad_inches=1)
+plt.tight_layout()
+plt.savefig('../plots/fig12_cat_lifecycle_stn.png',dpi=150,bbox_inches='tight', pad_inches=0.1)
 print('    saved to ../plots/fig12_cat_lifecycle_stn.png')
 plt.show()
 

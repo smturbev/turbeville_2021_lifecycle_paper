@@ -16,7 +16,6 @@ import matplotlib.pyplot as plt
 from matplotlib import cm
 
 #load albedo and olr for all models
-gswu = load01deg.get_swu("GEOS", "TWP")
 fswu = load01deg.get_swu("FV3", "TWP")
 iswu = load01deg.get_swu("ICON", "TWP")
 sswu = load01deg.get_swu("SAM", "TWP")
@@ -26,7 +25,6 @@ eswu = load01deg.get_swu("ECMWF", "TWP")
 aswu = load01deg.get_swu("ARP", "TWP")
 uswu = load01deg.get_swu("UM", "TWP")
 
-gswd = load01deg.get_swd("GEOS", "TWP")
 fswd = load01deg.get_swd("FV3", "TWP")
 iswd = load01deg.get_swd("ICON", "TWP")
 sswd = load01deg.get_swd("SAM", "TWP")
@@ -36,7 +34,6 @@ eswd = load01deg.get_swd("ECMWF", "TWP")
 aswd = load01deg.get_swd("ARP", "TWP")
 uswd = load01deg.get_swd("UM", "TWP")
 
-galb = gswu/gswd
 falb = fswu/fswd
 ialb = iswu/iswd
 salb = sswu/sswd
@@ -50,9 +47,8 @@ aalb = xr.DataArray(aalb, dims=fswu.dims, coords=fswu.coords)
 ialb = ialb.where((ialb>0)&(ialb<1))
 malb = np.where((malb<1)&(malb>0),malb,np.nan)
 
-del gswd, gswu, fswu, fswd, iswu, iswd, sswu, sswd, nswu, nswd, mswu, mswd, eswu, eswd, aswu, aswd, uswu, uswd
+del fswu, fswd, iswu, iswd, sswu, sswd, nswu, nswd, mswu, mswd, eswu, eswd, aswu, aswd, uswu, uswd
 
-golr = load01deg.get_olr("GEOS", "TWP")
 folr = load01deg.get_olr("FV3", "TWP")
 iolr = load01deg.get_olr("ICON", "TWP")
 solr = load01deg.get_olr("SAM", "TWP")
@@ -73,8 +69,6 @@ calb = cswu/cswd
 del cswu, cswd
 
 # use between 10am-2pm LT or <4UTC
-galb = galb.where(galb.time.dt.hour<4)
-golr = golr.where(golr.time.dt.hour<4)
 falb = falb.where(falb.time.dt.hour<4)
 folr = folr.where(folr.time.dt.hour<4)
 ialb = ialb.where(ialb.time.dt.hour<4)
@@ -94,7 +88,6 @@ uolr = uolr.where(uolr.time.dt.hour<4)
 print("len zeros in cccm alb", len(calb.values[calb.values<=0]), end="\n\n")
 calb = calb.where(calb>0)
 
-print(galb.shape, golr.shape)
 print(falb.shape, folr.shape)
 print(ialb.shape, iolr.shape)
 print(salb.shape, solr.shape)
@@ -111,7 +104,6 @@ print(calb.shape, colr.shape)
 
 i_alb_llavg = np.zeros((ialb.shape[0],30,30))
 f_alb_llavg = np.zeros((falb.shape[0],30,30))
-g_alb_llavg = np.zeros((galb.shape[0],30,30))
 s_alb_llavg = np.zeros((salb.shape[0],30,30))
 m_alb_llavg = np.zeros((malb.shape[0],30,30))
 n_alb_llavg = np.zeros((nalb.shape[0],30,30))
@@ -121,7 +113,6 @@ u_alb_llavg = np.zeros((ualb.shape[0],30,30))
 
 i_olr_llavg = np.zeros((iolr.shape[0],30,30))
 f_olr_llavg = np.zeros((folr.shape[0],30,30))
-g_olr_llavg = np.zeros((golr.shape[0],30,30))
 s_olr_llavg = np.zeros((solr.shape[0],30,30))
 m_olr_llavg = np.zeros((molr.shape[0],30,30))
 n_olr_llavg = np.zeros((nolr.shape[0],30,30))
@@ -133,7 +124,6 @@ for n in range(30):
     for m in range(30):
         i_alb_llavg[:,n,m] = np.mean(ialb[:,3*n:(3*n)+3,3*m:(3*m)+3], axis=(1,2))
         f_alb_llavg[:,n,m] = np.mean(falb[:,3*n:(3*n)+3,3*m:(3*m)+3], axis=(1,2))
-        g_alb_llavg[:,n,m] = np.mean(galb[:,3*n:(3*n)+3,3*m:(3*m)+3], axis=(1,2))
         s_alb_llavg[:,n,m] = np.mean(salb[:,3*n:(3*n)+3,3*m:(3*m)+3], axis=(1,2))
         m_alb_llavg[:,n,m] = np.mean(malb[:,3*n:(3*n)+3,3*m:(3*m)+3], axis=(1,2))
         n_alb_llavg[:,n,m] = np.mean(nalb[:,3*n:(3*n)+3,3*m:(3*m)+3], axis=(1,2))
@@ -143,7 +133,6 @@ for n in range(30):
         
         i_olr_llavg[:,n,m] = np.mean(iolr[:,3*n:(3*n)+3,3*m:(3*m)+3], axis=(1,2))
         f_olr_llavg[:,n,m] = np.mean(folr[:,3*n:(3*n)+3,3*m:(3*m)+3], axis=(1,2))
-        g_olr_llavg[:,n,m] = np.mean(golr[:,3*n:(3*n)+3,3*m:(3*m)+3], axis=(1,2))
         s_olr_llavg[:,n,m] = np.mean(solr[:,3*n:(3*n)+3,3*m:(3*m)+3], axis=(1,2))
         m_olr_llavg[:,n,m] = np.mean(molr[:,3*n:(3*n)+3,3*m:(3*m)+3], axis=(1,2))
         n_olr_llavg[:,n,m] = np.mean(nolr[:,3*n:(3*n)+3,3*m:(3*m)+3], axis=(1,2))
@@ -157,8 +146,6 @@ folr_flat = f_olr_llavg.flatten()
 falb_flat = f_alb_llavg.flatten()
 iolr_flat = i_olr_llavg.flatten()
 ialb_flat = i_alb_llavg.flatten()
-golr_flat = g_olr_llavg.flatten()
-galb_flat = g_alb_llavg.flatten()
 solr_flat = s_olr_llavg.flatten()
 salb_flat = s_alb_llavg.flatten()
 molr_flat = m_olr_llavg.flatten()
@@ -173,69 +160,111 @@ uolr_flat = u_olr_llavg.flatten()
 ualb_flat = u_alb_llavg.flatten()
 
 # create figure
-fig = plt.figure(figsize=(34,14), constrained_layout=True)
-gs = fig.add_gridspec(2,16*5+1)
+fig = plt.figure(figsize=(36,16), constrained_layout=True)
+gs  = fig.add_gridspec(2,16*5+1)
 cmap = cm.gist_earth_r
 ms = 30
+fs = 28
 levs = np.arange(-3.2, -1, 0.2)
 cax = fig.add_subplot(gs[0,:16])
 util.dennisplot("density", colr.values.flatten(), calb.values.flatten(), levels=levs, 
-                model="CERES CCCM (All year, 2007-10)", region="TWP", 
-                var_name="",units="", cmap=cmap, ax=cax, colorbar_on=False)
+                model="CERES CCCM (2007-10)", region="TWP", 
+                var_name="",units="", cmap=cmap, ax=cax, colorbar_on=False, fs=fs)
 cax.plot([np.nanmean(colr)],[np.nanmean(calb)], 'r.', ms=ms)
 print("1/10: made ceres syn1 axis...")
 nax = fig.add_subplot(gs[0,16:16*2])
 util.dennisplot("density", nolr_flat, nalb_flat, levels=levs, model="NICAM", region="TWP", 
-           var_name="",units="", cmap=cmap, ax=nax, colorbar_on=False)
+           var_name="",units="", cmap=cmap, ax=nax, colorbar_on=False, fs=fs)
 nax.plot([np.nanmean(nolr_flat)],[np.nanmean(nalb_flat)], 'r.', ms=ms)
 print("2/10: made nicam axis...")
 fax = fig.add_subplot(gs[0,16*2:16*3])
 fax, cs = util.dennisplot("density", folr_flat, falb_flat, levels=levs, model="FV3", region="TWP", 
-           var_name="",units="", cmap=cmap, ax=fax, colorbar_on=False)
+           var_name="",units="", cmap=cmap, ax=fax, colorbar_on=False, fs=fs)
 fax.plot([np.nanmean(folr_flat)],[np.nanmean(falb_flat)], 'r.', ms=ms)
 print("3/10: made fv3 axis...")
 iax = fig.add_subplot(gs[0,16*3:16*4])
 util.dennisplot("density", iolr_flat, ialb_flat, levels=levs, model="ICON", region="TWP", 
-           var_name="",units="", cmap=cmap, ax=iax, colorbar_on=False)
+           var_name="",units="", cmap=cmap, ax=iax, colorbar_on=False, fs=fs)
 iax.plot([np.nanmean(iolr_flat)],[np.nanmean(ialb_flat[~np.isnan(ialb_flat)])], 'r.', ms=ms)
 print("4/10: made icon axis...")
 schem_ax = fig.add_subplot(gs[1,:16])
-util.proxy_schematic(ax=schem_ax)
+util.proxy_schematic(ax=schem_ax, fs=fs)
 print("5/10: made schematic axis...")
 sax = fig.add_subplot(gs[0,16*4:16*5])
 util.dennisplot("density", solr_flat, salb_flat, levels=levs, model="SAM", region="TWP", 
-           var_name="",units="", cmap=cmap, ax=sax, colorbar_on=False)
+           var_name="",units="", cmap=cmap, ax=sax, colorbar_on=False, fs=fs)
 sax.plot([np.nanmean(solr_flat)],[np.nanmean(salb_flat)], 'r.', ms=ms)
 print("6/10: made sam axis...")
 mpasax = fig.add_subplot(gs[1,16*3:16*4])
 util.dennisplot("density", molr_flat, malb_flat, levels=levs, model="MPAS", region="TWP", 
-           var_name="",units="", cmap=cmap, ax=mpasax, colorbar_on=False)
+           var_name="",units="", cmap=cmap, ax=mpasax, colorbar_on=False, fs=fs)
 mpasax.plot([np.nanmean(molr_flat)],[np.nanmean(malb_flat[~np.isnan(malb_flat)])], 'r.', ms=ms)
 print("7/10: made mpas axis...")
 eax = fig.add_subplot(gs[1,16*2:16*3])
 util.dennisplot("density", eolr_flat, ealb_flat, levels=levs, model="IFS", region="TWP", 
-           var_name="",units="", cmap=cmap, ax=eax, colorbar_on=False)
+           var_name="",units="", cmap=cmap, ax=eax, colorbar_on=False, fs=fs)
 eax.plot([np.nanmean(eolr_flat)],[np.nanmean(ealb_flat)], 'r.', ms=ms)
 print("8/10: made ecmwf axis...")
 aax = fig.add_subplot(gs[1,16:16*2])
 util.dennisplot("density", aolr_flat, aalb_flat, levels=levs, model="ARPNH", region="TWP", 
-           var_name="",units="", cmap=cmap, ax=aax, colorbar_on=False)
+           var_name="",units="", cmap=cmap, ax=aax, colorbar_on=False, fs=fs)
 aax.plot([np.nanmean(aolr_flat)],[np.nanmean(aalb_flat)], 'r.', ms=ms)
 print("9/10: made arpnh axis...")
 uax = fig.add_subplot(gs[1,16*4:16*5])
 util.dennisplot("density", uolr_flat, ualb_flat, levels=levs, model="UM", region="TWP", 
-           var_name="",units="", cmap=cmap, ax=uax, colorbar_on=False)
+           var_name="",units="", cmap=cmap, ax=uax, colorbar_on=False, fs=fs)
 uax.plot([np.nanmean(uolr_flat)],[np.nanmean(ualb_flat)], 'r.', ms=ms)
 print("10/10: made um axis...")
+
 #add obs and colorbar
 cbax0 = fig.add_subplot(gs[0,-1])
 cbax1 = fig.add_subplot(gs[1,-1])
 cbar0 = plt.colorbar(cs, cax=cbax0)
 cbar1 = plt.colorbar(cs, cax=cbax1)
-cbar0.set_label("log10(pdf)", fontsize=18)
-cbar1.set_label("log10(pdf)", fontsize=18)
-cbar0.ax.tick_params(labelsize=14)
-cbar1.ax.tick_params(labelsize=14)
+cbar0.set_label("log$_{10}$(pdf)", fontsize=fs)
+cbar1.set_label("log$_{10}$(pdf)", fontsize=fs)
+cbar0.ax.tick_params(labelsize=fs-2)
+cbar1.ax.tick_params(labelsize=fs-2)
+
+cax.tick_params(labelsize=fs-2, labelbottom=False, bottom=False)
+nax.tick_params(labelsize=fs-2, labelleft=False, left=False, labelbottom=False, bottom=False)
+fax.tick_params(labelsize=fs-2, labelleft=False, left=False, labelbottom=False, bottom=False)
+iax.tick_params(labelsize=fs-2, labelleft=False, left=False, labelbottom=False, bottom=False)
+sax.tick_params(labelsize=fs-2, labelleft=False, left=False, labelbottom=False, bottom=False)
+schem_ax.tick_params(labelsize=fs-2)
+mpasax.tick_params(labelsize=fs-2, labelleft=False, left=False)
+aax.tick_params(labelsize=fs-2, labelleft=False, left=False)
+uax.tick_params(labelsize=fs-2, labelleft=False, left=False)
+eax.tick_params(labelsize=fs-2, labelleft=False, left=False)
+
+cax.set_ylabel("Albedo", fontsize=fs)
+nax.set_ylabel("", fontsize=fs)
+fax.set_ylabel("", fontsize=fs)
+iax.set_ylabel("", fontsize=fs)
+sax.set_ylabel("", fontsize=fs)
+schem_ax.set_ylabel("Albedo", fontsize=fs)
+mpasax.set_ylabel("")
+eax.set_ylabel("", fontsize=fs)
+aax.set_ylabel("", fontsize=fs)
+uax.set_ylabel("", fontsize=fs)
+
+cax.set_xlabel("", fontsize=fs)
+nax.set_xlabel("", fontsize=fs)
+fax.set_xlabel("", fontsize=fs)
+iax.set_xlabel("", fontsize=fs)
+sax.set_xlabel("", fontsize=fs)
+
+cax.annotate("(a)", xy=(0.8,0.9), xycoords="axes fraction", fontsize=fs+4, weight="bold")
+nax.annotate("(b)", xy=(0.8,0.9), xycoords="axes fraction", fontsize=fs+4, weight="bold")
+fax.annotate("(c)", xy=(0.8,0.9), xycoords="axes fraction", fontsize=fs+4, weight="bold")
+iax.annotate("(d)", xy=(0.8,0.9), xycoords="axes fraction", fontsize=fs+4, weight="bold")
+sax.annotate("(e)", xy=(0.8,0.9), xycoords="axes fraction", fontsize=fs+4, weight="bold")
+schem_ax.annotate("(f)", xy=(0.8,0.9), xycoords="axes fraction", fontsize=fs+4, weight="bold")
+mpasax.annotate("(i)", xy=(0.8,0.9), xycoords="axes fraction", fontsize=fs+4, weight="bold")
+eax.annotate("(h)", xy=(0.8,0.9), xycoords="axes fraction", fontsize=fs+4, weight="bold")
+aax.annotate("(g)", xy=(0.8,0.9), xycoords="axes fraction", fontsize=fs+4, weight="bold")
+uax.annotate("(j)", xy=(0.8,0.9), xycoords="axes fraction", fontsize=fs+4, weight="bold")
+
 print("... made colorbars ...")
 plt.savefig("../plots/fig06_lifecycle_proxy.png", bbox_inches="tight")
 print("... saved in ../plots/fig06_lifecycle_proxy.png")

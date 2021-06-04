@@ -133,20 +133,20 @@ z = load.get_levels(MODEL, "TWP")
 # z_shl = load.get_levels(MODEL, "SHL")
 # z_nau = load.get_levels(MODEL, "NAU")
 
-print("... getting dardar...")
-dd_ds = xr.open_dataset(ap.DARDAR_TWP)
-dd_iwc = dd_ds.iwc
-dd_iwp = dd_ds.iwp
-dd_z = dd_ds.height
+# print("... getting dardar...")
+# dd_ds = xr.open_dataset(ap.DARDAR_TWP)
+# dd_iwc = dd_ds.iwc
+# dd_iwp = dd_ds.iwp
+# dd_z = dd_ds.height
 
-dd_ind5 = np.argmin(abs(dd_z.values-5000))
-print(dd_ind5)
-del dd_ds
+# dd_ind5 = np.argmin(abs(dd_z.values-5000))
+# print(dd_ind5)
+# del dd_ds
 
-print("... categorize dardar...")
-dd_iwc1 = dd_iwc.where(dd_iwp>=1000).mean(axis=0)
-dd_iwc2 = dd_iwc.where((dd_iwp>=10)&(dd_iwp<1000)).mean(axis=0)
-dd_iwc3 = dd_iwc.where((dd_iwp>=0.1)&(dd_iwp<10)).mean(axis=0)
+# print("... categorize dardar...")
+# dd_iwc1 = dd_iwc.where(dd_iwp>=1000).mean(axis=0)
+# dd_iwc2 = dd_iwc.where((dd_iwp>=10)&(dd_iwp<1000)).mean(axis=0)
+# dd_iwc3 = dd_iwc.where((dd_iwp>=0.1)&(dd_iwp<10)).mean(axis=0)
 print("... done.\nStarting figure...")
 
 fig, [ax1, ax2, ax3] = plt.subplots(1,3,figsize=(15,8), sharey=True)
@@ -154,9 +154,9 @@ f=1000
 fs = 20
 a = 0.4
 lw = 3
-ax1.plot(dd_iwc1[:dd_ind5], (dd_z/f)[:dd_ind5], 'blueviolet', lw=lw)
-ax2.plot(dd_iwc2[:dd_ind5], (dd_z/f)[:dd_ind5], 'blueviolet', lw=lw)
-ax3.plot(dd_iwc3[:dd_ind5], (dd_z/f)[:dd_ind5], 'blueviolet', lw=lw)
+# ax1.plot(dd_iwc1[:dd_ind5], (dd_z/f)[:dd_ind5], 'blueviolet', lw=lw)
+# ax2.plot(dd_iwc2[:dd_ind5], (dd_z/f)[:dd_ind5], 'blueviolet', lw=lw)
+# ax3.plot(dd_iwc3[:dd_ind5], (dd_z/f)[:dd_ind5], 'blueviolet', lw=lw)
 ax1.plot(f*iwc1, z/f, 'g', lw=lw)
 ax2.plot(f*iwc2, z/f, 'r', lw=lw)
 ax3.plot(f*iwc3, z/f, 'b', lw=lw)
@@ -201,14 +201,14 @@ ax3.plot(f*twc3, z/f, 'k', lw=lw)
 # ax2.plot([0,0], [0,0], 'r--', label="Snow")
 # ax2.plot([0,0], [0,0], 'r-.', label="Graupel")
 # ax2.plot([0,0], [0,0], 'k', label="Total water")
-ax3.plot([0,0], [0,0], color='k', alpha=0.7, lw=lw, label="Ice")
-ax3.plot([0,0], [0,0], 'k--', alpha=0.7, lw=lw, label="Snow")
-ax3.plot([0,0], [0,0], 'k-.', alpha=0.7, lw=lw, label="Graupel")
+ax3.plot([0,0], [0,0], color='k', alpha=0.5, lw=lw, label="Ice")
+ax3.plot([0,0], [0,0], 'k--', alpha=0.5, lw=lw, label="Snow")
+ax3.plot([0,0], [0,0], 'k-.', alpha=0.5, lw=lw, label="Graupel")
 ax3.plot([0,0], [0,0], 'k', lw=lw, label="Total water")
 # ax3.plot([0,0], [0,0], 'k', lw=lw, label="TWP")
 # ax3.plot([0,0], [0,0], 'k', lw=lw-1, alpha=a, label="NAU")
 # ax3.plot([0,0], [0,0], 'k', alpha=a, label="SHL")
-ax3.plot([0,0], [0,0], 'blueviolet', lw=lw, label="DARDAR")
+# ax3.plot([0,0], [0,0], 'blueviolet', lw=lw, label="DARDAR")
 ax1.set_xlabel("Water content (g/m$^3$)", fontsize=fs-2)
 ax2.set_xlabel("Water content (g/m$^3$)", fontsize=fs-2)
 ax3.set_xlabel("Water content (g/m$^3$)", fontsize=fs-2)

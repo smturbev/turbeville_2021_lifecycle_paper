@@ -287,21 +287,26 @@ def get_iwv(model, region):
         model = string of which dyamond model to use
         region = string of "TWP", "SHL" or "NAU"
     """
-    if INCLUDE_SHOCK: 
-        ind0=0
-    else:
-        ind0 = 8*2 # exclude first two days
     p = get_pres(model, region)
     qv = get_qv(model, region)
     print(p.shape, qv.shape)
     if model.lower()=="sam":
         print("    newaxes added")
         p = p.values[:,:,np.newaxis,np.newaxis]
-    cur = util.q_loop(model, region, qv, p)
-    del qv, p
-    iwv = 1/9.8 * np.nansum(cur,axis=1) / 10 # g/cm2 (conversion: 10 kg/m2 = 1 g/cm2)
-    del cur
-    print("Returned IWV (g/cm2) for {} in {} with shape".format(model,region),iwv.shape)
+    else:
+        p = p.values
+    print(qv.mean(), p.mean())
+    if model.lower()=="nicam": 
+        is_xy, is_td, is_const_p = True, False, False
+    elif model.lower()=="icon": 
+        is_xy, is_td, is_const_p = False, True, False
+    elif model.lower()=="sam": 
+        is_xy, is_td, is_const_p = True, False, True
+    elif model.lower()=="fv3":
+        iwv = util.int_wrt_pres_f(p, qv)
+        return iwv
+    else: raise Exception("model ({}) or region ({}) not defined".format(model, region))
+    iwv = util.int_wrt_pres(p, qv, xy=is_xy, td=is_td, const_p=is_const_p)
     return iwv
 
 def iwp_wrt_pres(model, region, hydro_type="ice"):
@@ -777,7 +782,7 @@ def get_olr_alb(model, region):
     return olr, alb
 
 ### ------ 3D ----- ###
-def get_levels(model, region):
+def get_levels(model, region="TWP"):
     """Returns numpy array of vertical levels for given model and region."""
     if INCLUDE_SHOCK: 
         ind0=0
@@ -798,6 +803,7 @@ def get_levels(model, region):
             z = xr.open_dataset(ap.SHL_FV3_Z).altitude.values
         elif region.lower()=="nau":
             z = xr.open_dataset(ap.NAU_FV3_Z).altitude.values
+        z = np.nanmean(z, axis=0)
     elif model.lower()=="icon":
         if region.lower()=="twp":
             z = xr.open_dataset(ap.SHL_ICON_Z).HHL.values[0]
@@ -806,6 +812,7 @@ def get_levels(model, region):
         elif region.lower()=="nau":
             z = xr.open_dataset(ap.SHL_ICON_Z).HHL.values[0]
         else: assert Exception("region not valid, try SHL, NAU, or TWP")
+        z = np.nanmean(z, axis=1)[14:]
         print(z.shape, ind0>0, "shape of z, if true removed first day of model output")
     elif model.lower()=="sam":
         if region.lower()=="twp":
@@ -832,7 +839,6 @@ def get_pres(model, region):
     else:
         ind0 = 8*2 # exclude first two days
     if model.lower()=="nicam":
-        print("... returning frozen water path for NICAM.")
         if region.lower()=="twp":
             p = xr.open_dataset(ap.TWP_NICAM_P)["ms_pres"][ind0:]
         elif region.lower()=="shl":
@@ -879,7 +885,6 @@ def get_temp(model, region):
     else:
         ind0 = 8*2 # exclude first two days
     if model.lower()=="nicam":
-        print("... returning frozen water path for NICAM.")
         if region.lower()=="twp":
             t = xr.open_dataset(ap.TWP_NICAM_T)["ms_tem"][ind0:]
         elif region.lower()=="shl":
@@ -928,7 +933,6 @@ def get_qv(model, region):
     else:
         ind0 = 8*2 # exclude first two days
     if model.lower()=="nicam":
-        print("... returning frozen water path for NICAM.")
         if region.lower()=="twp":
             qv = xr.open_dataset(ap.TWP_NICAM_QV)["ms_qv"][ind0:]
         elif region.lower()=="shl":
@@ -1006,8 +1010,6 @@ def load_tot_hydro(model, region, ice_only=True):
         ind0 = 8*2 # exclude first two days
     if model.lower()=="nicam":
         if region.lower()=="twp":
-            print("Getting hydrometeors for TWP:")
-            print("... opening all hydrometeors for NICAM...")
             qi = xr.open_dataset(ap.TWP_NICAM_QI)['ms_qi']
             ql = xr.open_dataset(ap.TWP_NICAM_QL)['ms_qc'].values
             if ice_only:
@@ -1016,8 +1018,6 @@ def load_tot_hydro(model, region, ice_only=True):
             qg = xr.open_dataset(ap.TWP_NICAM_QG)['ms_qg'].values
             qr = xr.open_dataset(ap.TWP_NICAM_QR)['ms_qr'].values
         elif (region.lower()=="nau") or (region.lower()=="nauru"):
-            print("Getting hydrometeors for NAURU:")
-            print("... opening all hydrometeors for NICAM...")
             qi = xr.open_dataset(ap.NAU_NICAM_QI)['ms_qi']
             ql = xr.open_dataset(ap.NAU_NICAM_QL)['ms_qc'].values
             if ice_only:
@@ -1025,10 +1025,7 @@ def load_tot_hydro(model, region, ice_only=True):
             qs = xr.open_dataset(ap.NAU_NICAM_QS)['ms_qs']
             qg = xr.open_dataset(ap.NAU_NICAM_QG)['ms_qg'].values
             qr = xr.open_dataset(ap.NAU_NICAM_QR)['ms_qr'].values
-            print("    done (%s seconds elapsed)"%str(time.time()-st))
         elif region.lower()=="shl":
-            print("Getting hydrometeors for SAHEL:")
-            print("... opening all hydrometeors for NICAM...")
             qi = xr.open_dataset(ap.SHL_NICAM_QI)['ms_qi']
             ql = xr.open_dataset(ap.SHL_NICAM_QL)['ms_qc']
             if ice_only:
@@ -1036,80 +1033,37 @@ def load_tot_hydro(model, region, ice_only=True):
             qs = xr.open_dataset(ap.SHL_NICAM_QS)['ms_qs']
             qg = xr.open_dataset(ap.SHL_NICAM_QG)['ms_qg'].values
             qr = xr.open_dataset(ap.SHL_NICAM_QR)['ms_qr'].values
-        else: print("Region not supported (try TWP, NAU, SHL)")
+        else: raise Exception("Region not supported (try TWP, NAU, SHL)")
         if qi.shape!=ql.shape or qi.shape!=qs.shape:
             raise Exception("shapes don't match with shapes", qi.shape, ql.shape, qs.shape, qg.shape, qr.shape)
-        print("    done (%s seconds elapsed)...\n... adding qi, qs, qg, ql, qr..."%str(time.time()-st))
         q = qi.values + ql + qs + qg + qr
-        print("... creating xarray...")
         q_xr = xr.DataArray(q, dims=['time','lev','lat','lon'], 
                             coords={'time':qi.time, 'lev':qi.lev, 'lat':qi.lat, 'lon':qi.lon})
-        print("    done (%s seconds elapsed)"%str(time.time()-st))
         return q_xr[ind0:]
     elif model.lower()=="fv3":
-        if region.lower()=="twp":
-            print("Getting all hydrometeors for FV3 TWP:")
-            qi = load_frozen(model, region, ice_only=ice_only)
-            ql = xr.open_dataset(ap.TWP_FV3_QL)['ql']
-        elif region.lower()=="nau":
-            print("Getting all hydrometeors for FV3 NAU:")
-            qi = load_frozen(model, region, ice_only=ice_only)
-            ql = xr.open_dataset(ap.NAU_FV3_QL)['ql']
-        elif region.lower()=="shl":
-            print("Getting all hydrometeors for FV3 SHL:")
-            qi = load_frozen(model, region, ice_only=ice_only)
-            ql = xr.open_dataset(ap.SHL_FV3_QL)['ql']
-        else: raise Exception("Region not supported (try 'TWP', 'NAU', 'SHL')")
-        print("... opened qi and ql (%s s elapsed)..."%(time.time()-st))
+        qi = load_frozen(model, region, ice_only=ice_only)
+        ql = load_liq(model, region, rain=ice_only)
         q = qi.values + ql
-        print("... added qi + ql (%s s elapsed)..."%(time.time()-st))
         qxr = xr.DataArray(q, dims=['time','pfull','grid_yt','grid_xt'], 
                             coords={'time':qi.time, 'pfull':qi.pfull, 'grid_yt':qi.grid_yt, 'grid_xt':qi.grid_xt})
-        return qxr[ind0:]
+        return qxr
     elif model.lower()=="icon":
-        if region.lower()=="twp":
-            print("Getting all hydrometeors for ICON TWP:")
-            qi = load_frozen(model, region, ice_only=ice_only)
-            ql = xr.open_dataset(ap.TWP_ICON_QL)['NEW']
-        elif region.lower()=="nau":
-            print("Getting all hydrometeors for ICON NAU:")
-            qi = load_frozen(model, region, ice_only=ice_only)
-            ql = xr.open_dataset(ap.NAU_ICON_QL)['QC_DIA']
-        elif region.lower()=="shl":
-            print("Getting all hydrometeors for ICON SHL:")
-            qi = load_frozen(model, region, ice_only=ice_only)
-            ql = xr.open_dataset(ap.SHL_ICON_QL)["TQC_DIA"]
-        else: raise Exception("Region not supported (try 'TWP', 'NAU', 'SHL')")
-        print("... opened qi and ql (%s s elapsed)..."%(time.time()-st))
+        qi = load_frozen(model, region, ice_only=ice_only)
+        ql = load_liq(model, region, rain=ice_only)
         q = qi.values + ql
-        print("... added qi + ql (%s s elapsed)..."%(time.time()-st))
         qxr = xr.DataArray(q, dims=['time','lev','cell'], 
                             coords={'time':qi.t.values, 'lev':qi.lev, 
                                     'cell':qi.cell})
-        return qxr[ind0:]
+        return qxr
     elif model.lower()=="sam":
-        if region.lower()=="twp":
-            print("Getting all hydrometeors for SAM TWP:")
-            qi = load_frozen(model, region, ice_only=ice_only)
-            ql = xr.open_dataset(ap.TWP_SAM_QL)['QC'].values.astype("float64")/1000
-            print("... opened qi and ql (%s s elapsed)..."%(time.time()-st))
-            q = qi.values + ql
-        elif region.lower()=="nau":
-            print("Getting all hydrometeors for SAM NAURU:")
-            qi = load_frozen(model, region, ice_only=ice_only)
-            ql = xr.open_dataset(ap.NAU_SAM_QL)['QC'].values.astype("float64")/1000
-        elif region.lower()=="shl":
-            print("Getting all hydrometeors for SAM SAHEL:")
-            qi = load_frozen(model, region, ice_only=ice_only)
-            ql = xr.open_dataset(ap.SHL_SAM_QL)['QC'].values.astype("float64")/1000
-        else: raise Exception("Region not supported (try 'TWP', 'NAU', 'SHL')")
-        print("... added qi + ql (%s s elapsed)..."%(time.time()-st))
+        qi = load_frozen(model, region, ice_only=ice_only)
+        ql = load_liq(model, region, rain=ice_only)
+        q = qi.values + ql
         qxr = xr.DataArray(q, dims=['time','lev','lat','lon'], 
                             coords={'time':qi.time, 'lev':qi.z.values, 
                                     'lat':qi.lat, 'lon':qi.lon}, 
                            attrs={'units':'kg/kg'})
-        print("... returned qi + ql as xarray with units of kg/kg")
-        return qxr[ind0:]
+        return qxr
     else: raise Exception("Model not supported at this time (try 'NICAM', 'FV3', 'ICON', 'SAM')")
 
 def load_tot_hydro1x1(model, region, return_ind=False, iceliq_only=True, exclude_shock=True):
@@ -1178,19 +1132,20 @@ def load_tot_hydro1x1(model, region, return_ind=False, iceliq_only=True, exclude
         lon0 = np.argmin(abs(qi.grid_xt.values-lon0))
         lon1 = np.argmin(abs(qi.grid_xt.values-lon1))
         print("   time, lev, lat, lon = dims: ",(qi.dims))
-        qi = qi[:,:,lat0:lat1,lon0:lon1]
+        qi = qi[ind0:,:,lat0:lat1,lon0:lon1]
         print("Getting all hydrometeors for FV3 TWP:")
         ql = load_liq(model, region, rain=False).values[:,:,lat0:lat1,lon0:lon1]
         print("... opened qi and ql (%s s elapsed)..."%(time.time()-st))
         q = qi.values + ql
-        z = np.nanmean(get_levels(model, region), axis=0)
+        z = get_levels(model, region)
         print("... added qi + ql (%s s elapsed)..."%(time.time()-st))
+        print(q.shape, z.shape, qi.time.shape)
         qxr = xr.DataArray(q, dims=['time','lev','lat','lon'], 
                            coords={'time':qi.time, 'lev':z, 'lat':qi.grid_yt.values, 'lon':qi.grid_xt.values})
         if return_ind:
-            return qxr[ind0:], (lat0,lat1,lon0,lon1)
+            return qxr, (lat0,lat1,lon0,lon1)
         else:
-            return qxr[ind0:]
+            return qxr
     elif model.lower()=="icon": #ICON
         print("Getting ice...")
         qi = load_frozen(model, region, ice_only=True)
@@ -1288,21 +1243,18 @@ def load_frozen(model, region, ice_only=True):
         ind0 = 8*2 # exclude first two days
     if model.lower()=="nicam":
         if region.lower()=="twp":
-            print("Getting frozen hydrometeors for NICAM TWP:")
             qi = xr.open_dataset(ap.TWP_NICAM_QI)['ms_qi']
             if not(ice_only):
                 qs = xr.open_dataset(ap.TWP_NICAM_QS)['ms_qs']
                 qg = xr.open_dataset(ap.TWP_NICAM_QG)['ms_qg']
             else: print("    returned only qi (%s seconds elapsed)"%str(time.time()-st))
         elif region.lower()=="shl":
-            print("Getting frozen hydrometeors for NICAM SAHEL:")
             qi = xr.open_dataset(ap.SHL_NICAM_QI)['ms_qi']
             if not(ice_only):
                 qs = xr.open_dataset(ap.SHL_NICAM_QS)['ms_qs']
                 qg = xr.open_dataset(ap.SHL_NICAM_QG)['ms_qg']
             else: print("    returned qi only (%s seconds elapsed)"%str(time.time()-st))
         elif (region.lower()=="nau") or (region.lower()=="nauru"):
-            print("Getting frozen hydrometeors for NICAM NAURU:")
             qi = xr.open_dataset(ap.NAU_NICAM_QI)['ms_qi']
             if not(ice_only):
                 qs = xr.open_dataset(ap.NAU_NICAM_QS)['ms_qs']
@@ -1312,23 +1264,18 @@ def load_frozen(model, region, ice_only=True):
         if (ice_only):
             return qi[ind0:]
         else:
-            print("    done (%s seconds elapsed)..."%str(time.time()-st))
             q = qi.values + qs + qg
             del qs,qg
-            print("... creating xarray...")
             q_xr = xr.DataArray(q, dims=['time','lev','lat','lon'], 
                                 coords={'time':qi.time, 'lev':qi.lev, 'lat':qi.lat, 'lon':qi.lon})
-            print("    returned qi+qs+qg (%s seconds elapsed)"%str(time.time()-st))
+            print("    returned qi+qs+qg (%s seconds elapsed) for %s %s"%(str(time.time()-st),model, region))
             return q_xr[ind0:]
     elif model.lower()=="fv3":
         if region.lower()=="twp":
-            print("Getting frozen hydrometeors for FV3 TWP:")
             qi = xr.open_dataset(ap.TWP_FV3_QI)['qi']
         elif region.lower()=="shl":
-            print("Getting frozen hydrometeors for FV3 SHL:")
             qi = xr.open_dataset(ap.SHL_FV3_QI)['qi']
         elif region.lower()=="nau":
-            print("Getting frozen hydrometeors for FV3 NAU:")
             qi = xr.open_dataset(ap.NAU_FV3_QI)['qi']
         else: raise Exception("Region not supported (try 'TWP', 'NAU', 'SHL')")
         if ice_only:

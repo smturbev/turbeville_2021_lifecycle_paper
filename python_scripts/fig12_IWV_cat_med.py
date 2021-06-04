@@ -91,30 +91,6 @@ cat2 = 1e-2
 cat3 = 1e-4
 
 # %%
-# load sam
-siwvt = load.get_iwv("SAM","TWP")
-sfwpt = load.get_iwp("SAM","TWP", ice_only=False).values
-s1t = np.nanmedian(np.where(sfwpt>=cat1, siwvt, np.nan))
-s2t = np.nanmedian(np.where((sfwpt>=cat2)&(sfwpt<cat1), siwvt, np.nan))
-s3t = np.nanmedian(np.where((sfwpt>=cat3)&(sfwpt<cat2), siwvt, np.nan))
-s4t = np.nanmedian(np.where((sfwpt<cat3), siwvt, np.nan))
-siwvs = load.get_iwv("SAM","SHL")
-siwvn = load.get_iwv("SAM","NAU")
-sfwps = load.get_iwp("SAM","SHL", ice_only=False).values
-sfwpn = load.get_iwp("SAM","NAU", ice_only=False).values
-print("sam...")
-s1s = np.nanmedian(np.where(sfwps>=cat1, siwvs, np.nan))
-s2s = np.nanmedian(np.where((sfwps>=cat2)&(sfwps<cat1), siwvs, np.nan))
-s3s = np.nanmedian(np.where((sfwps>=cat3)&(sfwps<cat2), siwvs, np.nan))
-s4s = np.nanmedian(np.where((sfwps<cat3), siwvs, np.nan))
-s1n = np.nanmedian(np.where(sfwpn>=cat1, siwvn, np.nan))
-s2n = np.nanmedian(np.where((sfwpn>=cat2)&(sfwpn<cat1), siwvn, np.nan))
-s3n = np.nanmedian(np.where((sfwpn>=cat3)&(sfwpn<cat2), siwvn, np.nan))
-s4n = np.nanmedian(np.where((sfwpn<cat3), siwvn, np.nan))
-del siwvt, siwvs, siwvn, sfwpt, sfwps, sfwpn
-print("... done.")
-
-# %%
 # load icon
 iiwvt = load.get_iwv("ICON","TWP")
 iiwvs = load.get_iwv("ICON","SHL")
@@ -139,16 +115,45 @@ del iiwvt, iiwvs, iiwvn, ifwpt, ifwps, ifwpn
 print("... done")
 
 # %%
+# load sam
+siwvt = load.get_iwv("SAM","TWP")
+sfwpt = load.get_iwp("SAM","TWP", ice_only=False).values
+s1t = np.nanmedian(np.where(sfwpt>=cat1, siwvt, np.nan))
+s2t = np.nanmedian(np.where((sfwpt>=cat2)&(sfwpt<cat1), siwvt, np.nan))
+s3t = np.nanmedian(np.where((sfwpt>=cat3)&(sfwpt<cat2), siwvt, np.nan))
+s4t = np.nanmedian(np.where((sfwpt<cat3), siwvt, np.nan))
+siwvs = load.get_iwv("SAM","SHL")
+siwvn = load.get_iwv("SAM","NAU")
+sfwps = load.get_iwp("SAM","SHL", ice_only=False).values
+sfwpn = load.get_iwp("SAM","NAU", ice_only=False).values
+print("sam...")
+s1s = np.nanmedian(np.where(sfwps>=cat1, siwvs, np.nan))
+s2s = np.nanmedian(np.where((sfwps>=cat2)&(sfwps<cat1), siwvs, np.nan))
+s3s = np.nanmedian(np.where((sfwps>=cat3)&(sfwps<cat2), siwvs, np.nan))
+s4s = np.nanmedian(np.where((sfwps<cat3), siwvs, np.nan))
+s1n = np.nanmedian(np.where(sfwpn>=cat1, siwvn, np.nan))
+s2n = np.nanmedian(np.where((sfwpn>=cat2)&(sfwpn<cat1), siwvn, np.nan))
+s3n = np.nanmedian(np.where((sfwpn>=cat3)&(sfwpn<cat2), siwvn, np.nan))
+s4n = np.nanmedian(np.where((sfwpn<cat3), siwvn, np.nan))
+del siwvt, siwvs, siwvn, sfwpt, sfwps, sfwpn
+print("... done.")
+
+
+# %%
 # load nicam
 cat1 = 1
 cat2 = 1e-2
 cat3 = 1e-4
 niwvt = load.get_iwv("NICAM","TWP")
 nfwpt = load.get_iwp("NICAM","TWP", ice_only=False).values[::12,0]
+print(type(niwvt), type(nfwpt), np.nanmean(niwvt), np.nanmean(nfwpt))
+
+# %%
 n1t = np.nanmedian(np.where(nfwpt>=cat1, niwvt, np.nan))
 n2t = np.nanmedian(np.where((nfwpt>=cat2)&(nfwpt<cat1), niwvt, np.nan))
 n3t = np.nanmedian(np.where((nfwpt>=cat3)&(nfwpt<cat2), niwvt, np.nan))
 n4t = np.nanmedian(np.where((nfwpt<cat3), niwvt, np.nan))
+
 niwvs = load.get_iwv("NICAM","SHL")
 niwvn = load.get_iwv("NICAM","NAU")
 nfwps = load.get_iwp("NICAM","SHL", ice_only=False).values[::12,0]
