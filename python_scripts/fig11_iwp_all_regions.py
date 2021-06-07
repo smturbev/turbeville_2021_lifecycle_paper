@@ -16,28 +16,27 @@ import matplotlib.pyplot as plt
 import utility.analysis_parameters as ap
 from utility import load, util
 
-# load all iwp 
-hydro_type = "frozen"
-obs = "CCCM"
+# load all fwp 
+obs = "DARDAR"
 
-print("Getting %s for hydrometeors"%(hydro_type))
+print("Getting frozen hydrometeors")
 # giwp = util.iwp_wrt_pres("GEOS", REGION, hydro_type=hydro_type, geos_graupel=True)
 print("geos zeros until we get new data")
-iiwp_twp = load.get_iwp("ICON", "TWP", ice_only=True).values
-iiwp_shl = load.get_iwp("ICON", "SHL", ice_only=True).values
-iiwp_nau = load.get_iwp("ICON", "NAU", ice_only=True).values
+iiwp_twp = load.get_iwp("ICON", "TWP", ice_only=False).values
+iiwp_shl = load.get_iwp("ICON", "SHL", ice_only=False).values
+iiwp_nau = load.get_iwp("ICON", "NAU", ice_only=False).values
 print("loaded icon")
-fiwp_twp = load.get_iwp("FV3", "TWP", ice_only=True).values
-fiwp_shl = load.get_iwp("FV3", "SHL", ice_only=True).values
-fiwp_nau = load.get_iwp("FV3", "NAU", ice_only=True).values
+fiwp_twp = load.get_iwp("FV3", "TWP", ice_only=False).values
+fiwp_shl = load.get_iwp("FV3", "SHL", ice_only=False).values
+fiwp_nau = load.get_iwp("FV3", "NAU", ice_only=False).values
 print("loaded fv3")
 niwp_twp = load.get_iwp("NICAM", "TWP", ice_only=False).values
 niwp_shl = load.get_iwp("NICAM", "SHL", ice_only=False).values
 niwp_nau = load.get_iwp("NICAM", "NAU", ice_only=False).values
 print("loaded nicam")
-siwp_twp = load.get_iwp("SAM", "TWP", ice_only=True)
-siwp_shl = load.get_iwp("SAM", "SHL", ice_only=True)
-siwp_nau = load.get_iwp("SAM", "NAU", ice_only=True)
+siwp_twp = load.get_iwp("SAM", "TWP", ice_only=False)
+siwp_shl = load.get_iwp("SAM", "SHL", ice_only=False)
+siwp_nau = load.get_iwp("SAM", "NAU", ice_only=False)
 sno_twp = siwp_twp.count().values
 sno_shl = siwp_shl.count().values
 sno_nau = siwp_nau.count().values
@@ -168,7 +167,7 @@ nhist_nau = nhist_nau/nno_nau
 print("creating figure...")
 # plot it
 fig = plt.figure(figsize=(20,8), constrained_layout=True)
-gs = fig.add_gridspec(2,3,hspace=0.05)
+gs = fig.add_gridspec(2,3,hspace=-0.02)
 xmid = (xedges[1:]+xedges[:-1])/2
 
 cax = fig.add_subplot(gs[0,0])
@@ -266,23 +265,23 @@ sax.annotate("NAU: ", xy=(-2.95,0.045), xycoords="data", fontsize=17, color="k")
 cax.annotate("CAT 1", xy=(3.,0.068), xycoords="data", fontsize=17, color=color1)
 cax.annotate("CAT 2", xy=(1.6,0.068), xycoords="data", fontsize=17, color=color2)
 cax.annotate("CAT 3", xy=(-0.2,0.068), xycoords="data", fontsize=17, color=color3)
-cax.annotate("CS", xy=(-1.8,0.068), xycoords="data", fontsize=17, color=color0)
+# cax.annotate("CS", xy=(-1.8,0.068), xycoords="data", fontsize=17, color=color0)
 nax.annotate("CAT 1", xy=(3.,0.068), xycoords="data", fontsize=17, color=color1)
 nax.annotate("CAT 2", xy=(1.6,0.068), xycoords="data", fontsize=17, color=color2)
 nax.annotate("CAT 3", xy=(-0.2,0.068), xycoords="data", fontsize=17, color=color3)
-nax.annotate("CS", xy=(-1.8,0.068), xycoords="data", fontsize=17, color=color0)
+# nax.annotate("CS", xy=(-1.8,0.068), xycoords="data", fontsize=17, color=color0)
 fax.annotate("CAT 1", xy=(3.,0.068), xycoords="data", fontsize=17, color=color1)
 fax.annotate("CAT 2", xy=(1.6,0.068), xycoords="data", fontsize=17, color=color2)
 fax.annotate("CAT 3", xy=(-0.2,0.068), xycoords="data", fontsize=17, color=color3)
-fax.annotate("CS", xy=(-1.8,0.068), xycoords="data", fontsize=17, color=color0)
+# fax.annotate("CS", xy=(-1.8,0.068), xycoords="data", fontsize=17, color=color0)
 iax.annotate("CAT 1", xy=(3.,0.068), xycoords="data", fontsize=17, color=color1)
 iax.annotate("CAT 2", xy=(1.6,0.068), xycoords="data", fontsize=17, color=color2)
 iax.annotate("CAT 3", xy=(-0.2,0.068), xycoords="data", fontsize=17, color=color3)
-iax.annotate("CS", xy=(-1.8,0.068), xycoords="data", fontsize=17, color=color0)
+# iax.annotate("CS", xy=(-1.8,0.068), xycoords="data", fontsize=17, color=color0)
 sax.annotate("CAT 1", xy=(3.,0.068), xycoords="data", fontsize=17, color=color1)
 sax.annotate("CAT 2", xy=(1.6,0.068), xycoords="data", fontsize=17, color=color2)
 sax.annotate("CAT 3", xy=(-0.2,0.068), xycoords="data", fontsize=17, color=color3)
-sax.annotate("CS", xy=(-1.8,0.068), xycoords="data", fontsize=17, color=color0)
+# sax.annotate("CS", xy=(-1.8,0.068), xycoords="data", fontsize=17, color=color0)
 
 
 color0, color1, color2, color3 = "k","k","k","k"
@@ -357,7 +356,7 @@ fno = int(np.nanmean([fno_twp, fno_shl, fno_nau]))
 ino = int(np.nanmean([ino_twp, ino_shl, ino_nau]))
 sno = int(np.nanmean([sno_twp, sno_shl, sno_nau]))
 
-fig.suptitle("Frozen Water Path Histograms", size=17)
+# fig.suptitle("Frozen Water Path Histograms", size=17)
 # cax.set_title("DARDAR \n {:} profiles".format(cno), size=17)
 # nax.set_title("NICAM \n {:} profiles".format(nno), size=17)
 # fax.set_title("FV3 \n {:} profiles".format(fno), size=17)
@@ -385,7 +384,7 @@ iax.annotate("(d)", xy=(0.03,0.1), xycoords="axes fraction", fontsize=17, weight
 sax.annotate("(e)", xy=(0.03,0.1), xycoords="axes fraction", fontsize=17, weight="bold")
 
 h,l = cax.get_legend_handles_labels()
-fig.legend(h,l,bbox_to_anchor=(0.2,0.4), fontsize=15, title="Regions", title_fontsize=16)
+fig.legend(h,l,bbox_to_anchor=(0.2,0.4), fontsize=17, title="Regions", title_fontsize=18)
 
 ticks = np.arange(-3,4,1)
 cax.set_xticks(ticks)
@@ -394,8 +393,8 @@ fax.set_xticks(ticks)
 iax.set_xticks(ticks)
 sax.set_xticks(ticks)
 
-plt.savefig("../plots/fig11_iwp_hist_cat_nfis_allRegions_3x2.png", dpi=160)
-print("saved to ../plots/fig11_iwp_hist_cat_nfis_allRegions_3x2.png")
+plt.savefig("../plots/fig11_iwp_hist_cat_nfis_allRegions_{}_3x2.png".format(obs), dpi=160)
+print("saved to ../plots/fig11_iwp_hist_cat_nfis_allRegions_{}_3x2.png".format(obs))
 plt.close()
 
 print("Done!")

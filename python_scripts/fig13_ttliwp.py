@@ -154,7 +154,7 @@ def plot_ttliwp(region="TWP", fs=14):
     ftax.annotate("(iii)", xy=(-3.1,0.067), xycoords="data", color="k", fontsize=fs, weight="bold")
     itax.annotate("(iv)", xy=(-3.1,0.067), xycoords="data", color="k", fontsize=fs, weight="bold")
     stax.annotate("(v)", xy=(-3.1,0.067), xycoords="data", color="k", fontsize=fs, weight="bold")
-    dtax.set_title("TTL IWP, {}".format(region), fontsize=fs+4)
+    dtax.set_title(region, fontsize=fs+4)
 
     plt.savefig("../plots/fig13_ttliwp_hist_cat_%s.png"%(region.lower()), dpi=160)
     print("saved to ../plots/fig13_ttliwp_hist_cat_%s.png"%(region.lower()))
@@ -165,4 +165,6 @@ def plot_ttliwp(region="TWP", fs=14):
     return
 
 if __name__=="__main__":
+    plot_ttliwp(region="TWP")
+    plot_ttliwp(region="SHL")
     plot_ttliwp(region="NAU")

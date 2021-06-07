@@ -172,9 +172,9 @@ for i in range(20):
     print(2000+i, sw_cmeans[i])
 
 # scatter plot of mean vs std
-fig = plt.figure(figsize=(15,11))
-fs=12
-gs = fig.add_gridspec(2,2)
+fig = plt.figure(figsize=(12,8))
+fs=14
+gs = fig.add_gridspec(2,2, wspace=0.1)
 
 ax0 = fig.add_subplot(gs[1,1])
 ms = 100
@@ -217,12 +217,17 @@ ax0.set_xlabel("Mean OLR (W/m2)", fontsize=fs)
 #ax1.set_title("Mean OLR vs Mean Reflected SW, "+REGION, fontsize=28)
 ax1.grid()
 
+ax0.yaxis.tick_right()
+ax1.yaxis.tick_right()
+ax0.yaxis.set_label_position("right")
+ax1.yaxis.set_label_position("right")
+
 axz = fig.add_subplot(gs[:,0])
 axz = vert_cld_frac.plot_vert_cld_frac(REGION, ax=axz)
 axz.set_title("")
 
 h, l = ax0.get_legend_handles_labels()
-fig.legend(h,l, loc="upper center", bbox_to_anchor=(0.5, 0.1),
+fig.legend(h,l, loc="upper center", bbox_to_anchor=(0.6, 0.2),
            ncol=3)
 
 axz.annotate("(a)", xy=(0.71, 19), xycoords="data", fontsize=14)

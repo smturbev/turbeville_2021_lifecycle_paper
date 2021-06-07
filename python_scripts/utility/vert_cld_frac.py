@@ -198,7 +198,7 @@ def plot_shl_twp_nau_cld_frac(fs=22, savename=None):
     Returns:
         - None
     """
-    fig, [axs, axt, axn] = plt.subplots(1,3,figsize=(20,6),sharey=True,sharex=True)
+    fig, [axs, axt, axn] = plt.subplots(1,3,figsize=(18,7),sharey=True,sharex=True)
     axs = plot_vert_cld_frac("SHL", ax=axs)
     axt = plot_vert_cld_frac("TWP", ax=axt)
     axn = plot_vert_cld_frac("NAU", ax=axn)
@@ -208,22 +208,33 @@ def plot_shl_twp_nau_cld_frac(fs=22, savename=None):
     axs.legend().remove()
     axt.legend().remove()
     axn.legend().remove()
-    new_label = [None]*len(ls)
+    new_label = []
+    new_ln = []
+    new_ls = []
+    new_lt = []
     fig.subplots_adjust(right=0.95)
     for i,l in enumerate(ls):
-        new_label[i] = l.split(")")[0][:-1] + ", " + lt[i].split("(")[-1][:-2] + ", " + ln[i].split("(")[-1][:-2]+")"
+        new_label.append(l.split(" ")[0]) # l.split(")")[0][:-1] + ", " + lt[i].split("(")[-1][:-2] + ", " + ln[i].split("(")[-1][:-2]+")"
+        new_ls.append(ls[i].split("(")[-1][:-1])
+        new_lt.append(lt[i].split("(")[-1][:-1])
+        new_ln.append(ln[i].split("(")[-1][:-1])
     new_label[-1]="TTL"
-    fig.legend(hs,new_label,loc=7,bbox_to_anchor=(1.07,0.4),fontsize=fs-10)
+    fig_legend = axt.legend(hs, new_label, loc=9, bbox_to_anchor=(0.5,-0.1), fontsize=fs-4, ncol=7)
+    axs.legend = axs.legend(hs[:-1], new_ls[:-1], loc="lower right")
+    axt.legend = axt.legend(hs[:-1], new_lt[:-1], loc="lower right")
+    axn.legend = axn.legend(hs[:-1], new_ln[:-1], loc="lower right")
+    axt.add_artist(fig_legend)
+
     axt.set_ylabel("")
     axn.set_ylabel("")
     axs.annotate("(a)", xy=(0.7, 18.32), xycoords="data", fontsize=fs, weight="bold")
     axt.annotate("(b)", xy=(0.7, 18.32), xycoords="data", fontsize=fs, weight="bold")
     axn.annotate("(c)", xy=(0.7, 18.32), xycoords="data", fontsize=fs, weight="bold")
     if savename is None: 
-        plt.savefig("../plots/fig09_vert_cld_frac.png", dpi=200)
+        plt.savefig("../plots/fig09_vert_cld_frac.png", dpi=200, bbox_inches="tight", pad_inches=1)
         print("saved as ../plots/fig09_vert_cld_frac.png")
     else: 
-        plt.savefig(savename, dpi=200)
+        plt.savefig(savename, dpi=200, bbox_inches="tight", pad_inches=1)
         print("saved as %s"%(savename))
     plt.close()
 
