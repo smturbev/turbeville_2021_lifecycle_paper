@@ -2,5 +2,6 @@
     "python.linting.pylintEnabled": true,
     "python.linting.enabled": true,
     "jupyter.jupyterServerType": "local",
-    "python.linting.flake8Enabled": false
+    "python.linting.flake8Enabled": false,
+    "python.pythonPath": "/home/disk/p/smturbev/anaconda3/envs/dyamond/bin/python"
 }

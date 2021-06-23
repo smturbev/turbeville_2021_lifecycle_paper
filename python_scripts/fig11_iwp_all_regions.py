@@ -16,6 +16,19 @@ import matplotlib.pyplot as plt
 import utility.analysis_parameters as ap
 from utility import load, util
 
+
+def moving_average(a, n=3) :
+    # ret = np.cumsum(a, dtype=float)
+    # ret[n:] = ret[n:] - ret[:-n]
+    # return ret[n - 1:] / n
+    if len(a)%3==1:
+        a = a[:-1]
+    elif len(a)%3==2:
+        a = a[:-2]
+    print(len(a)%3)
+    avg = (a[0::3]+a[1::3]+a[2::3])/3
+    return avg
+
 # load all fwp 
 obs = "DARDAR"
 
@@ -77,6 +90,9 @@ else:
     c1t, c2t, c3t, c4t = 11, 48, 25, 15
     c1s, c2s, c3s, c4s = 4, 28, 31, 38
     c1n, c2n, c3n, c4n = 9, 42, 27, 22
+    ciwp_twp = moving_average(ciwp_twp, n=3)
+    ciwp_shl = moving_average(ciwp_shl, n=3)
+    ciwp_nau = moving_average(ciwp_nau, n=3)
 print("    done... bin by iwp")
 
 # calculate histograms
@@ -393,8 +409,8 @@ fax.set_xticks(ticks)
 iax.set_xticks(ticks)
 sax.set_xticks(ticks)
 
-plt.savefig("../plots/fig11_iwp_hist_cat_nfis_allRegions_{}_3x2.png".format(obs), dpi=160)
-print("saved to ../plots/fig11_iwp_hist_cat_nfis_allRegions_{}_3x2.png".format(obs))
+plt.savefig("../plots/fig11_iwp_hist_cat_nfis_allRegions_{}_3x2_coarsened.png".format(obs), dpi=160)
+print("saved to ../plots/fig11_iwp_hist_cat_nfis_allRegions_{}_3x2_coarsened.png".format(obs))
 plt.close()
 
 print("Done!")

@@ -559,3 +559,76 @@ def get_iwp(model, region, ice_only=True):
         print("Returned fwp for "+model+" ("+region+") with shape:", iwp.shape)
         return fwp
     return
+
+
+def get_lwp(model, region, rain=False):
+    """ Return lwp for models in region as xarray.
+            If ice_only=False, returns frozen water path,
+            otherwise returns ice only.
+    """
+    ind0=0 if INCLUDE_SHOCK else 96*2 # exclude first two days
+    if model.lower()=="icon":
+        if region.lower()=="twp":
+            lwp = xr.open_dataset(ap.ALL_TWP_ICON_LWP)['TQC_DIA'][:]
+            if rain:
+                rwp = xr.open_dataset(ap.ALL_TWP_ICON_RWP)['TQR'][:]
+        elif region.lower()=="nau":
+            lwp = xr.open_dataset(ap.ALL_NAU_ICON_LWP)['TQC_DIA'][:]
+            if rain:
+                rwp = xr.open_dataset(ap.ALL_NAU_ICON_RWP)['TQR'][:]
+        elif region.lower()=="shl":
+            lwp = xr.open_dataset(ap.ALL_SHL_ICON_LWP)['TQC_DIA'][:]
+            if rain:
+                rwp = xr.open_dataset(ap.ALL_SHL_ICON_RWP)['TQR'][:]
+    elif model.lower()=="nicam":
+        if region.lower()=="twp":
+            lwp = xr.open_dataset(ap.ALL_TWP_NICAM_LWP)['sa_cldw'][:]
+        elif region.lower()=="nau":
+            lwp = xr.open_dataset(ap.ALL_NAU_NICAM_LWP)['sa_cldw'][:]
+        elif region.lower()=="shl":
+            lwp = xr.open_dataset(ap.ALL_SHL_NICAM_LWP)['sa_cldw'][:]
+    elif model.lower()=="fv3":
+        if region.lower()=="twp":
+            lwp = xr.open_dataset(ap.ALL_TWP_FV3_LWP)['intql'][:]
+        elif region.lower()=="nau":
+            lwp = xr.open_dataset(ap.ALL_NAU_FV3_LWP)['intql'][:]
+        elif region.lower()=="shl":
+            lwp = xr.open_dataset(ap.ALL_SHL_FV3_LWP)['intql'][:]
+    elif model.lower()=="sam":
+        if region.lower()=="twp":
+            lwp = xr.open_dataset(ap.ALL_TWP_SAM_LWP)['CWP'][:]
+        elif region.lower()=="nau":
+            lwp = xr.open_dataset(ap.ALL_NAU_SAM_LWP)['CWP'][:]
+        elif region.lower()=="shl":
+            lwp = xr.open_dataset(ap.ALL_SHL_SAM_LWP)['CWP'][:]
+    elif model.lower()=="mpas":
+        if region.lower()=="twp":
+            lwp = xr.open_dataset(ap.ALL_TWP_MPAS_LWP)['int_qc'][:]
+        elif region.lower()=="nau":
+            lwp = xr.open_dataset(ap.ALL_NAU_MPAS_LWP)['int_qc'][:]
+        elif region.lower()=="shl":
+            lwp = xr.open_dataset(ap.ALL_SHL_MPAS_LWP)['int_qc'][:]
+    elif model.lower()=="arp":
+        if region.lower()=="twp":
+            lwp = xr.open_dataset(ap.ALL_TWP_ARP_LWP)['tciw'][:]
+        elif region.lower()=="nau":
+            lwp = xr.open_dataset(ap.ALL_NAU_ARP_LWP)['tciw'][:]
+        elif region.lower()=="shl":
+            lwp = xr.open_dataset(ap.ALL_SHL_ARP_LWP)['tciw'][:]
+    elif model.lower()=="um":
+        if region.lower()=="twp":
+            lwp = xr.open_dataset(ap.ALL_TWP_UM_LWP)['clwvi'][:]
+        elif region.lower()=="nau":
+            lwp = xr.open_dataset(ap.ALL_NAU_UM_LWP)['clwvi'][:]
+        elif region.lower()=="shl":
+            lwp = xr.open_dataset(ap.ALL_SHL_UM_LWP)['clwvi'][:]
+    elif model.lower()=="ecmwf":
+        if region.lower()=="twp":
+            lwp = xr.open_dataset(ap.ALL_TWP_ECMWF_LWP)['tclw'][:]
+        elif region.lower()=="nau":
+            lwp = xr.open_dataset(ap.ALL_NAU_ECMWF_LWP)['tclw'][:]
+        elif region.lower()=="shl":
+            lwp = xr.open_dataset(ap.ALL_SHL_ECMWF_LWP)['tclw'][:]
+    else: raise Exception("Invalid model")
+    print("Returned LWP for %s (%s) with shape:"%(model, region), lwp[ind0:].shape)
+    return lwp[ind0:]

@@ -17,6 +17,18 @@ import matplotlib.pyplot as plt
 # load all iwp 
 REGION = "TWP"
 
+def moving_average(a, n=3) :
+    # ret = np.cumsum(a, dtype=float)
+    # ret[n:] = ret[n:] - ret[:-n]
+    # return ret[n - 1:] / n
+    if len(a)%3==1:
+        a = a[:-1]
+    elif len(a)%3==2:
+        a = a[:-2]
+    print(len(a)%3)
+    avg = (a[0::3]+a[1::3]+a[2::3])/3
+    return avg
+
 def main(fs = 14):
     print("Getting %s for frozen hydrometeors"%(REGION))
     # giwp = util.iwp_wrt_pres("GEOS", REGION, hydro_type=hydro_type, geos_graupel=True)
@@ -45,6 +57,7 @@ def main(fs = 14):
         ciwp = xr.open_dataset(ap.DARDAR_SHL)["iwp"]
     else:
         ciwp = xr.open_dataset(ap.DARDAR_NAU)["iwp"]
+    ciwp = moving_average(ciwp.values, n=3)
     print("    done... bin by iwp")
     # calculate histograms
     bins = np.arange(-3,4,0.1)
@@ -55,7 +68,7 @@ def main(fs = 14):
     nhist, _ = np.histogram(np.log10(niwp.flatten()), bins=bins)
     print("get num of prof")
     # get number of profiles
-    cno = (len(ciwp.values.flatten()))
+    cno = (len(ciwp.flatten()))
     ino = (len(iiwp.flatten()))
     sno = (len(siwp.flatten()))
     fno = (len(fiwp.flatten()))
@@ -211,8 +224,8 @@ def main(fs = 14):
     fax.annotate("(c)", xy=(-3.1,0.067), xycoords="data", color="k", fontsize=fs)
     iax.annotate("(d)", xy=(-3.1,0.067), xycoords="data", color="k", fontsize=fs)
     sax.annotate("(e)", xy=(-3.1,0.067), xycoords="data", color="k", fontsize=fs)
-    plt.savefig("../plots/fig07_fwp_hist_cat_%s.png"%(REGION.lower()), dpi=160)
-    print("saved to ../plots/fig07_fwp_hist_cat_%s.png"%(REGION.lower()))
+    plt.savefig("../plots/fig07_fwp_hist_cat_%s_coarsened.png"%(REGION.lower()), dpi=160)
+    print("saved to ../plots/fig07_fwp_hist_cat_%s_coarsened.png"%(REGION.lower()))
     plt.close()
 
     print("Done!")

@@ -14,6 +14,7 @@
         - get_qv(model, region)
         - get_swd(model, region)
         - get_olr_alb(model, region)
+        - get_clearskyolr(modek, region)
         - load_tot_hydro(model, region)
         - load_frozen(model, region, ice_only=False)
 """
@@ -737,6 +738,7 @@ def get_olr_alb(model, region):
             alb = swu/swd
         else: 
             raise Exception("Region not supported. Try 'TWP', 'NAU', 'SHL'.")
+        alb = alb.where((alb<1)&(alb>0))
         alb = alb[11::12]
         olr = olr[11::12]
         alb = alb[ind0:]
@@ -780,6 +782,67 @@ def get_olr_alb(model, region):
         print("... returning olr and albedo", olr.shape, alb.shape, "...")
     else: raise Exception("Model not supported at this time (try 'NICAM', 'FV3', 'ICON', 'SAM')")
     return olr, alb
+
+def get_clearskyolr(model, region, fwp, lwp, thres=0.1):
+    """returns clear sky albedo for each grid point.
+    
+        thres = threshold for clear sky fwp in g/m2
+        fwp = frozen water path in g/m2"""
+    if INCLUDE_SHOCK: 
+        ind0=0
+    else:
+        ind0 = 96*2 # exclude first two days
+    if model.lower()=="nicam":
+        if region.lower()=="twp":
+            olrcs = xr.open_dataset(ap.TWP_NICAM_OLR_CS)["ss_lwu_toa_c"][ind0:].values[11::12]
+        elif region.lower()=="shl":
+            olr, _ = get_olr_alb(model, region)
+            olrcs = np.nanmean(np.where((fwp<thres)&(lwp<thres), olr, np.nan), axis=(0))
+            # check if there are nan values and replace with latitute avg
+            olrcs_lat = np.nanmean(np.where((fwp<thres)&(lwp<thres), olr, np.nan), axis=(0,3))
+            olrcs = np.where(np.isnan(olrcs), olrcs_lat[:,:,np.newaxis], olrcs)
+        elif region.lower()=="nau":
+            olrcs = xr.open_dataset(ap.NAU_NICAM_OLR_CS)["ss_lwu_toa_c"][ind0:].values[11::12]
+        else: raise Exception("region not defined", region)
+    else:
+        olr, _ = get_olr_alb(model, region)
+        olrcs = np.nanmean(np.where((fwp<thres)&(lwp<thres), olr, np.nan), axis=(0))
+        # check if there are nan values and replace with latitute avg
+        if model.lower()!="icon": # icon doesn't have lat-lon info
+            olrcs_lat = np.nanmean(np.where((fwp<thres)&(lwp<thres), olr, np.nan), axis=(0,2))
+            olrcs = np.where(np.isnan(olrcs), olrcs_lat[:,np.newaxis], olrcs)
+    return olrcs
+
+def get_clearskyalb(model, region, fwp, lwp, thres=0.1):
+    """Returns clear sky albedo for each grid point.
+    
+        thres = threshold for clear sky fwp in g/m2
+        fwp = frozen water path in g/m2"""
+    _, alb = get_olr_alb(model, region)
+    time = np.arange(3,alb.shape[0]*3+3,3)%24
+    if model.lower()=="nicam":
+        time = time[:, np.newaxis, np.newaxis, np.newaxis]
+    elif model.lower()=="icon":
+        time = time[:, np.newaxis]
+    else:
+        time = time[:, np.newaxis, np.newaxis]
+    print(time[:5])
+    if region.lower()=="twp":
+        alb = alb.where(time>=20)
+    elif region.lower()=="nau":
+        alb = alb.where((time>=22)|(time<=2))
+    else:
+        alb = alb.where((time>=11)&(time<=15))
+    cs = np.nanmean(np.where((fwp<thres)&(lwp<thres), alb, np.nan), axis=(0))
+    # check if there are nan values and replace with latitute avg
+    if model.lower()!="icon": # icon doesn't have lat-lon info
+        cs_lat = np.nanmean(np.where((fwp<thres)&(lwp<thres), alb, np.nan), axis=(0,-1))
+        print(cs_lat.shape, cs.shape)
+        if model.lower()=="nicam":
+            cs = np.where(np.isnan(cs), cs_lat[:,:,np.newaxis], cs)
+        else:
+            cs = np.where(np.isnan(cs), cs_lat[:,np.newaxis], cs)
+    return cs
 
 ### ------ 3D ----- ###
 def get_levels(model, region="TWP"):

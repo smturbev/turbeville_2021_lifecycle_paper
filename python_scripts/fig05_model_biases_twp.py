@@ -199,6 +199,10 @@ ax0.grid()
 
 ax1 = fig.add_subplot(gs[0,1])
 ax1.scatter(cmeans, sw_cmeans, label="CERES SYN1 Yearly", s=ms*2/3, color='gray', marker="s", alpha=0.6)
+# m, b = np.polyfit(cmeans, sw_cmeans, 1)
+m, b = -1, (np.nanmean(cmeans)+np.nanmean(sw_cmeans))
+x = np.arange(190,264,2)
+ax1.plot(x, m*x+b, "k", label="Linear fit")
 ax1.scatter(cmeans[16], sw_cmeans[16], label="CERES SYN1 2016", s=ms*2/3, color='tab:red', marker="s", alpha=1.)
 ax1.scatter(cccmmean, sw_cccmmean, label="CCCM Avg", s=ms*2/3, color='mediumblue', marker="s", alpha=1)
 ax1.scatter(np.nanmean(cmeans), np.nanmean(sw_cmeans), label="CERES SYN1 Avg", s=ms*2/3, color='k', marker="s", alpha=1)
@@ -222,6 +226,9 @@ ax1.yaxis.tick_right()
 ax0.yaxis.set_label_position("right")
 ax1.yaxis.set_label_position("right")
 
+ax0.set_xlim([197,262])
+ax1.set_xlim([197,262])
+
 axz = fig.add_subplot(gs[:,0])
 axz = vert_cld_frac.plot_vert_cld_frac(REGION, ax=axz)
 axz.set_title("")
@@ -230,9 +237,9 @@ h, l = ax0.get_legend_handles_labels()
 fig.legend(h,l, loc="upper center", bbox_to_anchor=(0.6, 0.2),
            ncol=3)
 
-axz.annotate("(a)", xy=(0.71, 19), xycoords="data", fontsize=14)
-ax1.annotate("(b)", xy=(256, 53), xycoords="data", fontsize=14)
-ax0.annotate("(c)", xy=(256, 122), xycoords="data", fontsize=14)
+axz.annotate("(a)", xy=(0.9,0.9), xycoords="axes fraction", fontsize=19)
+ax1.annotate("(b)", xy=(0.9,0.9), xycoords="axes fraction", fontsize=19)
+ax0.annotate("(c)", xy=(0.9,0.9), xycoords="axes fraction", fontsize=19)
 
 plt.savefig("../plots/fig05_%s_model_biases.png"%REGION,dpi=150,
             bbox_inches="tight", pad_inches=2)
