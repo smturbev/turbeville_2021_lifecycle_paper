@@ -7,7 +7,7 @@ from webob.byterange import _is_content_range_valid
 from utility import load, load01deg
 
 # %%
-def get_cat_lw_sw(model, region, save=True):
+def get_cat_lw_sw(model, region, save=True, mean=False):
     if model.lower()=="cccm":
         ds = load01deg.get_cccm(region)
         olr = ds["Outgoing LW radiation at TOA"]
@@ -29,29 +29,55 @@ def get_cat_lw_sw(model, region, save=True):
         print(olr.shape, fwp.shape, lwp.shape, alb.shape)
         olrcs = load.get_clearskyolr(model, region, fwp, lwp)
         albcs = load.get_clearskyalb(model, region, fwp, lwp)
+        if mean:
+            olrcs = np.nanmean(olrcs, axis=0)
+            albcs = np.nanmean(albcs, axis=0)
+        else:
+            olrcs = np.nanmedian(olrcs, axis=0)
+            albcs = np.nanmedian(albcs, axis=0)
     print(olr.shape, olrcs.shape, fwp.shape, lwp.shape, alb.shape, albcs.shape)
     # cat mean values (olr, lwcre, alb, swcre)
     thres1 = 1000
     thres2 = 10
     thres3 = 0.1
-    # cat 1
-    olr1 = np.nanmean(np.where(fwp>thres1, olr, np.nan))
-    lwcre1 = np.nanmean(olrcs-(np.where(fwp>thres1, olr, np.nan)))
-    alb1 = np.nanmean(np.where(fwp>thres1, alb, np.nan))
-    swcre1 = np.nanmean(albcs-(np.where(fwp>thres1, alb, np.nan)))
-    # cat 2
-    olr2 = np.nanmean(np.where((fwp>thres2)&(fwp<=thres1), olr, np.nan))
-    lwcre2= np.nanmean(olrcs-(np.where((fwp>thres2)&(fwp<=thres1), olr, np.nan)))
-    alb2 = np.nanmean(np.where((fwp>thres2)&(fwp<=thres1), alb, np.nan))
-    swcre2 = np.nanmean(albcs-(np.where((fwp>thres2)&(fwp<=thres1), alb, np.nan)))
-    # cat 3
-    olr3 = np.nanmean(np.where((fwp>thres3)&(fwp<=thres2), olr, np.nan))
-    lwcre3= np.nanmean(olrcs-(np.where((fwp>thres3)&(fwp<=thres2), olr, np.nan)))
-    alb3 = np.nanmean(np.where((fwp>thres3)&(fwp<=thres2), alb, np.nan))
-    swcre3 = np.nanmean(albcs-(np.where((fwp>thres3)&(fwp<=thres2), alb, np.nan)))
-    # clear sky
-    olr4 = np.nanmean(olrcs)
-    alb4 = np.nanmean(albcs)
+    if mean:
+        # cat 1
+        olr1 = np.nanmean(np.where(fwp>thres1, olr, np.nan))
+        lwcre1 = np.nanmean(olrcs-(np.where(fwp>thres1, olr, np.nan)))
+        alb1 = np.nanmean(np.where(fwp>thres1, alb, np.nan))
+        swcre1 = np.nanmean(albcs-(np.where(fwp>thres1, alb, np.nan)))
+        # cat 2
+        olr2 = np.nanmean(np.where((fwp>thres2)&(fwp<=thres1), olr, np.nan))
+        lwcre2= np.nanmean(olrcs-(np.where((fwp>thres2)&(fwp<=thres1), olr, np.nan)))
+        alb2 = np.nanmean(np.where((fwp>thres2)&(fwp<=thres1), alb, np.nan))
+        swcre2 = np.nanmean(albcs-(np.where((fwp>thres2)&(fwp<=thres1), alb, np.nan)))
+        # cat 3
+        olr3 = np.nanmean(np.where((fwp>thres3)&(fwp<=thres2), olr, np.nan))
+        lwcre3= np.nanmean(olrcs-(np.where((fwp>thres3)&(fwp<=thres2), olr, np.nan)))
+        alb3 = np.nanmean(np.where((fwp>thres3)&(fwp<=thres2), alb, np.nan))
+        swcre3 = np.nanmean(albcs-(np.where((fwp>thres3)&(fwp<=thres2), alb, np.nan)))
+        # clear sky
+        olr4 = np.nanmean(olrcs)
+        alb4 = np.nanmean(albcs)
+    else:
+                # cat 1
+        olr1 = np.nanmedian(np.where(fwp>thres1, olr, np.nan))
+        lwcre1 = np.nanmedian(olrcs-(np.where(fwp>thres1, olr, np.nan)))
+        alb1 = np.nanmedian(np.where(fwp>thres1, alb, np.nan))
+        swcre1 = np.nanmedian(albcs-(np.where(fwp>thres1, alb, np.nan)))
+        # cat 2
+        olr2 = np.nanmedian(np.where((fwp>thres2)&(fwp<=thres1), olr, np.nan))
+        lwcre2= np.nanmedian(olrcs-(np.where((fwp>thres2)&(fwp<=thres1), olr, np.nan)))
+        alb2 = np.nanmedian(np.where((fwp>thres2)&(fwp<=thres1), alb, np.nan))
+        swcre2 = np.nanmedian(albcs-(np.where((fwp>thres2)&(fwp<=thres1), alb, np.nan)))
+        # cat 3
+        olr3 = np.nanmedian(np.where((fwp>thres3)&(fwp<=thres2), olr, np.nan))
+        lwcre3= np.nanmedian(olrcs-(np.where((fwp>thres3)&(fwp<=thres2), olr, np.nan)))
+        alb3 = np.nanmedian(np.where((fwp>thres3)&(fwp<=thres2), alb, np.nan))
+        swcre3 = np.nanmedian(albcs-(np.where((fwp>thres3)&(fwp<=thres2), alb, np.nan)))
+        # clear sky
+        olr4 = np.nanmedian(olrcs)
+        alb4 = np.nanmedian(albcs)
 
     if region.lower()=="shl":
         solar_const = 435.2760211
@@ -72,7 +98,13 @@ def get_cat_lw_sw(model, region, save=True):
 
 def get_isottlci(model, region, thres=0.1):
     """
-    Thres (g/m2)
+    Saves the clear sky olr, alb, lw and sw cre to a csv file for
+    both the mean and median values of isolated TTL cirrus columns.
+
+    Parameters:
+        -thres (f)  : clear-sky threshold in g/m2
+        -model (str): model acronym
+        -region(str): region acronym
     """
     thres = thres # to kg/m2
     olr, alb = load.get_olr_alb(model, region)
