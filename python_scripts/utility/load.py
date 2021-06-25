@@ -700,9 +700,12 @@ def get_olr_alb(model, region):
             olr = reshape.reshape("ATHB_T", rad, dim=2)
             swu = reshape.reshape("ASOU_T", rad, dim=2)
             swn = reshape.reshape("ASOB_T", rad, dim=2)
+            del rad
             olr_un = util.undomean(olr, xy=False)
             swu_un = util.undomean(swu, xy=False)
+            del swu
             swn_un = util.undomean(swn, xy=False)
+            del swn
             olr = xr.DataArray(olr_un, dims=["time","cell"], \
                                coords={"time":olr.t.values,\
                                        "cell":olr.cell})
@@ -783,7 +786,7 @@ def get_olr_alb(model, region):
     else: raise Exception("Model not supported at this time (try 'NICAM', 'FV3', 'ICON', 'SAM')")
     return olr, alb
 
-def get_clearskyolr(model, region, fwp, lwp, thres=0.1):
+def get_clearskyolr(model, region, fwp=None, lwp=None, thres=0.1):
     """returns clear sky albedo for each grid point.
     
         thres = threshold for clear sky fwp in g/m2
@@ -792,32 +795,44 @@ def get_clearskyolr(model, region, fwp, lwp, thres=0.1):
         ind0=0
     else:
         ind0 = 96*2 # exclude first two days
+    if fwp is None:
+        fwp = get_iwp(model, region, ice_only=False)
+        fwp = fwp[11::12]
+    if lwp is None: 
+        lwp = get_lwp(model, region, rain=False)
+        lwp = lwp[11::12]
     if model.lower()=="nicam":
         if region.lower()=="twp":
             olrcs = xr.open_dataset(ap.TWP_NICAM_OLR_CS)["ss_lwu_toa_c"][ind0:].values[11::12]
         elif region.lower()=="shl":
             olr, _ = get_olr_alb(model, region)
-            olrcs = np.nanmean(np.where((fwp<thres)&(lwp<thres), olr, np.nan), axis=(0))
+            olrcs = np.where((fwp<thres)&(lwp<thres), olr, np.nan)
             # check if there are nan values and replace with latitute avg
-            olrcs_lat = np.nanmean(np.where((fwp<thres)&(lwp<thres), olr, np.nan), axis=(0,3))
-            olrcs = np.where(np.isnan(olrcs), olrcs_lat[:,:,np.newaxis], olrcs)
+            # olrcs_lat = np.nanmean(np.where((fwp<thres)&(lwp<thres), olr, np.nan), axis=(0,3))
+            # olrcs = np.where(np.isnan(olrcs), olrcs_lat[:,:,np.newaxis], olrcs)
         elif region.lower()=="nau":
             olrcs = xr.open_dataset(ap.NAU_NICAM_OLR_CS)["ss_lwu_toa_c"][ind0:].values[11::12]
         else: raise Exception("region not defined", region)
     else:
         olr, _ = get_olr_alb(model, region)
-        olrcs = np.nanmean(np.where((fwp<thres)&(lwp<thres), olr, np.nan), axis=(0))
+        olrcs = np.where((fwp+lwp<thres), olr, np.nan)
         # check if there are nan values and replace with latitute avg
-        if model.lower()!="icon": # icon doesn't have lat-lon info
-            olrcs_lat = np.nanmean(np.where((fwp<thres)&(lwp<thres), olr, np.nan), axis=(0,2))
-            olrcs = np.where(np.isnan(olrcs), olrcs_lat[:,np.newaxis], olrcs)
+        # if model.lower()!="icon": # icon doesn't have lat-lon info
+        #     olrcs_lat = np.nanmean(np.where((fwp+lwp<thres), olr, np.nan), axis=(0,2))
+        #     olrcs = np.where(np.isnan(olrcs), olrcs_lat[:,np.newaxis], olrcs)
     return olrcs
 
-def get_clearskyalb(model, region, fwp, lwp, thres=0.1):
+def get_clearskyalb(model, region, fwp=None, lwp=None, thres=0.1):
     """Returns clear sky albedo for each grid point.
     
         thres = threshold for clear sky fwp in g/m2
         fwp = frozen water path in g/m2"""
+    if fwp is None:
+        fwp = get_iwp(model, region, ice_only=False)
+        fwp = fwp[11::12]
+    if lwp is None: 
+        lwp = get_lwp(model, region, rain=False)
+        lwp = lwp[11::12]
     _, alb = get_olr_alb(model, region)
     time = np.arange(3,alb.shape[0]*3+3,3)%24
     if model.lower()=="nicam":
@@ -825,23 +840,22 @@ def get_clearskyalb(model, region, fwp, lwp, thres=0.1):
     elif model.lower()=="icon":
         time = time[:, np.newaxis]
     else:
-        time = time[:, np.newaxis, np.newaxis]
-    print(time[:5])
+        time = np.array(time)[:, np.newaxis, np.newaxis]
     if region.lower()=="twp":
         alb = alb.where(time>=20)
     elif region.lower()=="nau":
         alb = alb.where((time>=22)|(time<=2))
     else:
         alb = alb.where((time>=11)&(time<=15))
-    cs = np.nanmean(np.where((fwp<thres)&(lwp<thres), alb, np.nan), axis=(0))
+    cs = np.where((fwp+lwp<thres), alb, np.nan)
     # check if there are nan values and replace with latitute avg
-    if model.lower()!="icon": # icon doesn't have lat-lon info
-        cs_lat = np.nanmean(np.where((fwp<thres)&(lwp<thres), alb, np.nan), axis=(0,-1))
-        print(cs_lat.shape, cs.shape)
-        if model.lower()=="nicam":
-            cs = np.where(np.isnan(cs), cs_lat[:,:,np.newaxis], cs)
-        else:
-            cs = np.where(np.isnan(cs), cs_lat[:,np.newaxis], cs)
+    # if model.lower()!="icon": # icon doesn't have lat-lon info
+    #     cs_lat = np.nanmean(np.where((fwp+lwp<thres), alb, np.nan), axis=(0,-1))
+    #     print(cs_lat.shape, cs.shape)
+    #     if model.lower()=="nicam":
+    #         cs = np.where(np.isnan(cs), cs_lat[:,:,np.newaxis], cs)
+    #     else:
+    #         cs = np.where(np.isnan(cs), cs_lat[:,np.newaxis], cs)
     return cs
 
 ### ------ 3D ----- ###
@@ -1066,7 +1080,6 @@ def load_tot_hydro(model, region, ice_only=True):
             Sahel - Niamey or Nauru
         region = string of 'FV3', 'ICON', 'SAM', or 'NICAM' (five of the DYAMOND models)
     """
-    st = time.time()
     if INCLUDE_SHOCK: 
         ind0=0
     else:
