@@ -18,54 +18,39 @@ regions = ["SHL","TWP","NAU"]
 models = ["CCCM","NICAM","FV3","ICON","SAM"]
 net=False
 
-# dar  = pd.read_csv("../tables/DARDAR_cat_alb_olr_ttl_cs.csv")
-ctwp = pd.read_csv("../tables/CCCM_TWP.csv", index_col=0)
-ntwp = pd.read_csv("../tables/NICAM_TWP.csv", index_col=0)
-ftwp = pd.read_csv("../tables/FV3_TWP.csv", index_col=0)
-itwp = pd.read_csv("../tables/ICON_TWP.csv", index_col=0)
-stwp = pd.read_csv("../tables/SAM_TWP.csv", index_col=0)
-cshl = pd.read_csv("../tables/CCCM_SHL.csv", index_col=0)
-nshl = pd.read_csv("../tables/NICAM_SHL.csv", index_col=0)
-fshl = pd.read_csv("../tables/FV3_SHL.csv", index_col=0)
-ishl = pd.read_csv("../tables/ICON_SHL.csv", index_col=0)
-sshl = pd.read_csv("../tables/SAM_SHL.csv", index_col=0)
-cnau = pd.read_csv("../tables/CCCM_NAU.csv", index_col=0)
-nnau = pd.read_csv("../tables/NICAM_NAU.csv", index_col=0)
-fnau = pd.read_csv("../tables/FV3_NAU.csv", index_col=0)
-inau = pd.read_csv("../tables/ICON_NAU.csv", index_col=0)
-snau = pd.read_csv("../tables/SAM_NAU.csv", index_col=0)
+ds = pd.read_csv("../tables/iso_ttl_ci_all_mean.csv", index_col=0)
 # %%
-clw_twp = (ctwp.OLR.CS - ctwp.OLR.ISO_TTL)
-nlw_twp = (ntwp.OLR.CS - ntwp.OLR.ISO_TTL)
-flw_twp = (ftwp.OLR.CS - ftwp.OLR.ISO_TTL)
-ilw_twp = (itwp.OLR.CS - itwp.OLR.ISO_TTL)
-slw_twp = (stwp.OLR.CS - stwp.OLR.ISO_TTL)
-clw_shl = (cshl.OLR.CS - cshl.OLR.ISO_TTL)
-nlw_shl = (nshl.OLR.CS - nshl.OLR.ISO_TTL)
-flw_shl = (fshl.OLR.CS - fshl.OLR.ISO_TTL)
-ilw_shl = (ishl.OLR.CS - ishl.OLR.ISO_TTL)
-slw_shl = (sshl.OLR.CS - sshl.OLR.ISO_TTL)
-clw_nau = (cnau.OLR.CS - cnau.OLR.ISO_TTL)
-nlw_nau = (nnau.OLR.CS - nnau.OLR.ISO_TTL)
-flw_nau = (fnau.OLR.CS - fnau.OLR.ISO_TTL)
-ilw_nau = (inau.OLR.CS - inau.OLR.ISO_TTL)
-slw_nau = (snau.OLR.CS - snau.OLR.ISO_TTL)
+clw_twp = abs(ds.NICAM_TWP.lwcre)
+nlw_twp = abs(ds.NICAM_TWP.lwcre)
+flw_twp = abs(ds.FV3_TWP.lwcre)
+ilw_twp = abs(ds.ICON_TWP.lwcre)
+slw_twp = abs(ds.SAM_TWP.lwcre)
+clw_shl = abs(ds.NICAM_SHL.lwcre)
+nlw_shl = abs(ds.NICAM_SHL.lwcre)
+flw_shl = abs(ds.FV3_SHL.lwcre)
+ilw_shl = abs(ds.ICON_SHL.lwcre)
+slw_shl = abs(ds.SAM_SHL.lwcre)
+clw_nau = abs(ds.NICAM_NAU.lwcre)
+nlw_nau = abs(ds.NICAM_NAU.lwcre)
+flw_nau = abs(ds.FV3_NAU.lwcre)
+ilw_nau = abs(ds.ICON_NAU.lwcre)
+slw_nau = abs(ds.SAM_NAU.lwcre)
 
-csw_twp = ((ctwp.ALB.CS - ctwp.ALB.ISO_TTL)*413.2335274)
-nsw_twp = ((ntwp.ALB.CS - ntwp.ALB.ISO_TTL)*413.2335274)
-fsw_twp = ((ftwp.ALB.CS - ftwp.ALB.ISO_TTL)*413.2335274)
-isw_twp = ((itwp.ALB.CS - itwp.ALB.ISO_TTL)*413.2335274)
-ssw_twp = ((stwp.ALB.CS - stwp.ALB.ISO_TTL)*413.2335274)
-csw_shl = ((cshl.ALB.CS - cshl.ALB.ISO_TTL)*435.2760211)
-nsw_shl = ((nshl.ALB.CS - nshl.ALB.ISO_TTL)*435.2760211)
-fsw_shl = ((fshl.ALB.CS - fshl.ALB.ISO_TTL)*435.2760211)
-isw_shl = ((ishl.ALB.CS - ishl.ALB.ISO_TTL)*435.2760211)
-ssw_shl = ((sshl.ALB.CS - sshl.ALB.ISO_TTL)*435.2760211)
-csw_nau = ((cnau.ALB.CS - cnau.ALB.ISO_TTL)*413.2335274)
-nsw_nau = ((nnau.ALB.CS - nnau.ALB.ISO_TTL)*413.2335274)
-fsw_nau = ((fnau.ALB.CS - fnau.ALB.ISO_TTL)*413.2335274)
-isw_nau = ((inau.ALB.CS - inau.ALB.ISO_TTL)*413.2335274)
-ssw_nau = ((snau.ALB.CS - snau.ALB.ISO_TTL)*413.2335274)
+csw_twp = -abs(ds.NICAM_TWP.swcre)
+nsw_twp = -abs(ds.NICAM_TWP.swcre)
+fsw_twp = -abs(ds.FV3_TWP.swcre)
+isw_twp = -abs(ds.ICON_TWP.swcre)
+ssw_twp = -abs(ds.SAM_TWP.swcre)
+csw_shl = -abs(ds.NICAM_SHL.swcre)
+nsw_shl = -abs(ds.NICAM_SHL.swcre)
+fsw_shl = -abs(ds.FV3_SHL.swcre)
+isw_shl = -abs(ds.ICON_SHL.swcre)
+ssw_shl = -abs(ds.SAM_SHL.swcre)
+csw_nau = -abs(ds.NICAM_NAU.swcre)
+nsw_nau = -abs(ds.NICAM_NAU.swcre)
+fsw_nau = -abs(ds.FV3_NAU.swcre)
+isw_nau = -abs(ds.ICON_NAU.swcre)
+ssw_nau = -abs(ds.SAM_NAU.swcre)
 
 lwcre = np.array([clw_shl/6, clw_twp/6, clw_nau/6, nlw_shl, nlw_twp, nlw_nau, \
         flw_shl, flw_twp, flw_nau, ilw_shl, ilw_twp, ilw_nau, \
@@ -111,7 +96,7 @@ axt.bar(-10,3,color="lightgray", hatch=None, label="TWP")
 axt.bar(-10,3,color="lightgray", hatch="...", label="NAU")
 # fig.legend(loc=9, bbox_to_anchor=(0,0.05),ncol=3)
 ax.set_xlim([0,60])
-ax.set_ylim([-15.1,25])
+# ax.set_ylim([-15.1,25])
 ht, lt = axt.get_legend_handles_labels()
 print(l, lt, type(l))
 h_new, l_new = (h)+(ht), (l)+(lt)
@@ -145,6 +130,8 @@ ax.set_ylabel("CRE (W/m$^2$)")
 
 plt.savefig("../plots/fig14_iso_ttl_ci_cre_bar.png", dpi=200, bbox_inches="tight", pad_inches=0.1)
 plt.show()
+
+
 
 
 # %%
@@ -246,9 +233,13 @@ plt.show()
 
 # ax.annotate("(d)", xy=(0.01,0.94), xycoords="axes fraction", fontsize=fs)
 
+# plt.savefig('../plots/fig13_iso_ttl_ci_cre.png',
+#             dpi=150,bbox_inches='tight')
+# print('    saved to ../plots/fig13_iso_ttl_ci_cre.png')
+# plt.close()
 
+# %%
 
-plt.savefig('../plots/fig13_iso_ttl_ci_cre.png',
-            dpi=150,bbox_inches='tight')
-print('    saved to ../plots/fig13_iso_ttl_ci_cre.png')
-plt.close()
+# %%
+
+# %%
