@@ -6,7 +6,7 @@ from scipy import stats
 
 from utility import load, load01deg
 
-REGION="TWP"
+REGION="NAU"
 # %%
 c_olrcs = load01deg.get_cccm(REGION)["Clear-sky outgoing LW radiation at TOA"]
 c_swucs = load01deg.get_cccm(REGION)["Clear-sky outgoing SW radiation at TOA"]
