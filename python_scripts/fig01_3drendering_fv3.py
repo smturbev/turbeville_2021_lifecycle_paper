@@ -17,8 +17,8 @@ import numpy as np
 from matplotlib import cm
 from matplotlib.colors import ListedColormap, LinearSegmentedColormap
 
-is_one_by_one = True
-t = 182-16
+is_one_by_one = False
+t = 38 #182-16
 greys = cm.get_cmap("gist_yarg", 28)
 model="FV3"
 
@@ -66,15 +66,15 @@ print(qn[:,:,:].shape, x3d.shape, z3d.shape)
 if is_one_by_one:
     xskip, yskip, zskip = 1, 1, 1
 else:
-    xskip, yskip, zskip = 5, 5, 1
-in_cloud = (np.where(qn[::zskip,::xskip,::yskip] > 1e-4, True, False)).flatten()
+    xskip, yskip, zskip = 2, 4, 1
+in_cloud = (np.where(qn[::zskip,::xskip,::yskip] > 5e-4, True, False)).flatten()
 # plt.rcParams["image.cmap"] = new_cmap
 
 # %%
 fs = 14
-fig = plt.figure()
+fig = plt.figure(figsize=(15,5))
 ax = fig.add_subplot(111, projection="3d")
-ax.view_init(elev=20)
+ax.view_init(27,-255) #-220
 sc = ax.scatter((x3d[::zskip,::xskip,::yskip]).flatten()[in_cloud], \
                 (y3d[::zskip,::xskip,::yskip]).flatten()[in_cloud], \
                 (z3d[::zskip,::xskip,::yskip]).flatten()[in_cloud]/1000,\
@@ -82,16 +82,16 @@ sc = ax.scatter((x3d[::zskip,::xskip,::yskip]).flatten()[in_cloud], \
                 edgecolors='face',\
                 vmax = (0.5), vmin=0.1,\
                 s=4*xskip, cmap=new_cmap, depthshade=True) #vmax = np.max(qn[:,:,:])/1.5,
-if not(is_one_by_one):
-    ax.plot([  0,  0,  -1,  -1,  0,  0, 0, -1, -1, 0],
-            [147,148,148,147,147,147,148,148,147,147],
-            [ 20 ,20, 20, 20, 20,  0, 0, 0, 0, 0], c='r')
-    ax.plot([    0,  0,  0,  0,  -1,  -1,  -1,  -1,  -1],
-            [147,147,148,148,148,148,148,147,147],
-            [ 0 , 20, 20, 0,  0,  20, 20, 20, 0], c='r')
+# if not(is_one_by_one):
+#     ax.plot([  0,  0,  -1,  -1,  0,  0, 0, -1, -1, 0],
+#             [147,148,148,147,147,147,148,148,147,147],
+#             [ 20 ,20, 20, 20, 20,  0, 0, 0, 0, 0], c='r')
+#     ax.plot([    0,  0,  0,  0,  -1,  -1,  -1,  -1,  -1],
+#             [147,147,148,148,148,148,148,147,147],
+#             [ 0 , 20, 20, 0,  0,  20, 20, 20, 0], c='r')
 ax.set_zlim(0,20)
-ax.set_ylabel("Longitude ($^\circ$E)", fontsize=fs)
-ax.set_xlabel("Latitude ($^\circ$N)", fontsize=fs)
+ax.set_ylabel("\nLongitude ($^\circ$E)", fontsize=fs)
+ax.set_xlabel("\nLatitude ($^\circ$N)", fontsize=fs)
 ax.set_zlabel("Height (km)", fontsize=fs)
 if is_one_by_one:
     ax.set_yticks(np.arange(147,148,0.2))
@@ -99,8 +99,9 @@ if is_one_by_one:
     ax.set_xticks(np.arange(-1,0,0.2))
     ax.set_xticklabels([-1,None,-0.6,None,-0.2,None])
     ax.annotate("(b)", xycoords="axes fraction", xy=(0.55,-0.1), fontsize=fs+4)
-else:
-    ax.annotate("(a)", xycoords="axes fraction", xy=(0.55,-0.1), fontsize=fs+4)
+# else:
+#     ax.annotate("(a)", xycoords="axes fraction", xy=(0.55,-0.1), fontsize=fs+4)
+
 # ax.set_title(model + ", " + tstring)
 cbar = plt.colorbar(sc, ax=ax, shrink=0.6)
 cbar.set_label("water content (g/m$^3$)", fontsize=fs-2)
@@ -113,7 +114,7 @@ if is_one_by_one:
     plt.savefig("../plots/fig01_cloud3d.png", transparent=False, dpi=200, bbox_inches="tight", pad_inches=0.2)
 else:
     ax.invert_xaxis()
-    plt.savefig("../plots/fig01_cloud3d_10x10.png", transparent=False, dpi=200, bbox_inches="tight", pad_inches=0.2)
+    plt.savefig("../plots/fig01_cloud3d_10x10_long{}_x{}_y{}.png".format(t,xskip,yskip), transparent=False, dpi=200, bbox_inches="tight", pad_inches=0.2)
 plt.close()
 
 # %%

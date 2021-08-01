@@ -228,7 +228,7 @@ ax1.grid(axis='y')
 ax2.grid(axis='y')
 ax3.grid(axis='y')
 ax1.set_title("Deep Convection\nFWP $\geq$ 1000 g/m$^2$", fontsize=fs)
-ax2.set_title("Anvils\n10 $\leq$ FWP < 1000 g/m$^2$", fontsize=fs)
+ax2.set_title("Thick Cirrus\n10 $\leq$ FWP < 1000 g/m$^2$", fontsize=fs)
 ax3.set_title("Thin Cirrus\n0.1 $\leq$ FWP < 10 g/m$^2$", fontsize=fs)
 
 ax1.annotate("(a)", xy=(0.05,0.95), xycoords="axes fraction", fontsize=fs-2, weight="bold")

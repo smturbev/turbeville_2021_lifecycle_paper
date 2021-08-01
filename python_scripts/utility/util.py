@@ -225,8 +225,8 @@ def iwc(q, t, qv, p, model):
         print("Warning: FV3 uses the spatially averaged density b/c \
         specific humidity and temperature are on different grids")
     elif model.lower() =="sam":
-        rho = p[:,:,np.newaxis,np.newaxis] / \
-              (287*(1 + 0.61*(qv))*(t))
+        Tv = (287*(1 + 0.61*(qv))*(t))
+        rho = p[:,:,np.newaxis,np.newaxis] / Tv
         iwc = q.values * rho
     else:
         if model.lower() == "icon":
@@ -238,7 +238,7 @@ def iwc(q, t, qv, p, model):
         rho = p / rtv 
         del p, rtv
         iwc = q * rho # kg/m2
-    print("Returning ice water content (kg/m2) for %s as %s xarray\n\n"%(model, iwc.shape))
+    print("Returning water content (kg/m2) for %s as %s xarray\n\n"%(model, iwc.shape))
     iwcxr = xr.DataArray(iwc, dims=list(q.dims), coords=q.coords, 
                      attrs={'standard_name':'iwc','long_name':'ice_water_content','units':'kg/m3'})
     return iwcxr
