@@ -85,7 +85,7 @@ def ax_ttl_cat_hist(ttliwp1, ttliwp2, ttliwp3, model, region, ax=None, fs=16):
            label="3 ({}%)".format(str(np.round(np.nansum(hist3[np.argmin(abs(xbins+1)):])/n*100,0)).split(".")[0]))
     ax.step(xedges[1:], (hist1+hist2+hist3)/n, color='k')
     ax.tick_params(labelsize=fs-3)
-    ax.set_xlabel('log$_{10}$TTL IWP (g/m$^2$)', fontsize=fs) 
+    ax.set_xlabel('log$_{10}$TTL IWP (g m$^{-2}$)', fontsize=fs) 
     loc=1
     fs_leg=fs-4
     ax.legend(fontsize=fs_leg, frameon=False, loc=loc)
@@ -148,14 +148,33 @@ def plot_ttliwp(region="TWP", fs=14):
     ftax.set_ylabel("FV3\nFraction of profiles", fontsize=fs)
     itax.set_ylabel("ICON\nFraction of profiles", fontsize=fs)
     stax.set_ylabel("SAM\nFraction of profiles", fontsize=fs)
+
+    dtax.grid(True)
+    ntax.grid(True)
+    ftax.grid(True)
+    itax.grid(True)
+    stax.grid(True)
+    dtax.set_axisbelow(True)
+    ntax.set_axisbelow(True)
+    ftax.set_axisbelow(True)
+    itax.set_axisbelow(True)
+    stax.set_axisbelow(True)
     
-    dtax.annotate("(i)", xy=(-3.1,0.067), xycoords="data", color="k", fontsize=fs, weight="bold")
-    ntax.annotate("(ii)", xy=(-3.1,0.067), xycoords="data", color="k", fontsize=fs, weight="bold")
-    ftax.annotate("(iii)", xy=(-3.1,0.067), xycoords="data", color="k", fontsize=fs, weight="bold")
-    itax.annotate("(iv)", xy=(-3.1,0.067), xycoords="data", color="k", fontsize=fs, weight="bold")
-    stax.annotate("(v)", xy=(-3.1,0.067), xycoords="data", color="k", fontsize=fs, weight="bold")
+    # dtax.annotate("(i)", xy=(-3.1,0.067), xycoords="data", color="k", fontsize=fs, weight="bold")
+    # ntax.annotate("(ii)", xy=(-3.1,0.067), xycoords="data", color="k", fontsize=fs, weight="bold")
+    # ftax.annotate("(iii)", xy=(-3.1,0.067), xycoords="data", color="k", fontsize=fs, weight="bold")
+    # itax.annotate("(iv)", xy=(-3.1,0.067), xycoords="data", color="k", fontsize=fs, weight="bold")
+    # stax.annotate("(v)", xy=(-3.1,0.067), xycoords="data", color="k", fontsize=fs, weight="bold")
     dtax.set_title(region, fontsize=fs+4)
 
+    if region.lower()=="twp":
+        reg_label = "(b)"
+    elif region.lower()=="shl":
+        reg_label = "(a)"
+    else:
+        reg_label = "(c)"
+    dtax.annotate(reg_label, xy=(0.4,1.25), xycoords="axes fraction", color="k", fontsize=fs+4, weight="bold")
+    
     plt.savefig("../plots/fig13_ttliwp_hist_cat_%s.png"%(region.lower()), dpi=160)
     print("saved to ../plots/fig13_ttliwp_hist_cat_%s.png"%(region.lower()))
     plt.close()

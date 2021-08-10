@@ -172,11 +172,11 @@ for i in range(20):
     print(2000+i, sw_cmeans[i])
 
 # scatter plot of mean vs std
-fig = plt.figure(figsize=(12,8))
+fig = plt.figure(figsize=(12,4))
 fs=14
-gs = fig.add_gridspec(2,2, wspace=0.1)
+gs = fig.add_gridspec(1,2, wspace=0.1)
 
-ax0 = fig.add_subplot(gs[1,1])
+ax0 = fig.add_subplot(gs[1])
 ms = 100
 ax0.scatter(cmeans, cstdev, label="CERES SYN1 Yearly", s=ms*2/3, color='gray', marker="s", alpha=0.6)
 ax0.scatter(np.nanmean(cmeans), np.nanmean(cstdev), label="CERES SYN1 Avg", s=ms*2/3, color='k', marker="s", alpha=1)
@@ -192,12 +192,11 @@ ax0.scatter(mmean, mstdev, color=c["MPAS"], label="MPAS", s=ms, marker="^")
 ax0.scatter(umean, ustdev, color=c["UM"], label="UM", s=ms, marker="^")
 ax0.tick_params(labelsize=fs)
 # ax0.set_xticklabels([])
-ax0.set_ylabel("Standard Deviation\n(W/m2)",fontsize=fs)
-#ax0.set_xlabel("Mean OLR (W/m2)", fontsize=fs)
-#ax0.set_title("Mean OLR vs Std Dev, "+REGION, fontsize=fs)
+ax0.set_ylabel("Standard Deviation\n(W m$^{-2}$)",fontsize=fs)
+ax0.set_xlabel("Mean OLR (W m$^{-2}$)", fontsize=fs)
 ax0.grid()
 
-ax1 = fig.add_subplot(gs[0,1])
+ax1 = fig.add_subplot(gs[0])
 ax1.scatter(cmeans, sw_cmeans, label="CERES SYN1 Yearly", s=ms*2/3, color='gray', marker="s", alpha=0.6)
 # m, b = np.polyfit(cmeans, sw_cmeans, 1)
 m, b = -1, (np.nanmean(cmeans)+np.nanmean(sw_cmeans))
@@ -215,33 +214,27 @@ ax1.scatter(emean, sw_emean, color=c["IFS"], label="IFS", s=ms, marker="^")
 ax1.scatter(mmean, sw_mmean, color=c["MPAS"], label="MPAS", s=ms, marker="^")
 ax1.scatter(umean, sw_umean, color=c["UM"], label="UM", s=ms, marker="^")
 ax1.tick_params(labelsize=fs)
-ax1.set_xticklabels([])
-ax1.set_ylabel("Mean Reflected SW\n(W/m2)",fontsize=fs)
-ax0.set_xlabel("Mean OLR (W/m2)", fontsize=fs)
+# ax1.set_xticklabels([])
+ax1.set_ylabel("Mean Reflected SW\n(W m$^{-2}$)",fontsize=fs)
+ax1.set_xlabel("Mean OLR (W m$^{-2}$)", fontsize=fs)
+
 #ax1.set_title("Mean OLR vs Mean Reflected SW, "+REGION, fontsize=28)
 ax1.grid()
 
 ax0.yaxis.tick_right()
-ax1.yaxis.tick_right()
 ax0.yaxis.set_label_position("right")
-ax1.yaxis.set_label_position("right")
 
 ax0.set_xlim([197,262])
 ax1.set_xlim([197,262])
 
-axz = fig.add_subplot(gs[:,0])
-axz = vert_cld_frac.plot_vert_cld_frac(REGION, ax=axz)
-axz.set_title("")
-
 h, l = ax0.get_legend_handles_labels()
-fig.legend(h,l, loc="upper center", bbox_to_anchor=(0.6, 0.2),
+fig.legend(h,l, fontsize=fs, loc="upper center", bbox_to_anchor=(0.7, 0.37),
            ncol=3)
 
-axz.annotate("(a)", xy=(0.9,0.9), xycoords="axes fraction", fontsize=19)
-ax1.annotate("(b)", xy=(0.9,0.9), xycoords="axes fraction", fontsize=19)
-ax0.annotate("(c)", xy=(0.9,0.9), xycoords="axes fraction", fontsize=19)
+ax1.annotate("(a)", xy=(-0.1, 1.1), xycoords="axes fraction", fontsize=19, weight="bold")
+ax0.annotate("(b)", xy=(-0.1, 1.1), xycoords="axes fraction", fontsize=19, weight="bold")
 
-plt.savefig("../plots/fig05_%s_model_biases.png"%REGION,dpi=150,
-            bbox_inches="tight", pad_inches=2)
-print("... saved to ../plots/fig05_%s_model_biases.png"%REGION)
+plt.savefig("../plots/fig05_{}_rad_biases.png".format(REGION.lower()),dpi=150,
+            bbox_inches="tight", pad_inches=3)
+print("... saved to ../plots/fig05_{}_rad_biases.png".format(REGION.lower()))
 plt.close()

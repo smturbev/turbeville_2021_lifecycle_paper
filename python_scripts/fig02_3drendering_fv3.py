@@ -18,21 +18,24 @@ from matplotlib import cm
 from matplotlib.colors import ListedColormap, LinearSegmentedColormap
 
 is_one_by_one = False
-t = 38 #182-16
+t = 1 #182-16
 greys = cm.get_cmap("gist_yarg", 28)
 model="FV3"
 
 transp_grays = greys(range(20))
-transp = np.zeros(transp_grays.shape)
-for i in range(21):
-    transp[-i,:-1] = transp_grays[-i,:-1]
-    if is_one_by_one:
-        transp[-i,-1] = 0.5-(np.sqrt(i)/18) # 0.6-(0.85*i/30)
-    else:
-        transp[-i,-1] = 0.3-(np.sqrt(i)/18) # 0.6-(0.85*i/30)
-    print(transp[-i,-1])
+transp_grays = transp_grays[:,:]
+print("greys(range(20))", transp_grays)
+# transp = np.zeros(transp_grays.shape)
+# for i in range(21):
+#     transp[-i,:-1] = transp_grays[-i,:-1]
+#     if is_one_by_one:
+#         transp[-i,-1] = 0.8-(0.85*i/30) # 1-(np.sqrt(i)/18) # 0.6-(0.85*i/30)
+#     else:
+#         transp[-i,-1] = 0.8-(0.85*i/30) # 0.3-(np.sqrt(i)/18) # 0.6-(0.85*i/30)
+transp_grays[:,-1] = (np.linspace(0.25,0.75,20))**2
+print("transp cmap:", transp_grays)
+new_cmap = ListedColormap(transp_grays)
 
-new_cmap = ListedColormap(transp)
 # %%
 if is_one_by_one:
     qn = load.load_tot_hydro1x1(model, "TWP", iceliq_only=True, exclude_shock=False) # liquid and ice water content
@@ -72,15 +75,14 @@ in_cloud = (np.where(qn[::zskip,::xskip,::yskip] > 5e-4, True, False)).flatten()
 
 # %%
 fs = 14
-fig = plt.figure(figsize=(15,5))
+fig = plt.figure(figsize=(15,7))
 ax = fig.add_subplot(111, projection="3d")
-ax.view_init(27,-255) #-220
+ax.view_init(30,-255) #-220
 sc = ax.scatter((x3d[::zskip,::xskip,::yskip]).flatten()[in_cloud], \
                 (y3d[::zskip,::xskip,::yskip]).flatten()[in_cloud], \
                 (z3d[::zskip,::xskip,::yskip]).flatten()[in_cloud]/1000,\
                 c=(qn[::zskip,::xskip,::yskip].values.flatten())[in_cloud], \
-                edgecolors='face',\
-                vmax = (0.5), vmin=0.1,\
+                edgecolors='face', vmax=0.6, vmin=0.1,\
                 s=4*xskip, cmap=new_cmap, depthshade=True) #vmax = np.max(qn[:,:,:])/1.5,
 # if not(is_one_by_one):
 #     ax.plot([  0,  0,  -1,  -1,  0,  0, 0, -1, -1, 0],
@@ -103,8 +105,8 @@ if is_one_by_one:
 #     ax.annotate("(a)", xycoords="axes fraction", xy=(0.55,-0.1), fontsize=fs+4)
 
 # ax.set_title(model + ", " + tstring)
-cbar = plt.colorbar(sc, ax=ax, shrink=0.6)
-cbar.set_label("water content (g/m$^3$)", fontsize=fs-2)
+cbar = plt.colorbar(sc, ax=ax, shrink=0.6, extend="max")
+cbar.set_label("water content (g m$^{-3}$)", fontsize=fs-2)
 ax.w_xaxis.set_pane_color((.5,.58,1.0))
 ax.w_yaxis.set_pane_color((.5,.58,1.0))
 ax.w_zaxis.set_pane_color((.2,.2,1.0))

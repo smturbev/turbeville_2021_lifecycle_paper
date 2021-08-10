@@ -220,19 +220,19 @@ def plot_shl_twp_nau_cld_frac(fs=22, savename=None):
         new_ln.append(ln[i].split("(")[-1][:-1])
     new_label[-1]="TTL"
     fig_legend = axt.legend(hs, new_label, loc=9, bbox_to_anchor=(0.5,-0.1), fontsize=fs-4, ncol=7)
-    axs.legend = axs.legend(hs[:-1], new_ls[:-1], loc="lower right")
-    axt.legend = axt.legend(hs[:-1], new_lt[:-1], loc="lower right")
-    axn.legend = axn.legend(hs[:-1], new_ln[:-1], loc="lower right")
+    axs.legend = axs.legend(hs[:-1], new_ls[:-1], loc="lower right", fontsize=fs-4)
+    axt.legend = axt.legend(hs[:-1], new_lt[:-1], loc="lower right", fontsize=fs-4)
+    axn.legend = axn.legend(hs[:-1], new_ln[:-1], loc="lower right", fontsize=fs-4)
     axt.add_artist(fig_legend)
 
     axt.set_ylabel("")
     axn.set_ylabel("")
-    axs.annotate("(a)", xy=(0.7, 18.32), xycoords="data", fontsize=fs, weight="bold")
-    axt.annotate("(b)", xy=(0.7, 18.32), xycoords="data", fontsize=fs, weight="bold")
-    axn.annotate("(c)", xy=(0.7, 18.32), xycoords="data", fontsize=fs, weight="bold")
+    axs.annotate("(a)", xy=(-0.1,  1.1), xycoords="axes fraction", fontsize=fs, weight="bold")
+    axt.annotate("(b)", xy=(-0.1,  1.1), xycoords="axes fraction", fontsize=fs, weight="bold")
+    axn.annotate("(c)", xy=(-0.1,  1.1), xycoords="axes fraction", fontsize=fs, weight="bold")
     if savename is None: 
-        plt.savefig("../plots/fig09_vert_cld_frac.png", dpi=200, bbox_inches="tight", pad_inches=1)
-        print("saved as ../plots/fig09_vert_cld_frac.png")
+        plt.savefig("../plots/fig_vert_cld_frac.png", dpi=200, bbox_inches="tight", pad_inches=1)
+        print("saved as ../plots/fig_vert_cld_frac.png")
     else: 
         plt.savefig(savename, dpi=200, bbox_inches="tight", pad_inches=1)
         print("saved as %s"%(savename))

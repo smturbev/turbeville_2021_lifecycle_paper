@@ -218,6 +218,12 @@ ax[1,1].set_xticks(np.arange(270,315,10))
 ax[1,1].tick_params(labelsize=fs-4)
 ax[1,1].grid(True)
 
+ax[0,0].annotate("(a)", xy=(-0.2, 1.1), xycoords="axes fraction", fontsize=fs, weight="bold")
+ax[0,1].annotate("(b)", xy=(-0.2, 1.1), xycoords="axes fraction", fontsize=fs, weight="bold")
+ax[1,0].annotate("(c)", xy=(-0.2, 1.1), xycoords="axes fraction", fontsize=fs, weight="bold")
+ax[1,1].annotate("(d)", xy=(-0.2, 1.1), xycoords="axes fraction", fontsize=fs, weight="bold")
+
+
 h, l = ax[0,0].get_legend_handles_labels()
 fig.legend(h,l,loc="none",bbox_to_anchor=(1.2,0.7), fontsize=fs-4)
 
