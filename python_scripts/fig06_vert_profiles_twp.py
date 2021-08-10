@@ -24,7 +24,7 @@ axz = vert_cld_frac.plot_vert_cld_frac(REGION, ax=axz)
 axz.set_title("")
 axz.legend(fontsize=fs)
 
-plt.savefig("../plots/fig06_%s_vertical_twp.png"%REGION,dpi=150,
+plt.savefig("../plots/fig06_vertical_%s.png"%REGION.lower(),dpi=150,
             bbox_inches="tight", pad_inches=2)
-print("... saved to ../plots/fig06_%s_vertical_twp.png"%REGION)
+print("... saved to ../plots/fig06_vertical_%s.png"%REGION.lower())
 plt.close()
