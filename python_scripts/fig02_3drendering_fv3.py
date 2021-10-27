@@ -102,10 +102,10 @@ ax.w_zaxis.set_pane_color((.2,.2,1.0))
 ax.tick_params(labelsize=fs-2)
 cbar.ax.tick_params(labelsize=fs-2)
 if is_one_by_one:
-    plt.savefig("../plots/fig01_cloud3d.png", transparent=False, dpi=200, bbox_inches="tight", pad_inches=0.2)
+    plt.savefig("../plots/fig02_cloud3d.png", transparent=False, dpi=200, bbox_inches="tight", pad_inches=0.2)
 else:
     ax.invert_yaxis()
     ax.invert_xaxis()
-    plt.savefig("../plots/fig01_cloud3d_10x10_long_revised_0.png", transparent=False, dpi=200, bbox_inches="tight", pad_inches=0.2)
+    plt.savefig("../plots/fig02_cloud3d_10x10_long_revised_0.png", transparent=False, dpi=200, bbox_inches="tight", pad_inches=0.2)
 plt.close()
 print("saved")
