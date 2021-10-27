@@ -2,10 +2,10 @@
 """ fig11_iwp_all_regions.py
     Author: Sami Turbeville
     Updated: 18 Feb 2021
-    
+   
     This script reads in the frozen water path for FV3,
     SAM, GEOS, ICON and FV3. It then plots the histograms
-    compared to DARDAR. 
+    compared to DARDAR.
 """
 
 import numpy as np
@@ -191,9 +191,10 @@ print("creating figure...")
 # iax = fig.add_subplot(gs[1,1])
 # sax = fig.add_subplot(gs[1,2])
 
-fig, [[cax, nax, fax],[lax, iax, sax]] = plt.subplots(3,2,
+fig, [[cax, nax, fax],[lax, iax, sax]] = plt.subplots(2,3,
                                             sharey=True, sharex=True,
-                                            figsize=(20,8))
+                                            figsize=(21,8))
+lax.axis("off")
 
 s = 'tab:orange'
 n = 'tab:purple'
@@ -217,8 +218,8 @@ sax.axvline(3, color="k", alpha=0.4, linestyle="dashed")
 sax.axvline(1, color="k", alpha=0.4, linestyle="dashed")
 sax.axvline(-1, color="k", alpha=0.4, linestyle="dashed")
 
-cax.step(xedges[1:], chist_twp, t, label='TWP')
 cax.step(xedges[1:], chist_shl, s, label='SHL')
+cax.step(xedges[1:], chist_twp, t, label='TWP')
 cax.step(xedges[1:], chist_nau, n, label='NAU')
 
 fax.step(xedges[1:], fhist_twp, color=t)
@@ -383,24 +384,24 @@ sno = int(np.nanmean([sno_twp, sno_shl, sno_nau]))
 # iax.set_title("ICON\n {:} profiles".format(ino), size=17)
 # sax.set_title("SAM \n {:} profiles".format(sno), size=17)
 
-sax.set_xlabel("log$_{10}$FWP (g/m$^{-2}$)", fontsize=fs-2)
-cax.set_xlabel("log$_{10}$FWP (g/m$^{-2}$)", fontsize=fs-2)
-iax.set_xlabel("log$_{10}$FWP (g/m$^{-2}$)", fontsize=fs-2)
+sax.set_xlabel("log$_{10}$FWP (g~m$^{-2}$)", fontsize=fs)
+cax.set_xlabel("log$_{10}$FWP (g~m$^{-2}$)", fontsize=fs)
+iax.set_xlabel("log$_{10}$FWP (g~m$^{-2}$)", fontsize=fs)
 
 # cax.set_xticklabels([])
 # iax.set_xticklabels([])
-fax.set_xticklabels([])
-nax.set_xticklabels([])
-nax.set_yticklabels([])
-fax.set_yticklabels([])
-sax.set_yticklabels([])
+# fax.set_xticklabels([])
+# nax.set_xticklabels([])
+# nax.set_yticklabels([])
+# fax.set_yticklabels([])
+# sax.set_yticklabels([])
 sax.set_title("SAM", fontsize=fs+2)
 nax.set_title("NICAM", fontsize=fs+2)
 fax.set_title("FV3", fontsize=fs+2)
 iax.set_title("ICON", fontsize=fs+2)
 cax.set_title(obs, fontsize=fs+2)
-cax.set_ylabel("Fraction of profiles", fontsize=fs-2)
-iax.set_ylabel("Fraction of profiles", fontsize=fs-2)
+cax.set_ylabel("Fraction of profiles", fontsize=fs)
+iax.set_ylabel("Fraction of profiles", fontsize=fs)
 cax.tick_params(labelsize=fs-2)
 iax.tick_params(labelsize=fs-2)
 sax.tick_params(labelsize=fs-2)
@@ -414,7 +415,7 @@ sax.annotate("(e)", xy=(-0.1, 1.1), xycoords="axes fraction", fontsize=fs+4, wei
 cax.tick_params(labelsize=fs-4)
 
 h,l = cax.get_legend_handles_labels()
-fig.legend(h,l,bbox_to_anchor=(0.2,0.4), fontsize=fs, title="Regions", title_fontsize=fs+6)
+lax.legend(h,l,loc="center", fontsize=fs, title="Regions", title_fontsize=fs+6)
 
 ticks = np.arange(-3,4,1)
 cax.set_xticks(ticks)

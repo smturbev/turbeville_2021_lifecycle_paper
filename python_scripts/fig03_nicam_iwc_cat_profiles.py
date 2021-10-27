@@ -46,7 +46,9 @@ f=1000
 fs = 20
 a = 0.4
 lw = 3
-
+ax1.fill_between([0,0.8],14,18,color='black',alpha=0.3)
+ax2.fill_between([0,0.027],14,18, color='black',alpha=0.3)
+ax3.fill_between([0,0.012],14,18,color='black',alpha=0.3, label="TTL")
 ax1.plot(f*iwc1, z/f, 'g', lw=lw)
 ax2.plot(f*iwc2, z/f, 'r', lw=lw)
 ax3.plot(f*iwc3, z/f, 'b', lw=lw)
@@ -63,6 +65,10 @@ ax3.plot([0,0], [0,0], color='k', alpha=0.5, lw=lw, label="Ice")
 ax3.plot([0,0], [0,0], 'k--', alpha=0.5, lw=lw, label="Snow")
 ax3.plot([0,0], [0,0], 'k-.', alpha=0.5, lw=lw, label="Graupel")
 ax3.plot([0,0], [0,0], 'k', lw=lw-2, label="Total water")
+
+ax1.set_xlim([0,0.8])
+ax2.set_xlim([0,0.027])
+ax3.set_xlim([0,0.012])
 
 ax1.set_xlabel("Water content (g m$^{-3}$)", fontsize=fs-2)
 ax2.set_xlabel("Water content (g m$^{-3}$)", fontsize=fs-2)

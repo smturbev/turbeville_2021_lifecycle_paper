@@ -78,22 +78,15 @@ fs = 14
 fig = plt.figure(figsize=(15,7))
 ax = fig.add_subplot(111, projection="3d")
 ax.view_init(30,-255) #-220
-sc = ax.scatter((x3d[::zskip,::xskip,::yskip]).flatten()[in_cloud], \
-                (y3d[::zskip,::xskip,::yskip]).flatten()[in_cloud], \
+sc = ax.scatter((y3d[::zskip,::xskip,::yskip]).flatten()[in_cloud], \
+                (x3d[::zskip,::xskip,::yskip]).flatten()[in_cloud], \
                 (z3d[::zskip,::xskip,::yskip]).flatten()[in_cloud]/1000,\
                 c=(qn[::zskip,::xskip,::yskip].values.flatten())[in_cloud], \
                 edgecolors='face', vmax=0.6, vmin=0.1,\
                 s=4*xskip, cmap=new_cmap, depthshade=True) #vmax = np.max(qn[:,:,:])/1.5,
-# if not(is_one_by_one):
-#     ax.plot([  0,  0,  -1,  -1,  0,  0, 0, -1, -1, 0],
-#             [147,148,148,147,147,147,148,148,147,147],
-#             [ 20 ,20, 20, 20, 20,  0, 0, 0, 0, 0], c='r')
-#     ax.plot([    0,  0,  0,  0,  -1,  -1,  -1,  -1,  -1],
-#             [147,147,148,148,148,148,148,147,147],
-#             [ 0 , 20, 20, 0,  0,  20, 20, 20, 0], c='r')
 ax.set_zlim(0,20)
-ax.set_ylabel("\nLongitude ($^\circ$E)", fontsize=fs)
-ax.set_xlabel("\nLatitude ($^\circ$N)", fontsize=fs)
+ax.set_ylabel("\nLatitude ($^\circ$N)", fontsize=fs)
+ax.set_xlabel("\nLongitude ($^\circ$E)", fontsize=fs)
 ax.set_zlabel("Height (km)", fontsize=fs)
 if is_one_by_one:
     ax.set_yticks(np.arange(147,148,0.2))
@@ -101,10 +94,6 @@ if is_one_by_one:
     ax.set_xticks(np.arange(-1,0,0.2))
     ax.set_xticklabels([-1,None,-0.6,None,-0.2,None])
     ax.annotate("(b)", xycoords="axes fraction", xy=(0.55,-0.1), fontsize=fs+4)
-# else:
-#     ax.annotate("(a)", xycoords="axes fraction", xy=(0.55,-0.1), fontsize=fs+4)
-
-# ax.set_title(model + ", " + tstring)
 cbar = plt.colorbar(sc, ax=ax, shrink=0.6, extend="max")
 cbar.set_label("water content (g m$^{-3}$)", fontsize=fs-2)
 ax.w_xaxis.set_pane_color((.5,.58,1.0))
@@ -115,8 +104,8 @@ cbar.ax.tick_params(labelsize=fs-2)
 if is_one_by_one:
     plt.savefig("../plots/fig01_cloud3d.png", transparent=False, dpi=200, bbox_inches="tight", pad_inches=0.2)
 else:
+    ax.invert_yaxis()
     ax.invert_xaxis()
-    plt.savefig("../plots/fig01_cloud3d_10x10_long{}_x{}_y{}.png".format(t,xskip,yskip), transparent=False, dpi=200, bbox_inches="tight", pad_inches=0.2)
+    plt.savefig("../plots/fig01_cloud3d_10x10_long_revised_0.png", transparent=False, dpi=200, bbox_inches="tight", pad_inches=0.2)
 plt.close()
-
-# %%
+print("saved")
